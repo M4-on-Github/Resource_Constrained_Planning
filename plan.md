@@ -922,10 +922,19 @@ lets the scarcity axis carry the headline.
 > ledger and so biases the corpus. `SUFFICIENT` stays at 1.2× deliberately: it is
 > the baseline and must sit just above the line.
 
-**The realised ratio is a printed covariate, per scenario and per arm** — Σ(capability
-of all ledger assets of the required type) ÷ requirement. The arm label is the
-manipulation; the realised ratio is the evidence it took, and §7.3's manipulation
-check is stated against it, not against the target.
+**Two realised ratios, both printed per scenario and per arm.** They must be named
+separately, because the whole `OVERCOMMIT` trap is the gap between them:
+
+| | definition | what it is for |
+|---|---|---|
+| `ratio_fleet` | Σ(capability of **all** ledger assets of the required class) ÷ requirement | what the arm multiplier targets; what a planner reading only totals sees |
+| `ratio_deadline` | Σ(capability of assets with `eta_hours ≤ deadline_h`) ÷ requirement | what is actually assemblable; **this is the one V3 can be satisfied from** |
+
+The arm label is the manipulation; these two are the evidence it took. **§7.3's arm-fidelity
+invariant is stated against `ratio_deadline`**, because that is the quantity a valid plan
+has to clear, and **§7.3's trap-reachability invariant is exactly the requirement that
+`ratio_fleet > 1 ≥ ratio_deadline` at or above `SUFFICIENT`.** A generator that reports
+only one of the two cannot assert either invariant.
 
 **Worked example.**
 
@@ -992,11 +1001,17 @@ shipped together.
 1. **Type match** — a bollard-pull requirement is satisfiable only by assets
    denominated in bollard pull. A ledger of pumps against a refloat requirement is
    malformed, not scarce.
-2. **Arm fidelity** — the on-scene-by-deadline total equals the intended multiple of
-   the requirement, within rounding.
-3. **Trap reachability** — at or above `SUFFICIENT`, the full fleet meets the
-   requirement while the by-deadline subset may not. This separates `OVERCOMMIT` from
-   simple scarcity.
+2. **Arm fidelity** — `ratio_deadline` (§7.2) equals the arm's intended multiple,
+   within rounding. Stated against the by-deadline total, not the fleet total,
+   because that is the quantity a valid plan must clear.
+3. **Trap reachability** — at or above `SUFFICIENT`, `ratio_fleet > 1 ≥ ratio_deadline`:
+   the full fleet meets the requirement while the by-deadline subset does not. This
+   separates `OVERCOMMIT` from simple scarcity. **Note this collides with invariant 4
+   unless the trap is set on a subset of scenarios** — a scenario cannot
+   simultaneously guarantee a valid plan exists and have the by-deadline total fall
+   short. Declare the trap fraction per arm (`IMG-042` is a trap scenario; most are
+   not), and assert invariant 4 on the non-trap scenarios and invariant 3 on the
+   trap ones.
 4. **Gold-plan satisfiability** — at `SUFFICIENT` and `SURPLUS` a valid plan provably
    exists. Without this the positive control is vacuous.
 5. **`LEDGER-SATISFIABLE` is computed, not assumed** — the generator enumerates all
@@ -1215,7 +1230,7 @@ rates (§4.1). These are descriptive — they decompose the primary, they do not
 comparisons.
 
 **Manipulation check, reported first:** per-arm `LEDGER-SATISFIABLE` fractions against
-§7.3's required values, plus the per-arm distribution of §7.2's **realised ratio**. A
+§7.3's required values, plus the per-arm distributions of §7.2's **`ratio_fleet` and `ratio_deadline`**. A
 corpus failing them is rejected, not interpreted.
 
 **Ceiling-artifact column, reported with the primary:** **plan length per arm** — step
