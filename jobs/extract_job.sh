@@ -37,12 +37,10 @@ REPO="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 # Every user-writable path lives under /data/$USER; /data/shared is read-only.
 DATA_DIR="/data/$USER"
 
-# ── Resolve model directory — same keys as P9, same checkpoints ──────────────
+# ── Resolve model directory — same checkpoint and path as P9 ──────────────
 case "$MODEL" in
-    glm4_32b)       MODEL_DIR="$DATA_DIR/glm-4-32b-0414-gptq" ;;
-    llama_3_3_70b)  MODEL_DIR="$DATA_DIR/llama-3.3-70b-instruct-w4a16" ;;
-    phi4_14b)       MODEL_DIR="$DATA_DIR/phi-4-w4a16" ;;
-    *) echo "ERROR: unknown model key '$MODEL' (expected glm4_32b, llama_3_3_70b, or phi4_14b)" >&2; exit 1 ;;
+    glm4_32b) MODEL_DIR="$DATA_DIR/glm-4-32b-0414-gptq" ;;
+    *) echo "ERROR: unknown model key '$MODEL' (expected glm4_32b)" >&2; exit 1 ;;
 esac
 
 SIF="$DATA_DIR/castor_judge.sif"

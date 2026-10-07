@@ -172,8 +172,18 @@ def main(argv: list[str] | None = None) -> int:
     out = pathlib.Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     with (out / "extracted.jsonl").open("w", encoding="utf-8", newline="\n") as fh:
-        for plan, trace in results:
-            fh.write(json.dumps({"plan": _plan_dict(plan), "trace": trace},
+        for it, (plan, trace) in zip(items, results):
+            # condition and domain_digest are carried through from the generation
+            # row rather than recomputed. rcp.compare pairs two extraction
+            # directories and refuses to pair them unless these differ, so losing
+            # them here would leave a blind run and a stated run
+            # indistinguishable downstream -- exactly the silent pooling the
+            # digest exists to stop. .get(), not [], so an extraction of a
+            # pre-condition generations file still runs; compare.py is the thing
+            # that insists on them.
+            fh.write(json.dumps({"plan": _plan_dict(plan), "trace": trace,
+                                 "condition": it["row"].get("condition"),
+                                 "domain_digest": it["row"].get("domain_digest")},
                                 sort_keys=True) + "\n")
 
     failed = sum(1 for _, t in results if t.get("llm_parse_failed"))

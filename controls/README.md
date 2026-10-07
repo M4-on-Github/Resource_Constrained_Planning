@@ -54,7 +54,11 @@ own prompt. The blindness is what makes the number mean anything, and it is the 
 reason the validator is not allowed to be an oracle for the planner.
 
 **Known limitation: the author had no photograph.** The planner sees the casualty
-image; the author saw only the ledger and the stated casualty condition. So these
+image; the author saw only the ledger, plus the casualty state inferred from the
+cell ID's prefix (`AGR-`, `CAP-`, `ON_-`, `SUN-`). The prompt itself does not state
+the casualty state in the `blind` condition -- the domain block offers all four as
+"may be" -- so the author had slightly *more* than a blind planner and slightly less
+than a `stated`-condition one. So these
 plans are sound-against-the-ledger but not grounded in the specific vessel, and they
 are therefore valid input for the *vocabulary* gate — which reads action verbs — and
 **not** a reference standard for visual grounding. Nothing in v1 scores visual

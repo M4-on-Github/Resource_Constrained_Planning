@@ -26,18 +26,31 @@
 
 set -euo pipefail
 
-IMAGES="${1:?Usage: sbatch jobs/plan_job.sh IMAGES_ROOT OUT_JSONL}"
-OUT="${2:?Usage: sbatch jobs/plan_job.sh IMAGES_ROOT OUT_JSONL}"
+IMAGES="${1:?Usage: sbatch jobs/plan_job.sh IMAGES_ROOT OUT_JSONL [EXTRA_ARGS...]}"
+OUT="${2:?Usage: sbatch jobs/plan_job.sh IMAGES_ROOT OUT_JSONL [EXTRA_ARGS...]}"
+shift 2 || true
+# Everything after OUT_JSONL goes to rcp.infer verbatim: --arm SUFFICIENT,
+# --condition stated, --limit N. Kept as pass-through rather than named flags
+# so this script never has to track rcp.infer's CLI.
+# Left in "$@" rather than copied to an array: "${arr[@]}" on an empty array
+# errors under `set -u` on bash < 4.4, which the cluster may still have.
 
 REPO="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 # Every user-writable path lives under /data/$USER; /data/shared is read-only.
 DATA_DIR="/data/$USER"
-MODEL_DIR="$DATA_DIR/qwen3-vl-8b-instruct"
-SIF="$DATA_DIR/castor_judge.sif"
+MODEL_DIR="$DATA_DIR/qwen3vl-8b"
+# castor_qwen.sif, not castor_judge.sif. The judge SIF is vLLM 0.8.5, whose
+# model registry has no qwen3_vl. castor_qwen.sif is QWEN-Maritime's container,
+# already validated against these weights on this cluster -- it runs Qwen3-VL
+# through transformers, which is why rcp.infer uses model.generate and not vLLM.
+# jobs/extract_job.sh stays on castor_judge.sif, unchanged from P9.
+SIF="$DATA_DIR/castor_qwen.sif"
 
 [ -d "$MODEL_DIR" ] || { echo "ERROR: planner weights not found: $MODEL_DIR" >&2; exit 1; }
 [ -d "$IMAGES" ]    || { echo "ERROR: images root not found: $IMAGES" >&2; exit 1; }
-[ -f "$SIF" ]       || { echo "ERROR: $SIF not found" >&2; exit 1; }
+[ -f "$SIF" ]       || { echo "ERROR: $SIF not found."                  >&2
+                         echo "       This is QWEN-Maritime's container; build it from that repo." >&2
+                         exit 1; }
 
 mkdir -p "$(dirname "$OUT")" logs
 
@@ -73,7 +86,8 @@ apptainer exec \
         --images    "$IMAGES" \
         --out       "$OUT" \
         --model-dir "$MODEL_DIR" \
-        --resume
+        --resume \
+        "$@"
 
 EXIT_CODE=$?
 echo "==========================================="

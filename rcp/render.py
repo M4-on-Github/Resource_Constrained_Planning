@@ -48,6 +48,20 @@ PROMPTS = pathlib.Path(__file__).resolve().parent.parent / "prompts"
 DOMAIN_FILE = PROMPTS / "planner_domain.txt"
 TASK_FILE = PROMPTS / "planner_task.txt"
 
+#: The disclosure conditions. `blind` is the pre-existing prompt: the domain block
+#: offers all four casualty states as "may be", so the planner must read the state
+#: off the image. `stated` adds one line naming it and changes nothing else.
+#:
+#: Deliberately ONE line. Pruning the other three states' guidance would be the
+#: natural-looking version and is wrong: it varies disclosure and prompt length
+#: together, so a difference could not be attributed to either. Both conditions
+#: read the identical domain block, identical task block, identical ledger.
+CONDITIONS = ("blind", "stated")
+
+#: Rendered form of `Scenario.casualty_state`. Only `on_fire` needs help; the
+#: prompt is prose and `on_fire` is a column value, not something to show a planner.
+_STATE_PROSE = {"on_fire": "on fire"}
+
 
 def domain_block() -> str:
     return DOMAIN_FILE.read_text(encoding="utf-8").strip()
@@ -57,16 +71,26 @@ def task_block() -> str:
     return TASK_FILE.read_text(encoding="utf-8").strip()
 
 
-def domain_digest() -> str:
-    """SHA-256 over both constant halves, recorded with every run.
+def domain_digest(condition: str = "blind") -> str:
+    """SHA-256 over both constant halves and the disclosure condition.
 
     Rule 2's audit trail. If this moves between two runs, the runs are not
     comparable and the tables must not be pooled — the same reason §4's normaliser
     is frozen with the check registry.
+
+    **The condition is hashed in even though it changes neither file.** The
+    disclosure line lives in the scenario block, so both constant halves stay
+    byte-identical across conditions — which is what keeps Rule 2 intact, and
+    exactly what would let two runs differing in the manipulation share a digest
+    and be silently pooled. Hashing the label makes the manipulation visible to
+    the one mechanism that already refuses to pool.
     """
+    if condition not in CONDITIONS:
+        raise ValueError(f"unknown condition {condition!r}; expected one of {CONDITIONS}")
     h = hashlib.sha256()
     for f in (DOMAIN_FILE, TASK_FILE):
         h.update(f.read_bytes())
+    h.update(b"\x00condition=" + condition.encode("ascii"))
     return h.hexdigest()
 
 
@@ -134,10 +158,26 @@ def totals_line(sc: Scenario) -> str:
             f"Full fleet: {_num(fleet)} {req.unit} at {_fmt_hours(latest)} h.")
 
 
-def scenario_block(sc: Scenario) -> str:
-    """The only part of the prompt that varies. Image aside, this is the stimulus."""
+def scenario_block(sc: Scenario, condition: str = "blind") -> str:
+    """The only part of the prompt that varies. Image aside, this is the stimulus.
+
+    The disclosure line belongs here rather than in the domain block because the
+    domain block is the half Rule 2 holds byte-identical. Putting it here means
+    `stated` and `blind` differ by exactly one line in the varying middle, and the
+    byte-identity property the tests assert is untouched by the manipulation.
+    """
     req = sc.requirement
+    if condition not in CONDITIONS:
+        raise ValueError(f"unknown condition {condition!r}; expected one of {CONDITIONS}")
+    disclosure = []
+    if condition == "stated":
+        state = _STATE_PROSE.get(sc.casualty_state, sc.casualty_state)
+        # Nothing about adequacy, nothing about which constraint binds: Rule 2
+        # constrains what may hint at the *resource* answer, and the casualty state
+        # is orthogonal to whether the ledger covers the requirement.
+        disclosure = [f"Confirmed casualty state: {state}.", ""]
     return "\n".join([
+        *disclosure,
         f"Time now: {sc.t0}.",
         "",
         "Naval architect's assessment: this casualty requires "
@@ -153,6 +193,6 @@ def scenario_block(sc: Scenario) -> str:
     ])
 
 
-def planner_prompt(sc: Scenario) -> str:
+def planner_prompt(sc: Scenario, condition: str = "blind") -> str:
     """The full text prompt. The image is attached separately by `rcp.infer`."""
-    return "\n\n".join([domain_block(), scenario_block(sc), task_block()])
+    return "\n\n".join([domain_block(), scenario_block(sc, condition), task_block()])

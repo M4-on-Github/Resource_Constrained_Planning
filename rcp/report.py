@@ -427,6 +427,27 @@ def _load_verdicts(path: pathlib.Path) -> tuple[list[Verdict], dict[str, Scenari
     return verdicts, used
 
 
+def _run_digest(path: pathlib.Path) -> str:
+    """The digest the run was *generated* under, read back from the extraction.
+
+    Recomputing it here would report the current `blind` prompt's digest no matter
+    which condition produced the file, which is worse than useless in a provenance
+    block — it is a wrong digest that looks authoritative. Two digests in one file
+    means two runs were concatenated, and pooling them is precisely what the digest
+    exists to prevent, so say so instead of picking one.
+    """
+    seen = set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            seen.add(json.loads(line).get("domain_digest"))
+    if seen == {None} or not seen:
+        from .render import domain_digest
+        return domain_digest() + "  (recomputed; extraction carries none)"
+    if len(seen) > 1:
+        return f"MIXED ({len(seen)} digests) - these rows must not be pooled"
+    return str(seen.pop())
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         description="RCP reporting: extracted plans -> the sec. 9.2 tables")
@@ -441,11 +462,9 @@ def main(argv: list[str] | None = None) -> int:
     controls = (json.loads(pathlib.Path(args.controls).read_text(encoding="utf-8"))
                 if args.controls else None)
 
-    from .render import domain_digest
-
     rep = build(verdicts, scenarios, controls, provenance={
         "scored": len(verdicts),
-        "domain_digest": domain_digest(),
+        "domain_digest": _run_digest(pathlib.Path(args.input)),
         "extraction": pathlib.Path(args.input).name,
     })
     text = render(rep)

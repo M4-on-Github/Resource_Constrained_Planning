@@ -148,7 +148,7 @@ yet; the arm is deferred to v2.
 
 ```bash
 python -m rcp                              # Phase A gates: corpus, controls, coverage, freeze
-python -m pytest tests/ -q                 # 206 tests
+python -m pytest tests/ -q                 # 226 tests
 python -m rcp.coverage                     # the §8.4 vocabulary gate on controls/gold_plans/
 python -m rcp.controls --out results/controls.json
 
@@ -168,9 +168,61 @@ controls PASS over all 440 cells.
 ### On the cluster (AART `pleiades`, RTX6000Ada)
 
 ```bash
-sbatch jobs/plan_job.sh        # Qwen3-VL-8B -> generations.jsonl   (~4 h, --resume safe)
-sbatch jobs/extract_job.sh     # GLM-4-32B GPTQ -> extracted.jsonl  (~2 h)
+sbatch jobs/plan_job.sh "$IMAGES" results/generations.jsonl   # Qwen3-VL-8B  (~4 h, --resume safe)
+sbatch jobs/extract_job.sh                                    # GLM-4-32B GPTQ (~2 h)
 ```
+
+`plan_job.sh` passes everything after the output path to `rcp.infer` verbatim, so the
+flags that scope a run live on the `sbatch` line, not in the script. It runs in
+`castor_qwen.sif` — QWEN-Maritime's container, already validated against these weights
+on this cluster. That container carries no vLLM, which is why `rcp.infer` generates
+through `model.generate`; `castor_judge.sif` has vLLM but its 0.8.5 registry has no
+`qwen3_vl`, so no single container can do both stages. Extraction stays on
+`castor_judge.sif`, unchanged from P9.
+
+### The disclosure run (one arm, two conditions)
+
+The first experiment holds the arm fixed at `SUFFICIENT` and varies **one** thing:
+whether the prompt names the casualty state, or the planner has to read it off the
+image. 110 images x 2 conditions = 220 generations.
+
+```bash
+sbatch jobs/plan_job.sh "$IMAGES" results/gen_blind.jsonl  --arm SUFFICIENT
+sbatch jobs/plan_job.sh "$IMAGES" results/gen_stated.jsonl --arm SUFFICIENT --condition stated
+
+sbatch jobs/extract_job.sh   # once per generations file
+
+python -m rcp.compare --blind results/ex_blind --stated results/ex_stated \
+                      --out results/disclosure.txt
+```
+
+`stated` adds exactly one line — `Confirmed casualty state: <state>.` — to the
+scenario block and changes nothing else. Deliberately not the natural-looking
+version: pruning the other three states' guidance out of the domain block would vary
+disclosure *and* prompt length together, so a difference could be attributed to
+neither. The line goes in the scenario block, not the domain block, because the
+domain block is the half Rule 2 holds byte-identical; `tests/test_render.py` asserts
+that identity across both conditions now.
+
+The condition is hashed into `domain_digest`, so the two runs carry different digests
+even though neither constant file moved, and `rcp.compare` refuses to pair two files
+whose digests agree — an agreeing digest means the manipulation never reached the
+prompt, and a null result from a prompt that never varied is pure artifact.
+
+**Use `rcp.compare`, not `rcp.report`, for this shape of run.** `rcp.report`'s primary
+test is a four-arm linear contrast; at one arm every image is an incomplete case, so
+it correctly declines to run and the report has no headline. `rcp.compare` supplies
+the headline for the paired two-condition design: the difference in
+`APPROPRIATE-RESPONSE` and an exact paired test on the discordant pairs. It is the
+same test, specialised — with scores `(-1, +1)` the sign-flip permutation null *is*
+`Binomial(n_discordant, ½)`, so the p-value is computed in closed form rather than
+estimated. `tests/test_compare.py` checks that equivalence by enumeration.
+
+Two things this run cannot measure, stated up front. **Correct refusal is untested**:
+it needs an unsatisfiable ledger, and `SUFFICIENT` has none. And the requirement's
+unit (`bollard pull` / `t·m` / `m³/h`) already correlates with the casualty, so even
+`blind` is not a clean test of visual identification — it is a test of whether naming
+the state changes the plan.
 
 Cells are ordered **image-major**, so an interrupted run still yields complete images
 for the paired test rather than complete arms. `--resume` skips finished keys and does

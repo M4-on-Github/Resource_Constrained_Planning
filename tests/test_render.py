@@ -15,6 +15,7 @@ import pytest
 
 from rcp.generator import build_corpus, manifest
 from rcp.render import (
+    CONDITIONS,
     domain_block,
     domain_digest,
     ledger_table,
@@ -59,18 +60,27 @@ def sample():
 
 
 def test_the_constant_halves_are_byte_identical_across_every_cell(sample):
+    """Across every cell *and* every disclosure condition.
+
+    The condition loop is the point: the disclosure manipulation lives in the
+    scenario block precisely so Rule 2's byte-identity property survives it
+    untouched, and a future edit that moved the disclosure line into the domain
+    block would be invisible without this loop.
+    """
     d, t = domain_block(), task_block()
-    for sc in sample:
-        p = planner_prompt(sc)
-        assert p.startswith(d), f"{sc.id}/{sc.arm}: domain half drifted"
-        assert p.endswith(t), f"{sc.id}/{sc.arm}: task half drifted"
+    for cond in CONDITIONS:
+        for sc in sample:
+            p = planner_prompt(sc, cond)
+            assert p.startswith(d), f"{sc.id}/{sc.arm}/{cond}: domain half drifted"
+            assert p.endswith(t), f"{sc.id}/{sc.arm}/{cond}: task half drifted"
 
 
 def test_the_prompt_is_exactly_three_blocks(sample):
     """Nothing is interpolated between the halves except the scenario block."""
-    for sc in sample:
-        assert planner_prompt(sc) == "\n\n".join(
-            [domain_block(), scenario_block(sc), task_block()])
+    for cond in CONDITIONS:
+        for sc in sample:
+            assert planner_prompt(sc, cond) == "\n\n".join(
+                [domain_block(), scenario_block(sc, cond), task_block()])
 
 
 def test_the_domain_half_never_mentions_an_arm_name(sample):
@@ -90,6 +100,71 @@ def test_the_domain_half_never_says_what_to_do_when_resources_fall_short():
 def test_the_digest_is_stable_and_covers_both_halves():
     assert domain_digest() == domain_digest()
     assert len(domain_digest()) == 64
+
+
+# --------------------------------------------------------------------------- #
+# the disclosure manipulation
+# --------------------------------------------------------------------------- #
+
+
+def test_the_two_conditions_have_different_digests():
+    """The digest is the one mechanism that refuses to pool two runs.
+
+    The disclosure line changes neither constant file, so without hashing the
+    condition label the two runs would share a digest and could be concatenated
+    without complaint -- the exact failure the digest exists to catch.
+    """
+    assert domain_digest("blind") != domain_digest("stated")
+    assert len({domain_digest(c) for c in CONDITIONS}) == len(CONDITIONS)
+
+
+def test_an_unknown_condition_is_rejected_everywhere_it_is_accepted(sample):
+    sc = sample[0]
+    for call in (lambda: domain_digest("disclosed"),
+                 lambda: scenario_block(sc, "disclosed"),
+                 lambda: planner_prompt(sc, "disclosed")):
+        with pytest.raises(ValueError):
+            call()
+
+
+def test_stated_adds_exactly_one_line_and_changes_nothing_else(sample):
+    """One headline variable: the two prompts differ by the disclosure line alone.
+
+    Pruning the other three casualty states' guidance from the domain block would
+    look more natural and is wrong -- it would vary disclosure and prompt length
+    together, so a difference could be attributed to neither. This asserts the
+    version we chose: remove the inserted line and its blank from `stated` and
+    `blind` comes back byte for byte.
+    """
+    for sc in sample:
+        blind = planner_prompt(sc, "blind")
+        stated = planner_prompt(sc, "stated")
+        lines = stated.split("\n")
+        added = [ln for ln in lines if ln and ln not in blind.split("\n")]
+        assert len(added) == 1, f"{sc.id}/{sc.arm}: {len(added)} lines differ"
+        assert added[0].startswith("Confirmed casualty state:")
+        i = lines.index(added[0])
+        assert lines[i + 1] == "", "the disclosure must be followed by a blank line"
+        assert "\n".join(lines[:i] + lines[i + 2:]) == blind
+
+
+def test_the_disclosure_line_names_the_state_and_nothing_about_adequacy(sample):
+    """Rule 2 again: disclosing the casualty must not disclose the resource answer."""
+    for sc in sample:
+        line = [ln for ln in scenario_block(sc, "stated").split("\n")
+                if ln.startswith("Confirmed casualty state:")][0]
+        lowered = line.lower()
+        for word in ("surplus", "sufficient", "scarce", "infeasible",
+                     "enough", "insufficient", "escalate", "ratio"):
+            assert word not in lowered, f"disclosure line leaks: {word}"
+        assert sc.casualty_state.replace("_", " ") in lowered
+
+
+def test_blind_is_the_default_so_existing_callers_are_unchanged(sample):
+    for sc in sample:
+        assert planner_prompt(sc) == planner_prompt(sc, "blind")
+        assert scenario_block(sc) == scenario_block(sc, "blind")
+    assert domain_digest() == domain_digest("blind")
 
 
 def test_the_escalate_affordance_is_present_and_unconditional():
