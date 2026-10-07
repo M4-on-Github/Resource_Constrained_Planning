@@ -24,7 +24,7 @@ changes.
 packaging) is undecided but affects packaging only, not design.
 
 The full v0.5 draft — every argument condensed out of this document, preserved
-verbatim — is `plan.v05.full.md` in this directory.
+verbatim — is `archive/plan.v05.full.md`.
 
 ---
 
@@ -1456,7 +1456,7 @@ fresh design argument:
 | **Track E** | raising the rate at all — **withheld until Track M is frozen** |
 
 **The goal-tree variant is designed, costed and rejected for v1 — see
-`casualty_tree.md`.** That file holds the per-casualty trees, the route-collapse
+`archive/casualty_tree.md`.** That file holds the per-casualty trees, the route-collapse
 result (`aground` and `capsized` collapse to one inequality; `sunken` and `on_fire`
 do not, because their root ORs reach terminals with different asset classes), the
 ≤ 8-asset generator invariant an exhaustive solver depends on, and a three-stage
@@ -1491,7 +1491,7 @@ tracks; Selective and Parametric stay banned in both.
 
 ## 13. Decision log
 
-Resolutions only. The reasoning behind each is in `plan.v05.full.md` §10.
+Resolutions only. The reasoning behind each is in `archive/plan.v05.full.md` §10.
 
 | | Question | Resolution |
 |---|---|---|
@@ -1510,4 +1510,4 @@ Resolutions only. The reasoning behind each is in `plan.v05.full.md` §10.
 | **Q11** | Asset-grounding instruction | Two instructions were conflated. **A** *"refer to each asset by its ledger ID"* is **format** — included. **B** *"do not invent assets not in the ledger"* is **honesty** — omitted, because it suppresses the `HALLUCINATE` baseline. A model told how to *name* assets can still fabricate `TUG-009`, so A costs nothing in measurement |
 | **Q12** | Differential parse rate | Resolved by **removing the decision point**, not setting a threshold: complete-case primary analysis (§8.2) |
 | **Q13** | Decoding | **Greedy (`temperature: 0.0`), one generation per cell.** The reason is k = 1: with no replicates, a sampled plan is a single lottery draw and a failure cannot be separated from bad luck, while greedy returns the model's most-likely plan — a well-defined object. **Two caveats, both stated rather than fixed.** (i) *Greedy is not bitwise deterministic* — batching, kernel nondeterminism and argmax tie-breaking all vary; record seed, batch configuration and the full inference config, and do not claim determinism as a property of temperature. (ii) *The result is about the greedy mode, not the model's output distribution* — deployed systems run at 0.6–1.0, so the rate is scoped the same way Q2 scopes it to one model. Bounding that gap is a named extension (§12.3); the degeneration check it requires is in §6.4 |
-| **Q14** | Does the validator *check* a plan or *solve* the problem? | **Checks.** The alternative — per-casualty goal trees, a terminal node at delivery, and a validator that solves for the best achievable outcome — is designed and costed in `casualty_tree.md` and rejected for v1 on three grounds. (i) It answers a different question: *how close to optimal* rather than *does scarcity change behaviour*. (ii) §8.4's coverage gate **inverts** under a solver — every gold plan must now be *solvable*, so an incomplete solver marks correct plans wrong, promoting a coverage defect from measurement error to ground-truth error. (iii) Decisive: a solver can make a dead manipulation look like a result, because a terminal-node rate still moves when the arms do nothing; the check-only endpoint cannot hide that. **Accepted cost, stated in §10.4:** v1 does not establish that a plan reaches the end goal, only that it is resource-sound and attempts the right one (§3.6 claim 1). Entry path is staged in §12.3 |
+| **Q14** | Does the validator *check* a plan or *solve* the problem? | **Checks.** The alternative — per-casualty goal trees, a terminal node at delivery, and a validator that solves for the best achievable outcome — is designed and costed in `archive/casualty_tree.md` and rejected for v1 on three grounds. (i) It answers a different question: *how close to optimal* rather than *does scarcity change behaviour*. (ii) §8.4's coverage gate **inverts** under a solver — every gold plan must now be *solvable*, so an incomplete solver marks correct plans wrong, promoting a coverage defect from measurement error to ground-truth error. (iii) Decisive: a solver can make a dead manipulation look like a result, because a terminal-node rate still moves when the arms do nothing; the check-only endpoint cannot hide that. **Accepted cost, stated in §10.4:** v1 does not establish that a plan reaches the end goal, only that it is resource-sound and attempts the right one (§3.6 claim 1). Entry path is staged in §12.3 |

@@ -1,7 +1,7 @@
 # Casualty goal trees — all four, feasibility
 
 **Status: designed, costed, and not adopted for v1.** Referenced appendix to
-`plan.md` — the resolution is `plan.md` §13 Q14, the staged entry path is §12.3, and
+`../plan.md` — the resolution is `../plan.md` §13 Q14, the staged entry path is §12.3, and
 this file is the argument behind both. Retained under §12.2's rule that superseded
 design text is marked superseded, never deleted.
 
