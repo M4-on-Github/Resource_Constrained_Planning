@@ -1,0 +1,11 @@
+Goal word for this casualty: {goal}
+
+Asset names found in the plan:
+{assets}
+
+Plan:
+---
+{plan}
+---
+
+Return the JSON object only.
