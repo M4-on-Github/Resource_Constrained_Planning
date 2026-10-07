@@ -11,7 +11,10 @@
 # across every cell (plan.md Rule 2), so prefix caching pays for itself and the
 # image is the only per-row payload.
 #
-#   sbatch jobs/plan_job.sh IMAGES_ROOT OUT_JSONL
+#   sbatch jobs/plan_job.sh OUT_JSONL [EXTRA_ARGS_FOR_rcp.infer...]
+#
+# The image root is resolved, not passed — see the probe below. Override it with
+# RCP_IMAGES=/path/to/sorted_images if you ever need to.
 #
 #SBATCH -p pleiades
 #SBATCH --constraint=RTX6000ADA
@@ -26,9 +29,8 @@
 
 set -euo pipefail
 
-IMAGES="${1:?Usage: sbatch jobs/plan_job.sh IMAGES_ROOT OUT_JSONL [EXTRA_ARGS...]}"
-OUT="${2:?Usage: sbatch jobs/plan_job.sh IMAGES_ROOT OUT_JSONL [EXTRA_ARGS...]}"
-shift 2 || true
+OUT="${1:?Usage: sbatch jobs/plan_job.sh OUT_JSONL [EXTRA_ARGS...]}"
+shift 1 || true
 # Everything after OUT_JSONL goes to rcp.infer verbatim: --arm SUFFICIENT,
 # --condition stated, --limit N. Kept as pass-through rather than named flags
 # so this script never has to track rcp.infer's CLI.
@@ -36,6 +38,49 @@ shift 2 || true
 # errors under `set -u` on bash < 4.4, which the cluster may still have.
 
 REPO="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+
+# ── Resolve the image set ─────────────────────────────────────────────────────
+# The images are not an argument because they are not a choice: there is one
+# corpus, data/manifest.csv pins all 110 of its members by relative path, and a
+# run against a different directory is not this experiment. Passing the path on
+# every submit only created a way to get it wrong.
+#
+# Candidates are **probed, never guessed** — the rule from
+# QWEN-Maritime/CASTOR/benchybench_paths.sh. If none holds the image set the job
+# stops and prints what it tried, because a silent fallback to the wrong corpus
+# is far worse than a failed submission.
+#
+# manifest.csv stores `aground/00017.jpg`, so the root is the directory that
+# *directly* holds the four state directories. RCP sits at
+# <BenchyBench>/Resource_Constrained_Planning, which makes $REPO/.. the normal hit.
+IMAGES_SUBPATH="shipwreck_wiki_images/sorted_images"
+
+have_images() {
+    # Two of the four, not one: a stray empty `aground/` somewhere would
+    # otherwise be enough to accept a wrong root.
+    [ -n "${1:-}" ] && [ -d "$1/aground" ] && [ -d "$1/sunken" ]
+}
+
+IMAGES=""
+TRIED=""
+for cand in "${RCP_IMAGES:-}" \
+            "${BENCHYBENCH_ROOT:+$BENCHYBENCH_ROOT/$IMAGES_SUBPATH}" \
+            "$REPO/../$IMAGES_SUBPATH" \
+            "$REPO/$IMAGES_SUBPATH" \
+            "/data/$USER/BenchyBench/$IMAGES_SUBPATH"; do
+    [ -n "$cand" ] || continue
+    TRIED="$TRIED
+       $cand"
+    if have_images "$cand"; then IMAGES="$(cd "$cand" && pwd)"; break; fi
+done
+
+if [ -z "$IMAGES" ]; then
+    echo "ERROR: cannot locate '$IMAGES_SUBPATH'." >&2
+    echo "       Tried, in order:$TRIED" >&2
+    echo "       Set RCP_IMAGES=/path/to/sorted_images to override, e.g." >&2
+    echo "         RCP_IMAGES=/data/\$USER/images sbatch jobs/plan_job.sh $OUT" >&2
+    exit 1
+fi
 # Every user-writable path lives under /data/$USER; /data/shared is read-only.
 DATA_DIR="/data/$USER"
 MODEL_DIR="$DATA_DIR/qwen3vl-8b"
@@ -47,7 +92,6 @@ MODEL_DIR="$DATA_DIR/qwen3vl-8b"
 SIF="$DATA_DIR/castor_qwen.sif"
 
 [ -d "$MODEL_DIR" ] || { echo "ERROR: planner weights not found: $MODEL_DIR" >&2; exit 1; }
-[ -d "$IMAGES" ]    || { echo "ERROR: images root not found: $IMAGES" >&2; exit 1; }
 [ -f "$SIF" ]       || { echo "ERROR: $SIF not found."                  >&2
                          echo "       This is QWEN-Maritime's container; build it from that repo." >&2
                          exit 1; }
@@ -73,7 +117,7 @@ apptainer exec \
     --bind /tmp:/tmp \
     --bind "$REPO:$REPO" \
     --bind "$DATA_DIR:$DATA_DIR" \
-    --bind "$(cd "$IMAGES" && pwd):$(cd "$IMAGES" && pwd)" \
+    --bind "$IMAGES:$IMAGES" \
     --env USER="$USER" \
     --env HOME="$HOME" \
     --env PYTHONUNBUFFERED=1 \

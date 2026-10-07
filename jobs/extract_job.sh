@@ -29,8 +29,13 @@
 
 set -euo pipefail
 
-INPUT="${1:?Usage: sbatch jobs/extract_job.sh INPUT_JSONL OUT_DIR [MODEL_KEY]}"
-OUT_DIR="${2:?Usage: sbatch jobs/extract_job.sh INPUT_JSONL OUT_DIR [MODEL_KEY]}"
+INPUT="${1:?Usage: sbatch jobs/extract_job.sh INPUT_JSONL [OUT_DIR] [MODEL_KEY]}"
+# Defaults to a sibling of the input, named after it: results/gen_blind.jsonl ->
+# results/ex_gen_blind/. Derived rather than required because the pairing is the
+# thing that matters -- rcp.compare takes two extraction directories, and the one
+# mistake worth engineering out is extracting two conditions into the same
+# directory, where the second silently overwrites the first.
+OUT_DIR="${2:-$(dirname "$INPUT")/ex_$(basename "$INPUT" .jsonl)}"
 MODEL="${3:-glm4_32b}"
 
 REPO="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"

@@ -168,9 +168,25 @@ controls PASS over all 440 cells.
 ### On the cluster (AART `pleiades`, RTX6000Ada)
 
 ```bash
-sbatch jobs/plan_job.sh "$IMAGES" results/generations.jsonl   # Qwen3-VL-8B  (~4 h, --resume safe)
-sbatch jobs/extract_job.sh                                    # GLM-4-32B GPTQ (~2 h)
+sbatch jobs/plan_job.sh    results/generations.jsonl   # Qwen3-VL-8B    (~4 h, --resume safe)
+sbatch jobs/extract_job.sh results/generations.jsonl   # GLM-4-32B GPTQ (~2 h)
 ```
+
+**The image root is resolved, not passed.** There is one corpus, `data/manifest.csv`
+pins all 110 of its members by relative path, and a run against some other directory
+is not this experiment — so the path was only ever a way to get it wrong.
+`plan_job.sh` probes `$RCP_IMAGES`, `$BENCHYBENCH_ROOT`, `$REPO/..` (the normal hit,
+since RCP is a submodule of BenchyBench and `shipwreck_wiki_images/` sits at its
+root), `$REPO`, then `/data/$USER/BenchyBench`. Candidates are **probed, never
+guessed**, the rule from `QWEN-Maritime/CASTOR/benchybench_paths.sh`: if none holds
+the image set the job stops and prints what it tried, because silently running the
+wrong corpus is worse than a failed submission. Override with
+`RCP_IMAGES=/path/to/sorted_images sbatch ...`.
+
+`extract_job.sh`'s output directory is likewise derived from its input —
+`results/gen_blind.jsonl` -> `results/ex_gen_blind/` — so two conditions cannot be
+extracted into the same directory, where the second would silently overwrite the
+first.
 
 `plan_job.sh` passes everything after the output path to `rcp.infer` verbatim, so the
 flags that scope a run live on the `sbatch` line, not in the script. It runs in
@@ -187,14 +203,21 @@ whether the prompt names the casualty state, or the planner has to read it off t
 image. 110 images x 2 conditions = 220 generations.
 
 ```bash
-sbatch jobs/plan_job.sh "$IMAGES" results/gen_blind.jsonl  --arm SUFFICIENT
-sbatch jobs/plan_job.sh "$IMAGES" results/gen_stated.jsonl --arm SUFFICIENT --condition stated
+sbatch jobs/plan_job.sh results/gen_blind.jsonl  --arm SUFFICIENT
+sbatch jobs/plan_job.sh results/gen_stated.jsonl --arm SUFFICIENT --condition stated
 
-sbatch jobs/extract_job.sh   # once per generations file
+sbatch jobs/extract_job.sh results/gen_blind.jsonl    # -> results/ex_gen_blind/
+sbatch jobs/extract_job.sh results/gen_stated.jsonl   # -> results/ex_gen_stated/
 
-python -m rcp.compare --blind results/ex_blind --stated results/ex_stated \
-                      --out results/disclosure.txt
+python -m rcp.compare --blind  results/ex_gen_blind \
+                      --stated results/ex_gen_stated \
+                      --out    results/disclosure.txt
 ```
+
+`--arm SUFFICIENT` is what holds this to 110 cells rather than 440; without it the
+4 h walltime is not enough. The two runs must go to different output files: `--resume`
+keys on `scenario_id/arm` and not on condition, so pointing both at one file would
+make the second job believe every cell was already done.
 
 `stated` adds exactly one line — `Confirmed casualty state: <state>.` — to the
 scenario block and changes nothing else. Deliberately not the natural-looking

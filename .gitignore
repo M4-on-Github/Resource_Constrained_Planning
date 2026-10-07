@@ -17,6 +17,11 @@ venv/
 # Cluster / local noise
 slurm-*.out
 logs/
+# ...but the directory itself must exist in a fresh clone. SLURM opens
+# logs/rcp_plan_%j.out at job launch, before a line of the script runs, so a
+# `mkdir -p logs` inside the script is too late: the job dies with no log to
+# say why. Shipping the directory removes that silent failure.
+!logs/.gitkeep
 .DS_Store
 __pycache__/
 .pytest_cache/
