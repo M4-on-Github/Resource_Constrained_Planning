@@ -1,0 +1,6 @@
+Base the plan on the specific visual details of this vessel, not on general assumptions about vessels in this condition.
+Provide a salvage plan as a numbered sequence of steps to perform, in the order they should be carried out.
+Each step should state what vessel, resource, or response crew is used to perform it, referring to each asset by its ledger ID.
+Include any assumptions, limitations, or requests alongside the steps.
+
+Write one step per line, beginning with step 1. No preamble, no markdown tables, and do not restate the ledger.

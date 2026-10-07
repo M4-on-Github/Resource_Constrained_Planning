@@ -35,7 +35,7 @@ def main() -> int:
         print(f"not found: {GT.resolve()}", file=sys.stderr)
         return 1
 
-    rows: list[tuple[str, str, str]] = []
+    rows: list[tuple[str, str, str, str]] = []
     with GT.open(encoding="utf-8", errors="replace", newline="") as fh:
         for r in csv.DictReader(fh):
             image = (r.get("image") or "").strip()
@@ -52,10 +52,13 @@ def main() -> int:
             # IMG id: the image path without directory or extension, prefixed by
             # state so ids stay distinct and human-readable in results tables.
             stem = pathlib.PurePosixPath(image).stem
-            rows.append((f"{state.upper()[:3]}-{stem}", state, size))
+            # `image` is carried verbatim from human_gt rather than rebuilt from
+            # the id: the id is lossy (it drops the extension) and the planner has
+            # to open the actual file.
+            rows.append((f"{state.upper()[:3]}-{stem}", state, size, image))
 
     counts: dict[str, int] = {}
-    for _, state, _ in rows:
+    for _, state, _, _ in rows:
         counts[state] = counts.get(state, 0) + 1
     if counts != EXPECTED_N:
         print(f"state counts {counts} != plan.md §7.1 {EXPECTED_N}", file=sys.stderr)
@@ -67,12 +70,12 @@ def main() -> int:
     rows.sort()
     with OUT.open("w", encoding="utf-8", newline="") as fh:
         w = csv.writer(fh, lineterminator="\n")
-        w.writerow(["id", "state", "size_category"])
+        w.writerow(["id", "state", "size_category", "image"])
         w.writerows(rows)
 
     sizes: dict[str, int] = {}
-    for _, _, s in rows:
-        sizes[s] = sizes.get(s, 0) + 1
+    for _, _, sz, _ in rows:
+        sizes[sz] = sizes.get(sz, 0) + 1
     print(f"{OUT}: {len(rows)} images  states {counts}  sizes {sizes}")
     return 0
 

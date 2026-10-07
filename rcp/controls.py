@@ -123,3 +123,62 @@ def run_controls(scenarios: list[Scenario]) -> dict[str, object]:
             rep["negative_wrong_check"].append(  # type: ignore[union-attr]
                 f"{sc.id}/{sc.arm}: V1={n.passed('V1')} V3={n.passed('V3')}")
     return rep
+
+
+def report_shape(rep: dict[str, object], no_match_rate: float | None = None) -> dict:
+    """`run_controls`'s output in the shape §9.2's control block prints.
+
+    Two booleans and a rate, because that is what halts a run. The full lists stay
+    in `detail` — a control that fails has to name the cells, or the failure is not
+    actionable.
+    """
+    pos_fail = rep["positive_failures"]          # type: ignore[index]
+    neg_pass = rep["negative_passes"]            # type: ignore[index]
+    neg_wrong = rep["negative_wrong_check"]      # type: ignore[index]
+    return {
+        "n": rep["n"],
+        "positive_control_pass": not pos_fail,
+        "positive_detail": (f"{len(pos_fail)} gold plans failed" if pos_fail
+                            else "every gold plan scores PLAN-SUCCEEDS"),
+        # Failing is not enough: §8.3 requires it fail on V3, because a negative
+        # control that trips V1 reads as the instrument discriminating when it is
+        # only mis-resolving a class name (§6.3).
+        "negative_control_fails_on_v3": not neg_pass and not neg_wrong,
+        "negative_detail": (f"{len(neg_pass)} passed, {len(neg_wrong)} failed on the "
+                            "wrong check" if (neg_pass or neg_wrong)
+                            else "fails on V3 with V1 vacuously true, as specified"),
+        "no_match_rate": no_match_rate,
+        "probe": rep["probe"],                   # type: ignore[index]
+        "detail": {k: rep[k] for k in                        # type: ignore[index]
+                   ("positive_failures", "negative_passes", "negative_wrong_check",
+                    "satisfiable_without_gold", "gold_without_satisfiable")},
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+    import json
+    import pathlib
+
+    from .generator import build_corpus, manifest
+
+    ap = argparse.ArgumentParser(
+        description="RCP instrument controls (plan.md §8.3) -> JSON for the report")
+    ap.add_argument("--out", default=None, help="write JSON here as well as stdout")
+    args = ap.parse_args(argv)
+
+    rep = run_controls(build_corpus(manifest()))
+    shaped = report_shape(rep)
+    text = json.dumps(shaped, indent=2, sort_keys=True)
+    print(text)
+    if args.out:
+        p = pathlib.Path(args.out)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text + "\n", encoding="utf-8", newline="\n")
+        print(f"  -> {p}")
+    halt = not shaped["positive_control_pass"] or not shaped["negative_control_fails_on_v3"]
+    return 1 if halt else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

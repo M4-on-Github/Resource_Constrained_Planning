@@ -329,6 +329,25 @@ def manifest() -> list[tuple[str, str, str]]:
     return rows
 
 
+def manifest_images() -> dict[str, str]:
+    """`{scenario id: image path relative to the sorted_images root}`.
+
+    A separate reader rather than a fourth element on `manifest()`, so the
+    generator's signature and every test against it stay as they were: ledger
+    construction has no business knowing where a JPEG lives. Only the planner
+    (`rcp.infer`) opens the file.
+
+    The path is carried verbatim from human_gt (`aground/00017.jpg`) rather than
+    rebuilt from the id, which has dropped the extension.
+    """
+    with MANIFEST.open(encoding="utf-8", newline="") as fh:
+        rows = list(csv.DictReader(fh))
+    if rows and "image" not in rows[0]:
+        raise ValueError(
+            "data/manifest.csv has no `image` column — rerun tools/build_manifest.py")
+    return {r["id"]: r["image"] for r in rows}
+
+
 def synthetic_manifest() -> list[tuple[str, str, str]]:
     """A stand-in manifest matching plan.md §7.1's n per state (42/33/19/16).
 
