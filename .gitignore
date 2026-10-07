@@ -1,0 +1,20 @@
+# Generated stimuli, model output, scored results — regenerable, large
+stimuli/
+generations/
+scored/
+results/
+*.jsonl
+!controls/*.jsonl
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Cluster / local noise
+slurm-*.out
+logs/
+.DS_Store
