@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "canonical": "plan.md 7.1 -- the requirement tuple and per-casualty table",
+    "status": "DRAFT MAGNITUDES -- bands below are Claude's first pass and need M4's review",
+    "contract": "plan.md 7.1 admits a requirement if it is falsifiable, survives the gold plans, and is in scope. Magnitudes are not load-bearing in absolute terms (only in ratio), but ARE load-bearing for asset cardinality and for the blind human read.",
+    "frozen": false
+  },
+
+  "size_categories": {
+    "small":      { "loa_m": [0, 10],    "note": "launches, small craft" },
+    "medium":     { "loa_m": [10, 50],   "note": "anchor: plan.md 7.2 worked example is 'medium (10-50 m)'" },
+    "large":      { "loa_m": [50, 150],  "note": "coasters, feeders, mid-size cargo" },
+    "very_large": { "loa_m": [150, 400], "note": "panamax and above" }
+  },
+
+  "states": {
+    "aground": {
+      "n": 42,
+      "goal": "refloat",
+      "quantity": "bollard_pull",
+      "unit": "t",
+      "deadline_driver": "high water",
+      "requirement_band": {
+        "small": [15, 50], "medium": [60, 180], "large": [200, 500], "very_large": [500, 1200]
+      },
+      "deadline_band_h": [2.0, 8.0],
+      "deadline_note": "next high water is inside one tidal cycle (~12.4 h); 2-8 h keeps the window binding",
+      "goal_vocabulary": ["refloat", "refloating", "refloated", "free the vessel", "break out", "break her out", "pull off", "pull her off", "get afloat", "unground", "salvage off the ground"]
+    },
+
+    "sunken": {
+      "n": 33,
+      "goal": "lift",
+      "quantity": "lift_capacity",
+      "unit": "t",
+      "deadline_driver": "weather window closes",
+      "requirement_band": {
+        "small": [50, 200], "medium": [300, 1500], "large": [2000, 8000], "very_large": [10000, 30000]
+      },
+      "deadline_band_h": [12.0, 72.0],
+      "deadline_note": "a forecast weather window, so measured in days not hours",
+      "goal_vocabulary": ["lift", "lifting", "raise", "raising", "raise the wreck", "recover the vessel", "bring her up", "refloat from the bottom", "salvage lift"]
+    },
+
+    "capsized": {
+      "n": 19,
+      "goal": "right",
+      "quantity": "righting_moment",
+      "unit": "t.m",
+      "deadline_driver": "progressive flooding",
+      "requirement_band": {
+        "small": [200, 1000], "medium": [2000, 12000], "large": [20000, 100000], "very_large": [150000, 400000]
+      },
+      "deadline_band_h": [4.0, 18.0],
+      "deadline_note": "flooding rate governs; shortest band after on_fire",
+      "goal_vocabulary": ["right", "righting", "right the vessel", "parbuckle", "parbuckling", "roll her upright", "bring upright", "restore her upright"]
+    },
+
+    "on_fire": {
+      "n": 16,
+      "goal": "extinguish",
+      "quantity": "water_delivery",
+      "unit": "m3/h",
+      "deadline_driver": "fire reaches fuel tanks",
+      "requirement_band": {
+        "small": [100, 400], "medium": [500, 2000], "large": [2400, 7200], "very_large": [7200, 20000]
+      },
+      "deadline_band_h": [1.5, 6.0],
+      "deadline_note": "shortest band of the four -- the fire front is the clock",
+      "goal_vocabulary": ["extinguish", "extinguishing", "put out the fire", "put the fire out", "fight the fire", "suppress the fire", "boundary cool and extinguish", "knock down the fire"]
+    }
+  }
+}

@@ -18,3 +18,5 @@ venv/
 slurm-*.out
 logs/
 .DS_Store
+__pycache__/
+.pytest_cache/

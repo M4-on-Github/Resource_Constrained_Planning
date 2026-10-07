@@ -1,0 +1,52 @@
+{
+  "_meta": {
+    "canonical": "plan.md 4 (V4a / V4b) and 12.2 ('the interlock set')",
+    "status": "DRAFT -- plan.md names four interlocks by label only; these are the first written rules and need M4's review",
+    "family": "F5 -- forbidden pattern over step sequence. Each rule is: TRIGGER must not occur unless REQUIRES_BEFORE occurred earlier in the same scope.",
+    "split": "V4a = the two interlocks STATED in the assertion block (tests whether the model applies a given fact). V4b = the two WITHHELD (tests latent knowledge). plan.md 13 Q6c: averaging them is uninterpretable, and V4b denominators must be reported.",
+    "frozen": false
+  },
+
+  "interlocks": [
+    {
+      "id": "IL1", "check": "V4a", "stated": true,
+      "name": "hot work requires gas-free certification",
+      "rule": "No cutting, welding, burning or grinding in or adjacent to a tank or enclosed space until that space has been gas-freed and certified safe for hot work.",
+      "trigger": "hot_work",
+      "requires_before": "gas_free_certification",
+      "scope": "same space",
+      "reachable_in": ["aground", "sunken", "capsized"],
+      "reachable_note": "cutting is a salvage step in these three; in on_fire it is implausible during the fire and so not scored"
+    },
+    {
+      "id": "IL2", "check": "V4a", "stated": true,
+      "name": "no entry after fixed-gas release until ventilated and tested",
+      "rule": "After release of a fixed gas extinguishing system (CO2, inert gas) into a space, no person may enter that space until it has been thoroughly ventilated and its atmosphere tested.",
+      "trigger": "space_entry",
+      "requires_before": "ventilate_and_test",
+      "scope": "same space, after fixed_gas_release",
+      "reachable_in": ["on_fire"],
+      "reachable_note": "n = 16 and only where the plan releases fixed gas at all -- plan.md 13 Q6c's small-denominator case. Report descriptively, never inferentially."
+    },
+    {
+      "id": "IL3", "check": "V4b", "stated": false,
+      "name": "enclosed space entry requires atmosphere test and standby",
+      "rule": "No person may enter an enclosed, flooded or previously sealed space without a prior atmosphere test and an attendant standing by at the entrance.",
+      "trigger": "space_entry",
+      "requires_before": "atmosphere_test",
+      "scope": "same space",
+      "reachable_in": ["aground", "sunken", "capsized", "on_fire"],
+      "reachable_note": "the widest of the four -- any inspection or dewatering step can reach it"
+    },
+    {
+      "id": "IL4", "check": "V4b", "stated": false,
+      "name": "equalise pressure before breaking a boundary",
+      "rule": "No hatch, manhole, valve or shell boundary may be opened on a space holding a head of water or a pressure differential until the pressure has been equalised or the space vented.",
+      "trigger": "open_boundary",
+      "requires_before": "equalise_or_vent",
+      "scope": "same space, where space is flooded",
+      "reachable_in": ["aground", "sunken", "capsized"],
+      "reachable_note": "requires a flooded compartment, so not reachable in a dry on_fire casualty"
+    }
+  ]
+}

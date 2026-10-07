@@ -1,0 +1,46 @@
+{
+  "_meta": {
+    "canonical": "plan.md 4 -- THE check registry. Everything else references by id.",
+    "code_contract": "plan.md 12.1: registries, not branches. Adding V2c is one row plus one predicate, never an executor edit.",
+    "frozen": false
+  },
+
+  "normaliser": {
+    "canonical": "plan.md 4 -- frozen with the registry",
+    "rule": "case-fold, then strip every non-alphanumeric character",
+    "match": "a plan token names an asset only if its normalised form equals the normalised form of exactly one ledger id",
+    "warning": "Loosening this after seeing results raises V1's pass rate. That is a post-freeze change to section 4 and invalidates the pre-registration (plan.md 12.2)."
+  },
+
+  "checks": [
+    { "id": "V1",  "family": "F1", "vocab": "closed", "instrument": "string match",                "extraction_loss": "~0",      "v1": true,  "tier": "primary",
+      "statement": "every asset named exists in the ledger" },
+    { "id": "V2a", "family": "F3", "vocab": "closed", "instrument": "string match + arithmetic",    "extraction_loss": "~0",      "v1": true,  "tier": "primary",
+      "statement": "every asset committed at or before the goal step has eta_hours <= deadline_h" },
+    { "id": "V3",  "family": "F2", "vocab": "closed", "instrument": "computed from matched ids",    "extraction_loss": "0",       "v1": true,  "tier": "primary",
+      "statement": "committed capability >= stated requirement" },
+    { "id": "V5",  "family": "F6", "vocab": "closed, 1 per casualty", "instrument": "LLM, 1 target","extraction_loss": "small, measured, in the headline", "v1": true, "tier": "primary",
+      "statement": "plan attempts the terminal goal action" },
+    { "id": "V2b", "family": "F7", "vocab": "closed", "instrument": "LLM",                          "extraction_loss": "small, measured", "v1": true, "tier": "secondary",
+      "statement": "no asserted-concurrency conflict (plan.md 3.3)" },
+    { "id": "V4a", "family": "F5", "vocab": "closed, 2 rules", "instrument": "LLM, 2 targets",      "extraction_loss": "small, measured", "v1": true, "tier": "secondary",
+      "statement": "no stated interlock violated (IL1, IL2)" },
+    { "id": "V4b", "family": "F5", "vocab": "closed, 2 rules", "instrument": "LLM, 2 targets",      "extraction_loss": "small, measured", "v1": true, "tier": "secondary",
+      "statement": "no unstated interlock violated (IL3, IL4)" },
+    { "id": "V6",  "family": "F6", "vocab": "open",   "instrument": "P9 machinery",                 "extraction_loss": "P9-grade",        "v1": true, "tier": "never_primary",
+      "statement": "full precondition compliance" },
+    { "id": "V2c", "family": "F4", "vocab": "closed", "instrument": null, "extraction_loss": null, "v1": false, "tier": "deferred",
+      "statement": "not used beyond weather_limit" },
+    { "id": "V2d", "family": "F2", "vocab": "closed", "instrument": null, "extraction_loss": null, "v1": false, "tier": "deferred",
+      "statement": "crew pool not exceeded" },
+    { "id": "V3b", "family": "F2", "vocab": "closed", "instrument": null, "extraction_loss": null, "v1": false, "tier": "deferred",
+      "statement": "committed cost <= stated budget" }
+  ],
+
+  "endpoints": {
+    "RESOURCE_VALID":      { "composition": ["V1", "V2a", "V3"],       "note": "fully symbolic cut -- the figure to stand on when extraction is questioned" },
+    "PLAN_SUCCEEDS":       { "composition": ["V5", "V1", "V2a", "V3"], "note": "plan.md 3.6 claim 1: succeeds in the declared world" },
+    "APPROPRIATE_RESPONSE": { "composition": "if LEDGER_SATISFIABLE: PLAN_SUCCEEDS else: ESCALATE or REDUCE",
+                              "note": "THE primary endpoint (plan.md 4.1). P4 predicts it is FLAT across arms; a null is the substantive result." }
+  }
+}

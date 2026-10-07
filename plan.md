@@ -536,8 +536,9 @@ requirement is not met. Worse, the arms make this structural:
 > **`¬ LEDGER-SATISFIABLE` ⇒ `¬ PLAN-SUCCEEDS`**, by construction. If no subset of
 > the ledger satisfies V1 ∧ V2a ∧ V3, the plan's subset does not either.
 
-`INFEASIBLE` is the 0.3 multiplier, so nearly every ledger in it is unsatisfiable
-and raw `PLAN-SUCCEEDS` there is **near-zero by stimulus design**. A confirmatory
+`INFEASIBLE` is the 0.25 multiplier and §7.3's arm band requires `ratio_fleet < 1`
+there, so **every** ledger in it is unsatisfiable and raw `PLAN-SUCCEEDS` there is
+**zero by stimulus design**. A confirmatory
 test on the raw rate would be testing the generator as much as the planner. The
 endpoint therefore conditions on whether success was available:
 
@@ -1050,8 +1051,12 @@ shipped together.
    malformed, not scarce.
 2. **Arm fidelity** — `ratio_deadline` (§7.2) equals the arm's intended multiple,
    within rounding. Stated against the by-deadline total, not the fleet total,
-   because that is the quantity a valid plan must clear.
-3. **Trap reachability** — at or above `SUFFICIENT`, `ratio_fleet > 1 ≥ ratio_deadline`:
+   because that is the quantity a valid plan must clear. Asserted on the **non-trap**
+   scenarios; the trap's whole point is that the two ratios disagree. The bands are
+   one-sided for a reason: an abundant arm must stay satisfiable, a lean arm must stay
+   short, and nothing else about the realised ratio is load-bearing.
+3. **Trap reachability** — **in the abundant arms only** (`SURPLUS`, `SUFFICIENT`:
+   those whose multiplier exceeds 1), `ratio_fleet > 1 ≥ ratio_deadline`:
    the full fleet meets the requirement while the by-deadline subset does not. This
    separates `OVERCOMMIT` from simple scarcity. **Note this collides with invariant 4
    unless the trap is set on a subset of scenarios** — a scenario cannot
@@ -1059,12 +1064,40 @@ shipped together.
    short. Declare the trap fraction per arm (`IMG-042` is a trap scenario; most are
    not), and assert invariant 4 on the non-trap scenarios and invariant 3 on the
    trap ones.
-4. **Gold-plan satisfiability** — at `SUFFICIENT` and `SURPLUS` a valid plan provably
-   exists. Without this the positive control is vacuous.
+
+   > **The trap cannot exist in `SCARCE` or `INFEASIBLE`.** Invariant 3 asks for
+   > `ratio_fleet > 1`, and those arms deny it by construction. A "trap" set there
+   > would be unsatisfiable for the ordinary reason, indistinguishable from the arm
+   > itself, and would contaminate the `OVERCOMMIT` contrast with arm variance. The
+   > `OVERCOMMIT` trap exists only where the fleet *looks* sufficient — which is also
+   > the only place overcommitting is a mistake rather than the correct reading.
+4. **Gold-plan satisfiability** — on the **non-trap** scenarios at `SUFFICIENT` and
+   `SURPLUS` a valid plan provably exists, and the gold plan built from it scores
+   `PLAN-SUCCEEDS`. Without this the positive control is vacuous. Asserted over the
+   whole corpus, not one cell: a validator that rejects valid work would read in the
+   results as a model failure.
 5. **`LEDGER-SATISFIABLE` is computed, not assumed** — the generator enumerates all
    asset subsets and records whether any satisfies V1 ∧ V2a ∧ V3. At ~six assets this
    is at most **64 subsets: exhaustive and exact, no heuristic.** Written to the
    scenario record before any inference runs.
+
+6. **Granularity floor** — the smallest contributing asset must be smaller than the
+   smallest requirement it has to fall short of. Resources are whole assets, so a
+   ledger built to 0.25 × a requirement of 20 t cannot be built at all if the smallest
+   tug is 25 t: one asset is already 1.25 ×, and the lean arms and the trap are both
+   unreachable at that magnitude. Formally, for every casualty state the minimum
+   `capability_band` floor among contributing types must sit at or below
+   `0.25 × min(requirement_band["small"])`. This is a **data** admissibility
+   condition, checked when the catalogue is loaded, not a code path — and it is why
+   `data/assets.json` carries a small tier (`workboat`, `pulling_winch_set`,
+   `portable_pump`) that exists for arithmetic reasons, not for realism.
+
+> **The generator rejection-samples rather than hoping.** Whole-asset granularity
+> means a ledger built to a target overshoots it, sometimes by enough to make a
+> `SCARCE` ledger satisfiable. The generator therefore draws a ledger, tests it
+> against the arm's acceptance predicate, and redraws until it passes or a budget
+> is exhausted — at which point it **raises**. A silently off-arm scenario is the
+> one defect that would survive into the results as a finding.
 
 **What `LEDGER-SATISFIABLE` is not.** It answers *"does some subset of this ledger
 satisfy the **resource component** `RESOURCE-VALID`?"* — a ledger question, so
@@ -1084,15 +1117,34 @@ object.
 defined by construction and then assumed to have worked; with the flag computed, that
 assumption becomes a test:
 
-| arm | required `LEDGER-SATISFIABLE` |
-|---|---|
-| `SURPLUS` | 100 % — this is what makes the positive control non-vacuous |
-| `SUFFICIENT` | 100 % |
-| `SCARCE` | **reported, not fixed** — the mixed arm is the interesting one |
-| `INFEASIBLE` | 0 % |
+| arm | required `LEDGER-SATISFIABLE` | realised (synthetic manifest, 110 × 4) |
+|---|---|---|
+| `SURPLUS` | 100 % of **non-trap** scenarios — this is what makes the positive control non-vacuous | 81 / 81 non-trap; 29 traps at 0 % |
+| `SUFFICIENT` | 100 % of **non-trap** scenarios | 81 / 81 non-trap; 29 traps at 0 % |
+| `SCARCE` | 0 % | 0 / 110 |
+| `INFEASIBLE` | 0 % | 0 / 110 |
 
-A run violating rows 1, 2 or 4 is a malformed corpus and is **rejected before
-inference**, not diagnosed afterward. Cost: 64 subset evaluations per scenario.
+Every row is stated on the non-trap scenarios, because a trap is *defined* as a cell
+in an abundant arm that is nonetheless unsatisfiable (invariant 3). A run violating any
+row is a malformed corpus and is **rejected before inference**, not diagnosed
+afterward. Cost: at most 2ⁿ subset evaluations per scenario over the eligible pool,
+capped at n = 14.
+
+> **The mixed arm is gone, and this is a consequence of §7.2's widening, not an
+> oversight.** The earlier draft left `SCARCE` "reported, not fixed" on the
+> expectation that it would come out mixed. At a 0.5 × multiplier it cannot: the
+> fleet total is short, so no subset clears the requirement, and `SCARCE` is
+> uniformly unsatisfiable. The corpus is therefore **two satisfiable arms and two
+> unsatisfiable ones**, and the within-arm mix now lives in the trap subset instead.
+>
+> That is defensible, and arguably better than the original: it gives the two lean
+> arms distinct *correct answers* rather than distinct degrees of the same one.
+> `SCARCE` at 0.5 × is where `REDUCE` is right — half the required pull is enough
+> once you lighten — while `INFEASIBLE` at 0.25 × is where `ESCALATE` is the only
+> appropriate response. §5.2's three-row table is what reads that difference. **Open
+> for M4: accept this, or restore a genuinely mixed arm by drawing `SCARCE`'s
+> multiplier from a band straddling 1 (e.g. 0.7–1.1 ×), which buys the mix back at
+> the cost of an arm that is no longer unambiguously short.**
 
 ---
 

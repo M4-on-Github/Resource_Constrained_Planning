@@ -1,0 +1,351 @@
+{
+  "_meta": {
+    "canonical": "plan.md 7.2 -- ledger row fields; this is the type catalogue the generator draws from",
+    "status": "DRAFT CAPABILITIES -- needs M4's review",
+    "type_match": "An asset counts toward a requirement if and only if asset.quantity == requirement.quantity. plan.md 7.3 invariant 1 (type match) therefore falls out of the data and needs no separate code path.",
+    "distractors": "quantity == null means the type contributes to NO requirement. These are real salvage assets that cannot satisfy the scalar -- the ledger must contain some, or V3 is passable by naming anything.",
+    "frozen": false,
+    "granularity_floor": "A lean arm (SCARCE 0.5x, INFEASIBLE 0.25x) and the OVERCOMMIT trap both need the requirement to be expressible in assets SMALLER than it. Whole-asset granularity means the smallest contributing capability_band floor must sit at or below 0.25 x the smallest requirement in requirements.json's `small` band, or build_scenario cannot place that cell in that arm and raises. workboat, pulling_winch_set and portable_pump exist for that reason: they are the small tier, not realism garnish. DRAFT magnitudes - need M4's review."
+  },
+  "types": {
+    "harbor_tug": {
+      "quantity": "bollard_pull",
+      "unit": "t",
+      "capability_band": [
+        25,
+        50
+      ],
+      "eta_band_h": [
+        0.5,
+        4.0
+      ],
+      "label": "harbor tug"
+    },
+    "asd_tug": {
+      "quantity": "bollard_pull",
+      "unit": "t",
+      "capability_band": [
+        45,
+        80
+      ],
+      "eta_band_h": [
+        1.0,
+        6.0
+      ],
+      "label": "ASD tug"
+    },
+    "ocean_salvage_tug": {
+      "quantity": "bollard_pull",
+      "unit": "t",
+      "capability_band": [
+        60,
+        200
+      ],
+      "eta_band_h": [
+        6.0,
+        48.0
+      ],
+      "label": "ocean salvage tug"
+    },
+    "anchor_handling_tug": {
+      "quantity": "bollard_pull",
+      "unit": "t",
+      "capability_band": [
+        100,
+        250
+      ],
+      "eta_band_h": [
+        8.0,
+        60.0
+      ],
+      "label": "anchor handling tug"
+    },
+    "beach_gear_set": {
+      "quantity": "bollard_pull",
+      "unit": "t",
+      "capability_band": [
+        45,
+        90
+      ],
+      "eta_band_h": [
+        8.0,
+        24.0
+      ],
+      "label": "beach gear set"
+    },
+    "workboat": {
+      "quantity": "bollard_pull",
+      "unit": "t",
+      "capability_band": [
+        3,
+        15
+      ],
+      "eta_band_h": [
+        0.3,
+        3.0
+      ],
+      "label": "workboat"
+    },
+    "floating_crane": {
+      "quantity": "lift_capacity",
+      "unit": "t",
+      "capability_band": [
+        100,
+        600
+      ],
+      "eta_band_h": [
+        6.0,
+        36.0
+      ],
+      "label": "floating crane"
+    },
+    "heavy_lift_crane_barge": {
+      "quantity": "lift_capacity",
+      "unit": "t",
+      "capability_band": [
+        800,
+        5000
+      ],
+      "eta_band_h": [
+        24.0,
+        96.0
+      ],
+      "label": "heavy lift crane barge"
+    },
+    "sheerlegs": {
+      "quantity": "lift_capacity",
+      "unit": "t",
+      "capability_band": [
+        1000,
+        3000
+      ],
+      "eta_band_h": [
+        36.0,
+        120.0
+      ],
+      "label": "sheerlegs"
+    },
+    "lift_bag_set": {
+      "quantity": "lift_capacity",
+      "unit": "t",
+      "capability_band": [
+        10,
+        60
+      ],
+      "eta_band_h": [
+        2.0,
+        12.0
+      ],
+      "label": "lift bag set"
+    },
+    "parbuckling_jack_set": {
+      "quantity": "righting_moment",
+      "unit": "t.m",
+      "capability_band": [
+        2000,
+        25000
+      ],
+      "eta_band_h": [
+        12.0,
+        72.0
+      ],
+      "label": "parbuckling strand jack set"
+    },
+    "righting_crane_barge": {
+      "quantity": "righting_moment",
+      "unit": "t.m",
+      "capability_band": [
+        8000,
+        60000
+      ],
+      "eta_band_h": [
+        24.0,
+        96.0
+      ],
+      "label": "crane barge, rated righting moment"
+    },
+    "sponson_set": {
+      "quantity": "righting_moment",
+      "unit": "t.m",
+      "capability_band": [
+        1000,
+        15000
+      ],
+      "eta_band_h": [
+        18.0,
+        72.0
+      ],
+      "label": "sponson / buoyancy caisson set"
+    },
+    "pulling_winch_set": {
+      "quantity": "righting_moment",
+      "unit": "t.m",
+      "capability_band": [
+        40,
+        800
+      ],
+      "eta_band_h": [
+        4.0,
+        24.0
+      ],
+      "label": "shore pulling winch set"
+    },
+    "fifi1_tug": {
+      "quantity": "water_delivery",
+      "unit": "m3/h",
+      "capability_band": [
+        2400,
+        2400
+      ],
+      "eta_band_h": [
+        1.0,
+        8.0
+      ],
+      "label": "FiFi1 class tug"
+    },
+    "fifi2_tug": {
+      "quantity": "water_delivery",
+      "unit": "m3/h",
+      "capability_band": [
+        7200,
+        7200
+      ],
+      "eta_band_h": [
+        4.0,
+        24.0
+      ],
+      "label": "FiFi2 class tug"
+    },
+    "fire_boat": {
+      "quantity": "water_delivery",
+      "unit": "m3/h",
+      "capability_band": [
+        500,
+        2000
+      ],
+      "eta_band_h": [
+        0.5,
+        4.0
+      ],
+      "label": "fire boat"
+    },
+    "harbor_fire_pump": {
+      "quantity": "water_delivery",
+      "unit": "m3/h",
+      "capability_band": [
+        100,
+        300
+      ],
+      "eta_band_h": [
+        0.5,
+        3.0
+      ],
+      "label": "portable fire pump"
+    },
+    "shore_monitor": {
+      "quantity": "water_delivery",
+      "unit": "m3/h",
+      "capability_band": [
+        200,
+        600
+      ],
+      "eta_band_h": [
+        1.0,
+        6.0
+      ],
+      "label": "shore monitor"
+    },
+    "portable_pump": {
+      "quantity": "water_delivery",
+      "unit": "m3/h",
+      "capability_band": [
+        20,
+        120
+      ],
+      "eta_band_h": [
+        0.3,
+        2.0
+      ],
+      "label": "portable fire pump"
+    },
+    "submersible_pump": {
+      "quantity": null,
+      "unit": "m3/h",
+      "capability_band": [
+        100,
+        400
+      ],
+      "eta_band_h": [
+        0.5,
+        4.0
+      ],
+      "label": "submersible pump"
+    },
+    "dive_team": {
+      "quantity": null,
+      "unit": "divers",
+      "capability_band": [
+        2,
+        8
+      ],
+      "eta_band_h": [
+        1.0,
+        8.0
+      ],
+      "label": "dive team"
+    },
+    "survey_launch": {
+      "quantity": null,
+      "unit": "crew",
+      "capability_band": [
+        2,
+        4
+      ],
+      "eta_band_h": [
+        0.5,
+        3.0
+      ],
+      "label": "survey launch"
+    },
+    "oil_boom_set": {
+      "quantity": null,
+      "unit": "m",
+      "capability_band": [
+        200,
+        1000
+      ],
+      "eta_band_h": [
+        2.0,
+        12.0
+      ],
+      "label": "oil containment boom"
+    },
+    "salvage_barge": {
+      "quantity": null,
+      "unit": "t",
+      "capability_band": [
+        500,
+        3000
+      ],
+      "eta_band_h": [
+        6.0,
+        36.0
+      ],
+      "label": "deck cargo barge"
+    }
+  },
+  "locations": [
+    "Port Mahon",
+    "Valletta",
+    "Algeciras",
+    "Las Palmas",
+    "Piraeus",
+    "Gibraltar",
+    "Rotterdam",
+    "Singapore anchorage",
+    "at sea",
+    "depot",
+    "regional base"
+  ],
+  "open_question_capsized": "righting_moment assets are denominated directly in t.m ('rated righting moment'). A real moment is capability x lever arm, and lever arm is not a declared field (plan.md 3.1). This is the weakest of the four quantity models and is admissible only under plan.md 7.1's ratio argument. Flag as a stated limitation, or move capsized to a force scalar."
+}
