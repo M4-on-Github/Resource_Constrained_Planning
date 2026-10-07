@@ -47,7 +47,9 @@ finding (plan.md §7.3), so it fails loudly here instead.
 
 from __future__ import annotations
 
+import csv
 import hashlib
+import pathlib
 import random
 
 from .normalize import assert_ids_distinct
@@ -299,14 +301,43 @@ def build_corpus(manifest: list[tuple[str, str, str]]) -> list[Scenario]:
     ]
 
 
+MANIFEST = pathlib.Path(__file__).resolve().parent.parent / "data" / "manifest.csv"
+
+
+def manifest() -> list[tuple[str, str, str]]:
+    """The real CASTOR manifest: 110 images, (id, state, size_category).
+
+    Both fields are human labels, carried over verbatim by tools/build_manifest.py
+    from Eval_CASTOR's human_gt.csv — the casualty state and the vessel size
+    estimate. Nothing here is inferred, which is what lets §7.1's requirement be
+    called visually grounded: the planner can see the size the band was drawn
+    from.
+
+    data/manifest.csv is committed, so a corpus is reproducible from this repo
+    alone with no path to Eval_CASTOR at generation time.
+    """
+    with MANIFEST.open(encoding="utf-8", newline="") as fh:
+        rows = [(r["id"], r["state"], r["size_category"]) for r in csv.DictReader(fh)]
+    counts: dict[str, int] = {}
+    for _, state, _ in rows:
+        counts[state] = counts.get(state, 0) + 1
+    expected = {s: spec["n"] for s, spec in states().items()}
+    if counts != expected:
+        raise ValueError(
+            f"manifest state counts {counts} != plan.md 7.1 {expected} — "
+            "rerun tools/build_manifest.py")
+    return rows
+
+
 def synthetic_manifest() -> list[tuple[str, str, str]]:
     """A stand-in manifest matching plan.md §7.1's n per state (42/33/19/16).
 
-    The real manifest comes from the CASTOR corpus — 110 images with a casualty
-    label from human_gt and a size category that does NOT yet exist as a field.
-    Deriving size_category for the real images is an open input, not code.
+    Superseded by `manifest()` for the real corpus. Kept because the validator's
+    equivalence digest (tests/validator_baseline.sha256) is pinned against a
+    corpus that must not move when the manifest or the requirement bands are
+    revised — the digest is a claim about the validator, not about the stimulus.
     """
-    sizes = ["small", "medium", "large", "very_large"]
+    sizes = ["small", "medium", "large"]
     out: list[tuple[str, str, str]] = []
     for state, spec in states().items():
         for i in range(spec["n"]):

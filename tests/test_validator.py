@@ -219,9 +219,9 @@ def test_no_designed_to_fail_cell_passes_through_the_reduce_branch():
     plan that otherwise commits everything available. Neither the endpoint nor
     the refusal rate may move, in either lean arm, for any of the 220 cells.
     """
-    from rcp.generator import build_corpus, synthetic_manifest
+    from rcp.generator import build_corpus, manifest
 
-    lean = [s for s in build_corpus(synthetic_manifest())
+    lean = [s for s in build_corpus(manifest())
             if s.arm in ("SCARCE", "INFEASIBLE")]
     assert len(lean) == 220
     for sc in lean:
@@ -247,9 +247,9 @@ def test_every_unsatisfiable_cell_is_short_by_capability():
     shortfall is capability, not timing — which is also what makes ESCALATE the
     single correct stance there.
     """
-    from rcp.generator import build_corpus, synthetic_manifest
+    from rcp.generator import build_corpus, manifest
 
-    for sc in build_corpus(synthetic_manifest()):
+    for sc in build_corpus(manifest()):
         if sc.ledger_satisfiable:
             continue
         assert sc.ratio_fleet < 1.0, f"{sc.id}/{sc.arm}: late-only shortfall"

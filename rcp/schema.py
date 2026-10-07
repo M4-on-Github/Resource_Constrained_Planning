@@ -20,6 +20,15 @@ class Asset:
     unit: str
     location: str
     eta_hours: float
+    #: INERT IN v1. Every asset in all 440 cells is "available"; the generator
+    #: never writes another value and no check reads this field. Occupancy is
+    #: therefore NOT measured — a plan cannot be caught using a resource the
+    #: ledger says is busy, because no ledger says so. Kept because it is the
+    #: natural home for the v2 manipulation (mark a share of contributing assets
+    #: committed_elsewhere / under_repair, add availability to
+    #: validator.eligible_assets, and V1 becomes "exists AND is available").
+    #: Documented as inert rather than removed so that a reader does not mistake
+    #: its presence for a tested property.
     status: str = "available"
     #: which requirement scalar this asset counts toward; None = distractor.
     #: plan.md §7.3 invariant 1 (type match) is enforced by this field alone.
@@ -97,6 +106,43 @@ class ExtractedPlan:
     #: set when the generation could not be parsed at all (plan.md §8.2)
     parse_failed: bool = False
 
+@dataclass(frozen=True, slots=True)
+class Allocation:
+    """What the validator decided about one token the planner wrote.
+
+    plan.md §4 is a registry of checks, but V1, V2a and V3 all interrogate the
+    same four facts about the same tokens. This record holds those facts once,
+    computed in a single pass, and each check reads it instead of re-deriving it.
+    The verdicts are unchanged — `tests/validator_baseline.sha256` is the gate —
+    but a failing plan now says *which* resource sank it and why.
+
+    One row per token **occurrence**, not per asset: a plan that names the same
+    tug twice produces two rows, because V2a reports each mention and V3 credits
+    only the first. `credited` carries the capability actually counted, so V3's
+    total is a sum over this table and nothing else.
+
+    This is not a resource state machine. Nothing here mutates, and no row
+    depends on the order of any other beyond first-occurrence dedup. v1 scores a
+    one-shot simultaneous commitment against a frozen ledger; introducing state
+    that advances would require an ordered action list and a transition model,
+    which is the simulator plan.md §3.6 rejects.
+    """
+
+    token: str
+    #: "named" (appeared in assets_named) or "committed" (assigned work)
+    source: str
+    asset_id: str | None
+    right_scalar: bool = False
+    on_time: bool = False
+    #: capability V3 actually counted for this occurrence; 0.0 unless it is the
+    #: first committed occurrence of an eligible asset.
+    credited: float = 0.0
+    note: str = ""
+
+    @property
+    def resolved(self) -> bool:
+        return self.asset_id is not None
+
 
 @dataclass(frozen=True, slots=True)
 class CheckResult:
@@ -129,6 +175,10 @@ class Verdict:
 
     step_count: int = 0
     word_count: int = 0
+
+    #: the per-resource audit trail every check was read off. Descriptive: the
+    #: endpoints above are unchanged by its presence.
+    allocations: tuple["Allocation", ...] = ()
 
     def passed(self, check_id: str) -> bool:
         r = self.checks.get(check_id)

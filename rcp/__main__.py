@@ -17,7 +17,7 @@ from __future__ import annotations
 import sys
 
 from .controls import run_controls
-from .generator import build_corpus, synthetic_manifest
+from .generator import build_corpus, manifest
 from .validator import eligible_assets
 from .world import ARMS, assert_granularity_floor, unfrozen
 
@@ -37,7 +37,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print("\n== corpus (sec. 7.1, sec. 7.3) ==")
     try:
-        corpus = build_corpus(synthetic_manifest())
+        corpus = build_corpus(manifest())
     except RuntimeError as exc:
         print(f"[{BAD}] {exc}")
         return 1

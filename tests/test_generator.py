@@ -13,7 +13,7 @@ from rcp.controls import gold_plan
 from rcp.generator import (
     LEAN_RATIO_FLOOR,
     build_corpus,
-    synthetic_manifest,
+    manifest,
 )
 from rcp.validator import eligible_assets, ledger_satisfiable, score
 from rcp.world import ARM_MULTIPLIERS, ARMS
@@ -21,7 +21,10 @@ from rcp.world import ARM_MULTIPLIERS, ARMS
 
 @pytest.fixture(scope="module")
 def corpus():
-    return build_corpus(synthetic_manifest())
+    """The real corpus: data/manifest.csv, carried from human_gt by
+    tools/build_manifest.py. §7.3's invariants are claims about the stimulus that
+    actually ships, so they are asserted against it and not against a stand-in."""
+    return build_corpus(manifest())
 
 
 def test_corpus_shape(corpus):
@@ -236,5 +239,5 @@ def test_eligible_pool_within_enumeration_budget(corpus):
 def test_corpus_is_byte_identical_on_rebuild():
     """The seed is derived from the image id, so a corpus is reproducible from
     its manifest alone — no seed file to lose (plan.md §7.1)."""
-    m = synthetic_manifest()[:12]
+    m = manifest()[:12]
     assert build_corpus(m) == build_corpus(m)
