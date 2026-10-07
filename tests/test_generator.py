@@ -12,7 +12,6 @@ import pytest
 from rcp.controls import gold_plan
 from rcp.generator import (
     LEAN_RATIO_FLOOR,
-    TRAPPABLE_ARMS,
     build_corpus,
     synthetic_manifest,
 )
@@ -86,33 +85,96 @@ def test_arm_ratios_are_ordered(corpus):
     assert means["SURPLUS"] > means["SUFFICIENT"] > means["SCARCE"] > means["INFEASIBLE"]
 
 
-# --- invariant 3: trap reachability ----------------------------------------- #
+# --- V2a's teeth, and the surface cue that used to leak ------------------- #
 
 
-def test_invariant_3_trap_reachability(corpus):
-    """On a trap, the fleet clears the requirement and the assemblable set does not.
+def test_every_ledger_has_a_late_contributing_asset(corpus):
+    """V2a is a primary check; in an all-on-time ledger it passes vacuously.
+
+    Every ledger must therefore contain capability that is real, denominated in
+    the right scalar, and too late to use. A V2a failure is then unambiguous: the
+    stimulus never forces it, so it is always the planner's own error.
+    """
+    for sc in corpus:
+        assert any(a.counts_toward(sc.requirement)
+                   and not a.arrives_by(sc.requirement.deadline_h)
+                   for a in sc.ledger), f"{sc.id}/{sc.arm} has no late asset"
+
+
+def test_lateness_does_not_predict_satisfiability(corpus):
+    """The Phase A leak, as a regression test.
+
+    When late assets appeared only in trap cells, "this ledger contains a far-away
+    ETA" was a perfect predictor of "this ledger is unsatisfiable" across all 440
+    cells — so the manipulation could be scored from a surface cue instead of from
+    arithmetic. Both outcomes must now occur among ledgers that contain late assets.
+    """
+    with_late = [s for s in corpus
+                 if any(a.counts_toward(s.requirement)
+                        and not a.arrives_by(s.requirement.deadline_h)
+                        for a in s.ledger)]
+    assert len(with_late) == len(corpus)
+    outcomes = {s.ledger_satisfiable for s in with_late}
+    assert outcomes == {True, False}, (
+        "lateness predicts satisfiability: the ETA manipulation is readable "
+        "from the presence of a late row alone")
+
+
+def test_late_capability_is_never_creditable(corpus):
+    """ratio_fleet exceeds ratio_deadline wherever late capability exists, and the
+    gap is exactly what V3 refuses to credit (plan.md §7.2)."""
+    for sc in corpus:
+        assert sc.ratio_fleet >= sc.ratio_deadline
+        assert sc.ratio_fleet > sc.ratio_deadline, f"{sc.id}/{sc.arm}"
+
+
+# --- invariant 3: trap reachability, DEFERRED to v2 ------------------------ #
+
+
+def test_no_traps_in_v1(corpus):
+    """plan.md §7.3: the OVERCOMMIT trap is a v2 manipulation (TRAP_FRACTION = 0).
+
+    v1 runs both abundant arms at 110/110 satisfiable, which is what makes SURPLUS
+    a clean ceiling and the positive control non-vacuous.
+    """
+    from rcp.generator import TRAP_FRACTION
+
+    assert TRAP_FRACTION == 0.0
+    assert not any(s.is_trap for s in corpus)
+    for arm in ("SURPLUS", "SUFFICIENT"):
+        rows = [s for s in corpus if s.arm == arm]
+        assert all(s.ledger_satisfiable for s in rows), arm
+        assert len(rows) == 110
+
+
+def test_invariant_3_trap_reachability_when_enabled(monkeypatch):
+    """The deferred machinery, exercised so it cannot rot before v2.
 
         ratio_fleet > 1 >= ratio_deadline
 
-    A planner that sums the ledger passes; one that reads ETAs does not. This is
-    the only place the two ratios are required to disagree.
+    A planner that sums the ledger passes; one that reads ETAs does not. Forced on
+    here rather than drawn, because v1's corpus contains no traps to sample.
     """
-    traps = [s for s in corpus if s.is_trap]
-    assert traps, "no trap scenarios: the OVERCOMMIT manipulation is dead"
-    for sc in traps:
-        assert sc.ratio_fleet > 1.0 >= sc.ratio_deadline, f"{sc.id}/{sc.arm}"
+    import rcp.generator as gen
+
+    monkeypatch.setattr(gen, "TRAP_FRACTION", 1.0)
+    for arm in gen.TRAPPABLE_ARMS:
+        sc = gen.build_scenario("TRAP-001", "aground", "medium", arm)
+        assert sc.is_trap, arm
+        assert sc.ratio_fleet > 1.0 >= sc.ratio_deadline
         assert not sc.ledger_satisfiable
-        assert any(not a.arrives_by(sc.requirement.deadline_h)
-                   for a in sc.ledger if a.counts_toward(sc.requirement))
+        assert gold_plan(sc) is None, "a trap cell must admit no passing plan"
 
 
-def test_traps_only_in_abundant_arms(corpus):
-    """SCARCE and INFEASIBLE deny `ratio_fleet > 1` by construction, so a trap
-    there is unsatisfiable-for-the-wrong-reason and indistinguishable from the
-    arm itself (generator module docstring)."""
-    assert {s.arm for s in corpus if s.is_trap} <= set(TRAPPABLE_ARMS)
-    for arm in TRAPPABLE_ARMS:
-        assert any(s.is_trap for s in corpus if s.arm == arm)
+def test_traps_stay_out_of_the_lean_arms(monkeypatch):
+    """SCARCE and INFEASIBLE deny `ratio_fleet > 1`, so a trap there would be
+    unsatisfiable for the ordinary reason and indistinguishable from the arm."""
+    import rcp.generator as gen
+
+    monkeypatch.setattr(gen, "TRAP_FRACTION", 1.0)
+    assert set(gen.TRAPPABLE_ARMS) == {"SURPLUS", "SUFFICIENT"}
+    for arm in ("SCARCE", "INFEASIBLE"):
+        assert not gen.build_scenario("TRAP-002", "aground", "medium", arm).is_trap
 
 
 # --- invariant 4: a valid plan exists where one should ---------------------- #

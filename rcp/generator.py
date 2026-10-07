@@ -12,13 +12,29 @@ the consequence by requiring asset count be recorded and reported as a covariate
 The alternative — fixed count, weaker assets — would hold cardinality constant but
 depart from the document.
 
-**The trap is set on a declared subset, and only in the abundant arms.** plan.md
-§7.3 invariants 3 and 4 collide otherwise: a scenario cannot both guarantee a
-valid plan exists and have its by-deadline total fall short. Trap scenarios get
-ratio_fleet above 1 and ratio_deadline deliberately below it; non-trap scenarios
-get both at the arm multiplier. The trap is therefore unreachable in SCARCE and
-INFEASIBLE — invariant 3 asks for `ratio_fleet > 1`, which those arms deny by
-construction. The OVERCOMMIT trap only exists where the fleet *looks* sufficient.
+**The arm multiplier defines ratio_deadline, not ratio_fleet.** The arm is a claim
+about what the planner can actually assemble, so the multiplier sizes the *on-time*
+capability. Late assets are extras on top of it. plan.md §7.3 invariant 2 already
+states arm fidelity against ratio_deadline; this makes the generator agree.
+
+**Every ledger carries late contributing assets.** Not only the trap ones. Two
+reasons, and the first is a validity bug found in Phase A:
+
+  (i) When late assets appeared only in trap cells, "this ledger contains a far-away
+      ETA" was a perfect predictor of "this ledger is unsatisfiable" across all 440
+      cells. A planner could have scored the manipulation from a surface cue without
+      doing any arithmetic. Late assets everywhere removes the cue.
+ (ii) V2a is a primary check. In a ledger where everything arrives on time it passes
+      vacuously, so without late assets somewhere in every ledger, one of the four
+      primary checks can never fail. With them, a V2a failure is unambiguous: the
+      stimulus never forces it, so it is always the planner's own error.
+
+**The OVERCOMMIT trap is deferred to v2 (TRAP_FRACTION = 0).** The machinery below
+is intact and tested; only the rate is zero. In v1 both abundant arms are 110/110
+satisfiable, which is what makes SURPLUS a clean ceiling condition and the positive
+control non-vacuous. Turning the trap on is a one-constant change, and it belongs
+in SUFFICIENT — where "just enough on paper" makes reading the ETA load-bearing —
+not in SURPLUS, whose job is to be the arm with no excuses.
 
 **The arm bands are enforced, not hoped for.** Whole-asset granularity means a
 ledger built to a target overshoots it, sometimes by enough to make a SCARCE
@@ -45,12 +61,24 @@ from .world import (
     states,
 )
 
-#: Fraction of images carrying the OVERCOMMIT trap. DRAFT — needs M4's review.
-#: plan.md §7.2's IMG-042 is a trap scenario (fleet 1.2x, deadline 0.79x).
-TRAP_FRACTION = 0.25
+#: Fraction of images carrying the OVERCOMMIT trap. **Zero in v1** — the trap is a
+#: deferred manipulation, see the module docstring. plan.md §7.2's IMG-042 is a trap
+#: scenario (fleet 1.2x, deadline 0.79x) and remains the worked example for v2.
+TRAP_FRACTION = 0.0
 
-#: Arms a trap can be set in: those whose multiplier exceeds 1. See module docstring.
+#: Arms a trap can be set in: those whose multiplier exceeds 1. SCARCE and INFEASIBLE
+#: deny `ratio_fleet > 1`, so a trap there is unsatisfiable for the ordinary reason
+#: and indistinguishable from the arm itself.
 TRAPPABLE_ARMS = tuple(a for a, m in ARM_MULTIPLIERS.items() if m > 1.0)
+
+#: Late capability added to every ledger, as a fraction of what arrives on time
+#: (abundant arms) or of the headroom left below the requirement (lean arms).
+#: Gives V2a teeth in all four arms without changing any arm's ratio_deadline.
+LATE_SHARE_BAND = (0.30, 0.80)
+
+#: Lean arms must keep ratio_fleet < 1, so late extras are capped below the
+#: requirement rather than measured against the on-time total.
+LEAN_FLEET_HEADROOM = 0.95
 
 #: A trap's by-deadline total, as a fraction of the requirement. Must stay < 1/1.2
 #: so that a trap at SUFFICIENT is genuinely short.
@@ -169,7 +197,7 @@ def _fill_to(target: float, req: Requirement, rng: random.Random, *, late: bool,
 
 
 def _accepts(arm: str, is_trap: bool, r_fleet: float, r_deadline: float,
-             sat: bool) -> bool:
+             sat: bool, has_late: bool) -> bool:
     """The arm's acceptance predicate — plan.md §7.3 invariants 2 and 3 as code.
 
     This is the only place the invariants are *enforced*; tests/ asserts the same
@@ -177,6 +205,8 @@ def _accepts(arm: str, is_trap: bool, r_fleet: float, r_deadline: float,
     does not quietly loosen the test.
     """
     mult = ARM_MULTIPLIERS[arm]
+    if not has_late:
+        return False  # V2a would be vacuous here; see the module docstring
     if is_trap:
         # invariant 3: the fleet clears the bar, the assemblable subset does not.
         return r_fleet > 1.0 >= r_deadline and not sat
@@ -194,18 +224,30 @@ def _build_ledger(req: Requirement, arm: str, is_trap: bool,
     counter: dict[str, int] = {}
 
     if is_trap:
-        shortfall = rng.uniform(*TRAP_SHORTFALL_BAND)
-        on_time = _fill_to(req.amount * shortfall, req, rng, late=False,
+        # Deferred to v2. The on-time portion deliberately falls short while the
+        # fleet total clears the requirement.
+        on_time = _fill_to(req.amount * rng.uniform(*TRAP_SHORTFALL_BAND), req, rng,
+                           late=False, counter=counter, unit_size=unit_size)
+        have = sum(a.capability for a in on_time)
+        late_target = max(req.amount * mult, req.amount * 1.05) - have
+    else:
+        # The arm multiplier sizes the ON-TIME capability (= ratio_deadline).
+        on_time = _fill_to(req.amount * mult, req, rng, late=False,
                            counter=counter, unit_size=unit_size)
         have = sum(a.capability for a in on_time)
-        # Enough late capability that a totals-reader sees a sufficient fleet.
-        late_assets = _fill_to(max(req.amount * mult, req.amount * 1.05) - have,
-                               req, rng, late=True, counter=counter,
-                               unit_size=unit_size)
-        contributing = on_time + late_assets
-    else:
-        contributing = _fill_to(req.amount * mult, req, rng, late=False,
-                                counter=counter, unit_size=unit_size)
+        share = rng.uniform(*LATE_SHARE_BAND)
+        if mult > 1.0:
+            # Relative to the REQUIREMENT, not to the on-time total: scaling off
+            # `have` would multiply SURPLUS's row count by its own multiplier and
+            # make ledger length covary even harder with the arm (plan.md 7.1).
+            late_target = req.amount * share
+        else:
+            # Lean arms: stay below the requirement even counting the late rows.
+            late_target = max(0.0, req.amount * LEAN_FLEET_HEADROOM - have) * share
+
+    late_assets = _fill_to(late_target, req, rng, late=True, counter=counter,
+                           unit_size=unit_size)
+    contributing = on_time + late_assets
 
     ledger = list(contributing)
     for _ in range(rng.randint(*DISTRACTORS)):
@@ -230,7 +272,9 @@ def build_scenario(image_id: str, casualty_state: str, size_category: str,
         r_fleet = round(ratio_fleet(req, ledger), 3)
         r_deadline = round(ratio_deadline(req, ledger), 3)
         sat = ledger_satisfiable(req, ledger)
-        if _accepts(arm, is_trap, r_fleet, r_deadline, sat):
+        has_late = any(a.counts_toward(req) and not a.arrives_by(req.deadline_h)
+                       for a in ledger)
+        if _accepts(arm, is_trap, r_fleet, r_deadline, sat, has_late):
             return Scenario(
                 id=image_id, arm=arm, casualty_state=casualty_state,
                 size_category=size_category, requirement=req, ledger=ledger,

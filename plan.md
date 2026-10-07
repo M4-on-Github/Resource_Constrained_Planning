@@ -1051,12 +1051,16 @@ shipped together.
    malformed, not scarce.
 2. **Arm fidelity** — `ratio_deadline` (§7.2) equals the arm's intended multiple,
    within rounding. Stated against the by-deadline total, not the fleet total,
-   because that is the quantity a valid plan must clear. Asserted on the **non-trap**
-   scenarios; the trap's whole point is that the two ratios disagree. The bands are
-   one-sided for a reason: an abundant arm must stay satisfiable, a lean arm must stay
-   short, and nothing else about the realised ratio is load-bearing.
-3. **Trap reachability** — **in the abundant arms only** (`SURPLUS`, `SUFFICIENT`:
-   those whose multiplier exceeds 1), `ratio_fleet > 1 ≥ ratio_deadline`:
+   because that is the quantity a valid plan must clear. **The arm multiplier
+   therefore sizes the on-time capability, and late assets are extras on top of it** —
+   the generator and this invariant name the same quantity. The bands are one-sided
+   for a reason: an abundant arm must stay satisfiable, a lean arm must stay short,
+   and nothing else about the realised ratio is load-bearing.
+3. **Trap reachability — deferred to v2, `TRAP_FRACTION = 0`.** In v1 both abundant
+   arms run at 110 / 110 satisfiable; the machinery below is implemented and tested
+   but switched off, and turning it on is a one-constant change. **In the abundant
+   arms only** (`SURPLUS`, `SUFFICIENT`: those whose multiplier exceeds 1),
+   `ratio_fleet > 1 ≥ ratio_deadline`:
    the full fleet meets the requirement while the by-deadline subset does not. This
    separates `OVERCOMMIT` from simple scarcity. **Note this collides with invariant 4
    unless the trap is set on a subset of scenarios** — a scenario cannot
@@ -1071,8 +1075,16 @@ shipped together.
    > itself, and would contaminate the `OVERCOMMIT` contrast with arm variance. The
    > `OVERCOMMIT` trap exists only where the fleet *looks* sufficient — which is also
    > the only place overcommitting is a mistake rather than the correct reading.
-4. **Gold-plan satisfiability** — on the **non-trap** scenarios at `SUFFICIENT` and
-   `SURPLUS` a valid plan provably exists, and the gold plan built from it scores
+   >
+   > **Why v1 ships without it.** At 25 % the trap made 29 of 110 images unsatisfiable
+   > in *both* abundant arms, including `SURPLUS` — whose entire job is to be the arm
+   > with no excuses, and where the positive control lives. It is also a second
+   > crossed manipulation at n ≈ 29, below §9.4's MDE, so it could only ever have been
+   > reported descriptively. v1 therefore buys a clean 220 satisfiable / 220
+   > unsatisfiable corpus; v2 restores the trap **in `SUFFICIENT` only**, where "just
+   > enough on paper" is what makes reading the ETA load-bearing.
+4. **Gold-plan satisfiability** — at `SUFFICIENT` and `SURPLUS` (all 110 images
+   each, since v1 sets no traps) a valid plan provably exists, and the gold plan built from it scores
    `PLAN-SUCCEEDS`. Without this the positive control is vacuous. Asserted over the
    whole corpus, not one cell: a validator that rejects valid work would read in the
    results as a model failure.
@@ -1091,6 +1103,27 @@ shipped together.
    condition, checked when the catalogue is loaded, not a code path — and it is why
    `data/assets.json` carries a small tier (`workboat`, `pulling_winch_set`,
    `portable_pump`) that exists for arithmetic reasons, not for realism.
+
+7. **Every ledger carries late contributing capability** — real assets, denominated
+   in the right scalar, that cannot be on scene by the deadline. Two reasons, and the
+   first is a validity bug caught in Phase A.
+
+   > **(i) Lateness must not predict satisfiability.** When late assets appeared only
+   > in trap cells, *"this ledger contains a far-away ETA"* was a perfect predictor of
+   > *"this ledger is unsatisfiable"* across all 440 cells. A planner could have scored
+   > the entire ETA manipulation from a surface cue without doing any arithmetic. The
+   > corpus now has late rows everywhere, and `test_lateness_does_not_predict_satisfiability`
+   > is the regression test.
+   >
+   > **(ii) V2a is a primary check and would otherwise be dead.** In a ledger where
+   > everything arrives on time, V2a passes vacuously — the same vacuity §3.6 flags for
+   > V1. With late capability in every ledger the check has teeth in all four arms, and
+   > a V2a failure is unambiguous: the stimulus never *forces* one, so it is always the
+   > planner's own error. This is what makes the trap removable without killing a
+   > quarter of the primary endpoint.
+
+   Consequence: `ratio_fleet > ratio_deadline` strictly, in every cell. The gap is
+   exactly the capability V3 refuses to credit.
 
 > **The generator rejection-samples rather than hoping.** Whole-asset granularity
 > means a ledger built to a target overshoots it, sometimes by enough to make a
@@ -1117,18 +1150,17 @@ object.
 defined by construction and then assumed to have worked; with the flag computed, that
 assumption becomes a test:
 
-| arm | required `LEDGER-SATISFIABLE` | realised (synthetic manifest, 110 × 4) |
-|---|---|---|
-| `SURPLUS` | 100 % of **non-trap** scenarios — this is what makes the positive control non-vacuous | 81 / 81 non-trap; 29 traps at 0 % |
-| `SUFFICIENT` | 100 % of **non-trap** scenarios | 81 / 81 non-trap; 29 traps at 0 % |
-| `SCARCE` | 0 % | 0 / 110 |
-| `INFEASIBLE` | 0 % | 0 / 110 |
+| arm | required `LEDGER-SATISFIABLE` | realised (110 × 4) | mean `ratio_deadline` (target) |
+|---|---|---|---|
+| `SURPLUS` | 100 % — this is what makes the positive control non-vacuous | **110 / 110** | 2.89 (3.0) |
+| `SUFFICIENT` | 100 % | **110 / 110** | 1.21 (1.2) |
+| `SCARCE` | 0 % | **0 / 110** | 0.51 (0.5) |
+| `INFEASIBLE` | 0 % | **0 / 110** | 0.27 (0.25) |
 
-Every row is stated on the non-trap scenarios, because a trap is *defined* as a cell
-in an abundant arm that is nonetheless unsatisfiable (invariant 3). A run violating any
-row is a malformed corpus and is **rejected before inference**, not diagnosed
-afterward. Cost: at most 2ⁿ subset evaluations per scenario over the eligible pool,
-capped at n = 14.
+A run violating any row is a malformed corpus and is **rejected before inference**, not
+diagnosed afterward. Cost: at most 2ⁿ subset evaluations per scenario over the eligible
+pool, capped at n = 14. v1's corpus is therefore **220 satisfiable cells and 220
+unsatisfiable ones**, split exactly on the arm.
 
 > **The mixed arm is gone, and this is a consequence of §7.2's widening, not an
 > oversight.** The earlier draft left `SCARCE` "reported, not fixed" on the
