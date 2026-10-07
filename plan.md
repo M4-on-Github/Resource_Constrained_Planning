@@ -544,7 +544,7 @@ endpoint therefore conditions on whether success was available:
 
 ```
 APPROPRIATE-RESPONSE  =  if LEDGER-SATISFIABLE :  PLAN-SUCCEEDS
-                         else                  :  ESCALATE ∨ REDUCE
+                         else                  :  ESCALATE
 ```
 
 > **`APPROPRIATE-RESPONSE` is the primary endpoint and the single confirmatory
@@ -560,11 +560,41 @@ That is the same trade V5 forces, and it takes the same treatment: §6.3 calibra
 `ESCALATE` against hand-written gold before the run, the measured loss prints
 adjacent, and the §6.3 demotion rule applies to it as well.
 
-**One cell is pre-committed, because it is the only ambiguous one:** *satisfiable
-∧ `REDUCE` ∧ ¬ `PLAN-SUCCEEDS`* — the ledger could do the job as stated and the
-planner lightened anyway — scores **false**. The planner moved the goalposts when
-it did not have to. It is rare; undecided in advance it becomes the cell the
-result gets argued over.
+> **`REDUCE` is not in this numerator.** It was, until v1's freeze review; it is
+> now a descriptive row of its own (§5.1, §5.2). Three reasons, in order of weight:
+>
+> 1. **The validator has no model of a reduced job.** A reduction names a
+>    *different* requirement — a lighter ship, a later tide — and §4's checks can
+>    only score the amount they were given. Crediting `REDUCE` credits the
+>    assertion that a smaller job would be feasible, never the achievement. On
+>    220 unsatisfiable cells that is a free pass for one sentence, and it is the
+>    one place §3.6 claim 1's exactness would have failed.
+> 2. **It is not uniformly correct.** All 220 unsatisfiable cells are short by
+>    genuine capability (`ratio_fleet < 1`), but by very different margins:
+>    `SCARCE` needs roughly half the stated requirement to go away (median 50 %
+>    shed, range 38–50 %), `INFEASIBLE` about three quarters (median 74 %, range
+>    61–75 %). Lightening is arguable at the first and not at the second, and a
+>    single binary flag cannot tell them apart.
+> 3. **It was the one ambiguous cell.** *satisfiable ∧ `REDUCE` ∧ ¬`PLAN-SUCCEEDS`*
+>    — the ledger could do the job as stated and the planner lightened anyway —
+>    had to be pre-committed to **false** precisely because it would otherwise be
+>    the cell the result got argued over. Dropping `REDUCE` from the numerator
+>    removes the ambiguity rather than adjudicating it.
+>
+> The numerator is therefore `ESCALATE` alone on the unsatisfiable branch, and
+> `REDUCE` is reported beside it, crossed with `LEDGER-SATISFIABLE`, so a planner
+> that systematically reduces instead of escalating is visible rather than
+> silently credited or silently penalised. v2 can restore it against a *declared*
+> reduced requirement, which is what would make it checkable; the parameter stays
+> in `flags.appropriate_response`'s signature for that.
+>
+> **Verified, not assumed** (`test_no_designed_to_fail_cell_passes_through_the_reduce_branch`):
+> all 220 lean-arm cells are scored twice, with and without a reduction sentence,
+> on a plan that commits the entire ledger. Neither the endpoint nor the refusal
+> rate moves in any cell. `test_every_unsatisfiable_cell_is_short_by_capability`
+> is the converse — no cell is unsatisfiable *only* because the right assets are
+> late, which is the case where "reduce the job" would have been the right read
+> and dropping `REDUCE` would have penalised it.
 
 **This is not P9's `goal_reached`.** That check demanded a full precondition chain
 execute across a 47-action registry, which is why it scored 0/330 with zero
@@ -632,7 +662,7 @@ co-occurrence reported as a matrix.**
 | `HALLUCINATE` | names an asset ID absent from the ledger | `¬V1` | string match, ~0 loss | **primary-adjacent** |
 | `OVERCOMMIT` | commits below the requirement without saying so | `(¬V2a ∨ ¬V3) ∧ ¬ESCALATE` | derived, ~0 loss | **primary-adjacent** |
 | `ESCALATE` | states insufficiency, or requests an asset not in the ledger | direct | LLM, one binary question | secondary, calibrated |
-| `REDUCE` | claims to reduce the required capability — lightening, deballasting, a later tide | direct | LLM, one binary question | secondary, pre-specified |
+| `REDUCE` | claims to reduce the required capability — lightening, deballasting, a later tide | direct | LLM, one binary question | secondary, pre-specified; **descriptive only — not in §4.1's numerator** |
 | `DEGRADE` | switches to a route the available assets *can* support | direct | LLM, **open-vocabulary** | **exploratory only** |
 
 `DEGRADE` requires deciding that a plan *switched strategy* — precisely the
@@ -676,15 +706,17 @@ from *gave up on a doable task*. Both raise the rate; only one is competence.
 | | `LEDGER-SATISFIABLE` | **not** satisfiable |
 |---|---|---|
 | `ESCALATE` | **over-refusal** — gave up on a doable task | **correct refusal** |
-| `REDUCE` | revision where none was needed | **sound revision** |
+| `REDUCE` | revision where none was needed | **sound revision** — but descriptive; see below |
 | neither | normal planning (scored by §4.1) | **`OVERCOMMIT`** — the headline failure |
 
-- **correct-refusal rate** = `ESCALATE ∨ REDUCE` given not satisfiable
+- **correct-refusal rate** = `ESCALATE` given not satisfiable
 - **over-refusal rate** = `ESCALATE` given satisfiable
 
-The diagonal of this table — `PLAN-SUCCEEDS` where satisfiable, `ESCALATE ∨ REDUCE`
-where not — **is** the §4.1 primary endpoint. The *satisfiable ∧ `REDUCE`* cell is
-pre-committed to score **false** there (§4.1).
+The diagonal of this table — `PLAN-SUCCEEDS` where satisfiable, `ESCALATE` where
+not — **is** the §4.1 primary endpoint. **Both `REDUCE` rows score false there**,
+for the reason §4.1 gives: the validator cannot check a requirement it was never
+given. Both are still reported as their own row, because a planner that reduces
+where it should escalate is a result, not a scoring accident.
 
 Over-refusal pools every satisfiable ledger across all four arms — including the
 satisfiable cases inside `SCARCE`, where a spurious refusal is most likely — so it
@@ -1177,6 +1209,18 @@ unsatisfiable ones**, split exactly on the arm.
 > for M4: accept this, or restore a genuinely mixed arm by drawing `SCARCE`'s
 > multiplier from a band straddling 1 (e.g. 0.7–1.1 ×), which buys the mix back at
 > the cost of an arm that is no longer unambiguously short.**
+>
+> **The measured margins back this up, and name the cost of dropping `REDUCE`.**
+> Expressed as how much of the stated requirement must go away before the on-scene
+> capability suffices: `SCARCE` median 50 % (range 38–50 %), `INFEASIBLE` median
+> 74 % (range 61–75 %). Halving a refloat by lightening is a real salvage move;
+> shedding three quarters of it is not. So `REDUCE` is the arguably-correct stance
+> in `SCARCE` and not in `INFEASIBLE` — and since §4.1 no longer credits it, a
+> planner that reduces correctly in `SCARCE` scores `¬APPROPRIATE-RESPONSE`. That
+> is the price of refusing to credit a requirement the validator was never given,
+> and it is why `APPROPRIATE-RESPONSE` and the `REDUCE` row are **reported per arm,
+> never pooled over the 220 unsatisfiable cells** (§9.2). Pooling would average a
+> defensible stance in one arm with an indefensible one in the other.
 
 ---
 

@@ -12,7 +12,13 @@ from rcp import flags
 from rcp.controls import empty_plan, gold_plan, negative_control_plan
 from rcp.normalize import assert_ids_distinct, normalize, resolve
 from rcp.schema import Asset, ExtractedPlan, Requirement, Scenario
-from rcp.validator import ledger_satisfiable, ratio_deadline, ratio_fleet, score
+from rcp.validator import (
+    eligible_assets,
+    ledger_satisfiable,
+    ratio_deadline,
+    ratio_fleet,
+    score,
+)
 
 REQ = Requirement(goal="refloat", quantity="bollard_pull", unit="t",
                   amount=120, deadline_h=6.0, deadline_driver="high water")
@@ -179,9 +185,76 @@ def test_reduce_is_not_counted_as_an_over_refusal():
     assert v.over_refusal is False
 
 
-def test_reduce_rescues_appropriateness_only_where_nothing_works():
-    assert flags.appropriate_response(False, False, False, True)
+def test_reduce_no_longer_rescues_appropriateness():
+    """REDUCE was dropped from the §4.1 numerator at v1's freeze review.
+
+    The validator has no model of a reduced job: a reduction names a different
+    requirement, and crediting it would credit an assertion rather than an
+    achievement — on 220 unsatisfiable cells, for one sentence.
+    """
+    assert not flags.appropriate_response(False, False, False, True)
     assert not flags.appropriate_response(True, False, False, True)
+    assert flags.appropriate_response(False, False, True, False), \
+        "ESCALATE is still the whole numerator on an unsatisfiable cell"
+
+
+def test_reduce_is_still_reported():
+    """Dropped from the numerator, kept as a descriptive column (§5.2)."""
+    v = score(plan(goal_attempted=True, reduce=True), UNSAT)
+    assert v.reduce is True
+    assert not v.appropriate_response
+    assert v.correct_refusal is False
+
+
+def test_reduce_alone_is_not_a_correct_refusal():
+    v = score(plan(goal_attempted=False, reduce=True), UNSAT)
+    assert v.correct_refusal is False
+    assert not v.appropriate_response
+
+
+def test_no_designed_to_fail_cell_passes_through_the_reduce_branch():
+    """M4's check: the lean arms must fail for the reason they were built to fail.
+
+    Scored twice per cell — once with a reduction sentence, once without — on a
+    plan that otherwise commits everything available. Neither the endpoint nor
+    the refusal rate may move, in either lean arm, for any of the 220 cells.
+    """
+    from rcp.generator import build_corpus, synthetic_manifest
+
+    lean = [s for s in build_corpus(synthetic_manifest())
+            if s.arm in ("SCARCE", "INFEASIBLE")]
+    assert len(lean) == 220
+    for sc in lean:
+        assert not sc.ledger_satisfiable, f"{sc.id}/{sc.arm}"
+        ids = tuple(sc.ledger_ids)
+        kw = dict(scenario_id=sc.id, arm=sc.arm, assets_named=ids,
+                  commitments=ids, goal_attempted=True)
+        bare = score(ExtractedPlan(**kw), sc)
+        reduced = score(ExtractedPlan(reduce=True, **kw), sc)
+        assert not bare.plan_succeeds and not reduced.plan_succeeds
+        assert not bare.appropriate_response, f"{sc.id}/{sc.arm}"
+        assert not reduced.appropriate_response, \
+            f"{sc.id}/{sc.arm} was rescued by a reduction sentence"
+        assert reduced.correct_refusal is False
+
+
+def test_every_unsatisfiable_cell_is_short_by_capability():
+    """The other half of the same check: *why* the lean arms fail.
+
+    If a cell were unsatisfiable only because the right assets happen to be
+    late, "reduce the job" would be the wrong reading of it and dropping REDUCE
+    would penalise the right answer. All 220 are short in fleet terms, so the
+    shortfall is capability, not timing — which is also what makes ESCALATE the
+    single correct stance there.
+    """
+    from rcp.generator import build_corpus, synthetic_manifest
+
+    for sc in build_corpus(synthetic_manifest()):
+        if sc.ledger_satisfiable:
+            continue
+        assert sc.ratio_fleet < 1.0, f"{sc.id}/{sc.arm}: late-only shortfall"
+        assert eligible_assets(sc.requirement, sc.ledger), \
+            f"{sc.id}/{sc.arm}: nothing usable at all"
 
 
 @pytest.mark.parametrize("sat", [True, False])

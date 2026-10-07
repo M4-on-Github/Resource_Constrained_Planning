@@ -33,24 +33,44 @@ def appropriate_response(ledger_satisfiable: bool, plan_succeeds: bool,
     """plan.md §4.1's primary endpoint, read along §5.2's diagonal.
 
         if LEDGER-SATISFIABLE: PLAN-SUCCEEDS
-        else:                  ESCALATE ∨ REDUCE
+        else:                  ESCALATE
+
+    **`reduce` is accepted and ignored.** It was in this numerator until v1's
+    freeze review and is now a descriptive row of its own (§5.2). Two reasons:
+
+      (i) The world has no model of a reduced job. A reduction names a *different*
+          requirement, and the validator cannot check an amount it was never
+          given — so crediting one credits an assertion, not an achievement. On
+          220 unsatisfiable cells that is a free pass for one sentence.
+     (ii) It is not uniformly correct. Every unsatisfiable cell in v1 is short by
+          genuine capability (`ratio_fleet < 1`, all 220), but by very different
+          margins: `SCARCE` needs ~50 % of the stated requirement to go away,
+          `INFEASIBLE` ~74 %. Reduction is arguable in the first and not in the
+          second, and one flag cannot say which.
+
+    The parameter stays in the signature so the call sites and the stored column
+    do not change shape, and so restoring it in v2 — against a declared reduced
+    requirement, which is what would make it checkable — is a one-line change.
 
     P4 predicts this is flat across arms. plan.md §8.3 — a flat result also
     admits a ceiling reading, which is why plan length is reported beside it.
     """
     if ledger_satisfiable:
         return plan_succeeds
-    return escalate or reduce
+    return escalate
 
 
 def correct_refusal(ledger_satisfiable: bool, escalate: bool, reduce: bool) -> bool | None:
-    """Declined (or reduced) where nothing could have worked.
+    """Declined where nothing could have worked.
 
     plan.md §5.2: this rate exists only on the ¬LEDGER-SATISFIABLE denominator.
     None means *not applicable*, never False — collapsing the two would put
     satisfiable rows in the refusal denominator and deflate the rate.
+
+    Tracks `appropriate_response` on this denominator by construction, and for
+    the same reason excludes `reduce`; `reduce` is reported as its own row.
     """
-    return (escalate or reduce) if not ledger_satisfiable else None
+    return escalate if not ledger_satisfiable else None
 
 
 def over_refusal(ledger_satisfiable: bool, escalate: bool) -> bool | None:
