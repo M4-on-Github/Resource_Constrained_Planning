@@ -160,6 +160,7 @@ def main(argv: list[str] | None = None) -> int:
     import json
     import pathlib
 
+    from . import coverage
     from .generator import build_corpus, manifest
 
     ap = argparse.ArgumentParser(
@@ -168,7 +169,16 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     rep = run_controls(build_corpus(manifest()))
-    shaped = report_shape(rep)
+
+    # §8.4's rate rides along with the §8.3 controls because the report prints the
+    # three together: a run is halted by the first two and *described* by the third.
+    # `run()` returns a None rate when controls/gold_plans/ is empty, which is what
+    # makes the report print "not run" rather than silently omitting the row.
+    cov = coverage.run()
+    shaped = report_shape(rep, no_match_rate=cov["no_match_rate"])
+    shaped["coverage"] = {k: cov[k] for k in
+                          ("n_plans", "no_match", "no_match_rate", "no_match_cells",
+                           "states_covered", "states_uncovered", "by_state")}
     text = json.dumps(shaped, indent=2, sort_keys=True)
     print(text)
     if args.out:

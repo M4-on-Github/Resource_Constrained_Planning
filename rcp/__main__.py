@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import sys
 
+from . import coverage
 from .controls import run_controls
 from .generator import build_corpus, manifest
 from .validator import eligible_assets
@@ -83,11 +84,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"    steps       : {probe['steps']}  <- this is all it takes to clear "
               f"PLAN-SUCCEEDS (sec. 9.2's ceiling reading)")
 
-    print("\n== V5 coverage (sec. 8.4) ==")
-    print("[ skip ] needs hand-written prose gold plans in controls/; the gate "
-          "measures the\n         NO_MATCH rate of the goal vocabulary against "
-          "prose, and the gold plans\n         above are symbolic by construction. "
-          "Human input, not code.")
+    # sec. 8.4 is run, not described. The gold plans above are symbolic by
+    # construction, so the gate reads the hand-written prose in
+    # controls/gold_plans/ instead -- and reports its rate whether or not that
+    # directory is populated. A gate only mentioned when it passes is not a gate.
+    print(coverage.render(coverage.run()))
 
     print("\n== freeze status (sec. 12.2) ==")
     un = unfrozen()
