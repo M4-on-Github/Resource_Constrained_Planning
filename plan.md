@@ -499,6 +499,24 @@ Neither alone establishes discrimination. P9 ran with neither.
 | `V2d` | crew pool not exceeded | closed | — | — | deferred | — |
 | `V3b` | committed cost ≤ stated budget | closed | — | — | deferred | — |
 
+**ID matching is normalised — and the normaliser is frozen with the registry.** `V1`,
+`V2a` and `V3` all resolve plan tokens to ledger rows by ID, and the planner is asked
+to use ledger IDs (§13 Q11) but will not use them exactly: `TUG-002` gets written
+`Tug 002`, `tug-002`, `TUG 002`, `tug002`, `Tug-002 (45 t)`. Scoring those as absent
+marks a real asset hallucinated — in a **primary** check whose claimed extraction loss
+is ~0.
+
+> **Case-fold, strip every non-alphanumeric character, match on the result.** All of
+> the above collapse to `tug002`. A token names an asset only if its normalised form
+> equals the normalised form of **exactly one** ledger ID.
+
+Two consequences. **(i) "Strict" naming becomes defensible.** It now means *resolves to
+exactly one ledger row by ID*, not *exact string* — so no plan is penalised for
+punctuation, while *"the beach gear"* still does not resolve, which is the line §6.3
+draws. **(ii) The normaliser is instrument, not utility.** Loosening it after seeing
+results raises V1's pass rate; that is a post-freeze change to §4 and invalidates the
+pre-registration (§12.2). It is written, tested and frozen with the registry.
+
 ### 4.1 The primary endpoint — one, designated in advance
 
 The study's question is *does the plan succeed?* Under the declared world that
@@ -799,6 +817,35 @@ binary question, so what transfers is technique at a fraction of the length:
 | negative examples outnumbering positive | keep P9's ratio |
 | subject-matching over verb-matching | `is_goal_action` must match the step's object, not its verb |
 | `"No explanation, no markdown fences."` | verbatim |
+
+**The one rule RCP adds that P9 had no need for: what counts as a named asset.**
+
+> **A named asset is a resource the plan assigns work to. Nothing else is.** Record in
+> `assets_named` only tokens resolving — after §4 normalisation — to exactly one
+> ledger ID. **Default: exclude.**
+
+Not recorded: **destinations and places** (*"the shipyard"*, *"a port of refuge"*,
+*"Port Mahon"*); **authorities** (*"the Coastguard"*, *"VTS"*, *"the owner"*); **the
+casualty or its parts** (*"the vessel"*, *"No. 2 hold"*, *"the engine room"*);
+**materials** (*"foam"*, *"ballast water"*, *"the cargo"*); **unidentified classes**
+(*"additional tugs"*, *"more pumps"*).
+
+**The counterexample, which is the whole rule:**
+
+> *"Use TUG-002 and TUG-005 to tow the casualty to Port Mahon."*
+> → `assets_named` = **[`TUG-002`, `TUG-005`]**
+
+Three proper nouns, two recorded. `Port Mahon` is excluded **although it appears in the
+ledger** — as the `location` value of those same two assets. A string occurring in the
+ledger does not make it an asset. This is the step shape §13 Q11's format instruction
+actually produces, so it is the common case, not an edge one.
+
+**The class exclusion protects a different check.** *"Request additional tugs from the
+port authority"* records nothing, and is **not** a hallucinated asset. §8.3's negative
+control is built on class-only naming and must fail on **V3** — no capability
+committed. An extractor that promotes *"additional tugs"* to a named-but-absent asset
+fails that control on V1 instead, which reads as the instrument discriminating when it
+is not.
 
 > **Diagnostic: if either LLM field needs rule-4-scale elaboration to stabilise, the
 > field is not closed enough and is demoted out of the primary-adjacent tier.** A
