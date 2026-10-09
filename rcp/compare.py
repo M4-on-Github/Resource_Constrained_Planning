@@ -6,8 +6,12 @@ so that test correctly declines to run and the report has no headline. This modu
 is the headline for the other shape of run — **one arm, two prompt conditions** —
 which is what the casualty-state disclosure experiment is:
 
-    sbatch jobs/plan_job.sh "$IMAGES" gen_blind.jsonl  --arm SUFFICIENT
-    sbatch jobs/plan_job.sh "$IMAGES" gen_stated.jsonl --arm SUFFICIENT --condition stated
+    sbatch jobs/plan_job.sh results/gen_SUFFICIENT_blind.jsonl  --arm SUFFICIENT
+    sbatch jobs/plan_job.sh results/gen_SUFFICIENT_stated.jsonl --arm SUFFICIENT --condition stated
+
+v0.10 runs every arm in both conditions; this module is then run once per arm,
+and plan.md §9.2 reports the per-arm stated − blind differences descriptively,
+with the paired 95 % CI each row carries — not with the p-value.
 
 **One headline variable: disclosure.** Everything else is held fixed by
 construction — same arm, same 110 images, same ledgers, same greedy decode, and
@@ -166,6 +170,19 @@ def exact_paired_test(ps: list[tuple[bool, bool]]) -> dict:
             "test": "exact binomial on discordant pairs (two-sided)"}
 
 
+def paired_ci(ps: list[tuple[bool, bool]]) -> tuple[float, float] | None:
+    """95 % Wald CI for the paired difference (second − first), from the per-pair
+    differences in {-1, 0, +1}. The descriptive interval §9.2 reports per arm."""
+    n = len(ps)
+    if n < 2:
+        return None
+    ds = [int(y) - int(x) for x, y in ps]
+    m = sum(ds) / n
+    var = sum((d - m) ** 2 for d in ds) / (n - 1)
+    half = 1.959964 * math.sqrt(var / n)
+    return (m - half, m + half)
+
+
 def min_detectable_split(n_discordant: int, alpha: float = ALPHA) -> int | None:
     """Smallest `|b - c|` reaching `p < alpha` given this many discordant pairs.
 
@@ -225,6 +242,7 @@ def build(blind: list[Verdict], stated: list[Verdict],
             "stated": _rate(stated, ep),
             "cells": discordance(ps),
             "test": exact_paired_test(ps),
+            "ci95": paired_ci(ps),
         }
     headline = rows[ENDPOINTS[0]]
     n = headline["test"]["n_pairs"]
@@ -274,22 +292,26 @@ def render(rep: dict) -> str:
             f"  {rep['headline'].upper().replace('_', '-')}",
             f"    blind  : {_pct(head['blind'][0])}  ({head['blind'][1]}/{head['blind'][2]})",
             f"    stated : {_pct(head['stated'][0])}  ({head['stated'][1]}/{head['stated'][2]})",
-            f"    paired difference (stated - blind) : {100.0 * t['diff']:+.1f} pp",
+            f"    paired difference (stated - blind) : {100.0 * t['diff']:+.1f} pp"
+            + (f"  95% CI [{100 * head['ci95'][0]:+.1f}, {100 * head['ci95'][1]:+.1f}]"
+               if head.get("ci95") else ""),
             f"    pairs {t['n_pairs']}, discordant {t['n_discordant']}, "
             f"p = {t['p_value']:.4f}  ({'significant' if t['p_value'] < ALPHA else 'not significant'} at alpha = {ALPHA})",
             f"    {t['test']}",
             ""]
 
     out += ["--- ALL ENDPOINTS (secondary; recorded, not the headline) " + "-" * 14,
-            "  endpoint              blind   stated    diff   b    c    p",
-            "  " + "-" * 60]
+            "  endpoint              blind   stated    diff   b    c    p        95% CI (pp)",
+            "  " + "-" * 78]
     for ep in ENDPOINTS:
         r = rep["endpoints"][ep]
         _, only_b, only_c, _ = r["cells"]
         tt = r["test"]
         out.append(f"  {ep:<20} {_pct(r['blind'][0])}  {_pct(r['stated'][0])}  "
                    f"{100.0 * tt['diff']:+6.1f}  {only_b:<4} {only_c:<4} "
-                   f"{tt['p_value']:.4f}")
+                   f"{tt['p_value']:.4f}   "
+                   + (f"[{100 * r['ci95'][0]:+5.1f}, {100 * r['ci95'][1]:+5.1f}]"
+                      if r.get("ci95") else "n/a"))
     out += ["",
             "  b = blind only, c = stated only. Concordant pairs carry no",
             "  information about a difference and are not in the test.",

@@ -232,5 +232,6 @@ def score(plan: ExtractedPlan, sc: Scenario) -> Verdict:
         over_refusal=flags.over_refusal(sat, plan.escalate),
         step_count=plan.step_count,
         word_count=plan.word_count,
+        conditional_steps=plan.conditional_steps,
         allocations=allocs,
     )

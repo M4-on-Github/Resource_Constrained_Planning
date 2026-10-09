@@ -60,10 +60,23 @@ def contributing_types(quantity: str) -> dict[str, dict[str, Any]]:
     return {k: v for k, v in assets()["types"].items() if v["quantity"] == quantity}
 
 
-def locations() -> list[str]:
-    """Ledger `location` values. Note these are PLACES, not assets — plan.md §6.3's
-    named-asset rule exists because they appear in the ledger and V1 string-matches."""
-    return list(assets()["locations"])
+def ports() -> list[str]:
+    """Fictional port names. Real ones made geography checkable and wrong
+    ("Singapore anchorage" beside Valletta); invented ones carry only what the
+    ledger says about them -- their distance. Note these are PLACES, not assets:
+    plan.md sec. 6.3's named-asset rule exists because they appear in the ledger
+    and V1 string-matches."""
+    return list(assets()["ports"])
+
+
+def geography() -> dict[str, Any]:
+    """Distance tiers for the per-image ports and for assets underway at sea."""
+    return dict(assets()["geography"])
+
+
+def enabling_kit(casualty_state: str) -> str | None:
+    """The non-contributing asset type every ledger for this state carries."""
+    return states()[casualty_state].get("enabling_kit")
 
 
 def distractor_types() -> dict[str, dict[str, Any]]:

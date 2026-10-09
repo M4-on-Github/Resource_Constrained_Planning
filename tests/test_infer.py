@@ -83,3 +83,23 @@ def test_resume_on_a_missing_file_is_empty(tmp_path):
 def test_key_is_the_join_key_used_everywhere_downstream():
     sc = corpus(limit=4)[0]
     assert key(sc) == f"{sc.id}/{sc.arm}"
+
+
+def test_resume_refuses_a_file_from_another_prompt(tmp_path):
+    """--resume keys on scenario_id/arm, not condition. Resuming a stated run
+    into a blind file would skip every cell and report success."""
+    import pytest
+
+    out = tmp_path / "g.jsonl"
+    out.write_text(json.dumps({"scenario_id": "A", "arm": "SURPLUS", "prose": "x",
+                               "domain_digest": "aaaa"}) + "\n", encoding="utf-8")
+    assert done_keys(out, "aaaa") == {"A/SURPLUS"}
+    with pytest.raises(ValueError, match="another prompt"):
+        done_keys(out, "bbbb")
+
+
+def test_planner_cells_come_from_the_frozen_corpus():
+    from rcp import corpus as frozen
+
+    by_key = frozen.by_key()
+    assert all(by_key[key(c)] == c for c in corpus())

@@ -1,6 +1,8 @@
 # Resource-Constrained Planning (RCP)
 
-**v0.9 — 2026-10-07. Design only. No code until the go-ahead is given.**
+**v0.10 — 2026-10-09.** v0.9 plus the fixes motivated by the exploratory
+`SUFFICIENT` run (110 × blind/stated); every one is logged in
+`docs/deviations.md`, and the run that motivated them is not part of the study.
 
 A VLM is given a maritime casualty, a fixed loose instruction ("write a salvage
 plan"), domain knowledge, and **a specific, named, grounded resource ledger** —
@@ -18,9 +20,10 @@ changes.
 | **Primary endpoint** | `APPROPRIATE-RESPONSE` — *succeed where success is possible, refuse soundly where it is not* (§4.1) |
 | **Reported beside it** | `PLAN-SUCCEEDS` = V5 ∧ V1 ∧ V2a ∧ V3, its `RESOURCE-VALID` component, and the two §5.2 refusal rates |
 | **Design** | within-image paired; all four arms run the same 110 images |
-| **Status** | design closed. **Two open items, both gate the freeze** (§12.2) |
+| **Status** | design closed. **One open item gates the freeze** (§12.2) |
 
-**Open:** the §9.4 MDE slot, and the §6.1 assertion-file line audit. Q9 (repo
+**Open:** the §6.1 assertion-file line audit. The §9.4 margin is entered
+(δ = 0.20, v0.10). Q9 (repo
 packaging) is undecided but affects packaging only, not design.
 
 The full v0.5 draft — every argument condensed out of this document, preserved
@@ -536,6 +539,22 @@ draws. **(ii) The normaliser is instrument, not utility.** Loosening it after se
 results raises V1's pass rate; that is a post-freeze change to §4 and invalidates the
 pre-registration (§12.2). It is written, tested and frozen with the registry.
 
+> **v0.10 — V1 was vacuous, and is now a real check.** Through v0.9 `assets_named`
+> held only tokens that *resolved* to a ledger row, so V1 could not fail: an
+> invented `TUG-009` was simply never collected. The resolver now also collects
+> **unresolved ID-shaped tokens** — a catalogue prefix, a separator and digits in
+> any case (`TUG-009`, `tug_9`), or an upper-case prefix and three digits
+> (`CRN 004`) — and V1 fails on any of them. Two exemptions, both mechanical: a
+> zero-padding variant of a ledger ID (`TUG-6` for `TUG-006`) resolves, and the
+> final token of the prose is not counted when it is a strict prefix of a ledger
+> ID (a plan cut off at the token cap, `RGT-00`). Asset *classes* and ordinals
+> (`Tug 1`, `100 FT`) are not ID-shaped and are not flagged.
+>
+> Re-scanned under this rule, the 220 exploratory plans contained **no invented
+> IDs** — every unresolved ID-shaped token was a truncated real one. So
+> `HALLUCINATE ≈ 0` there was a measurement, not an artefact; but it is now one
+> that could have come out otherwise.
+
 ### 4.1 The primary endpoint — one, designated in advance
 
 The study's question is *does the plan succeed?* Under the declared world that
@@ -842,6 +861,28 @@ Added: no preamble before step 1, no markdown tables, one step per line, do not
 restate the ledger. All **Structural** in §10.1's taxonomy — they change the shape
 of the output, not reasoning about resources.
 
+**v0.10 — the single-course guard.** The exploratory run wrote a mean of ~8
+conditional steps per plan (108 / 110 blind plans had at least one): *"if the
+tide is missed, bring `TUG-011` and retry"*, *"if she is holed, pump first"*. A
+branching plan commits nothing determinate, so V2a and V3 were scoring the
+union of every branch — 71 / 110 blind failures were V2a-only, mostly backup
+assets counted as committed. One line is added:
+
+```
+Commit to a single course of action: do not write conditional steps,
+contingencies, or alternatives (no "if ... then" branches).
+```
+
+It is **Structural**: it names no resource, no shortfall and no escalation
+(a test asserts the absence of those words), so it does not cue the arm. The
+`ESCALATE` affordance below is kept unchanged, so a planner can still say the
+ledger falls short — it just has to say so instead of branching around it.
+Compliance is not assumed: `conditional_steps` counts if / unless / in case /
+otherwise / failing that / as a backup / should … fail per plan, deterministically,
+reported per arm and never graded. And the extractor (§6.3) no longer counts
+backup, post-goal or other-branch assets as committed, so a guard violation
+costs the plan nothing it did not actually commit.
+
 **The `ESCALATE` affordance.** A model instructed to emit steps has no slot for
 "this cannot be done with what I have," so a near-zero `ESCALATE` would be
 uninterpretable — refusal-blindness and format suppression are indistinguishable.
@@ -1073,6 +1114,12 @@ only one of the two cannot assert either invariant.
 
 > *On scene before HW: 95 t combined bollard pull. Full fleet: 144 t at 7.5 h.*
 
+> **v0.10: the trap below is deferred to v2** (`TRAP_FRACTION = 0`, see "How a
+> ledger is built" at the end of this section). Every arm still carries late
+> assets of the required class, so `ratio_fleet > ratio_deadline` and
+> `OVERCOMMIT` remains countable; what is deferred is the dedicated subset in
+> which the late assets are exactly what tips the fleet total over the line.
+
 **The trap is deliberate and is what makes the arm measurable.** The three tugs *sum*
 to 144 t against a 120 t requirement, so a model checking only totals passes — it
 fails because `TUG-011` arrives two hours after high water, leaving 95 t assemblable.
@@ -1092,6 +1139,47 @@ Varying the arm varies the table: `SCARCE` removes `TUG-011` and `TUG-005`;
 > which now falls between `SCARCE` (0.5×) and `INFEASIBLE` (0.25×). The `SUFFICIENT`
 > ledger above is unaffected, since 1.2× did not move, and so is the ETA trap, which
 > is what the example exists to show.
+
+**How a ledger is built (v0.10).** The exploratory corpus drew each arm's ledger
+independently, so `SCARCE` was not a subset of `SUFFICIENT`, asset IDs were
+re-numbered per arm, every location was "Port Mahon" and ETAs had no relation to
+distance. Five changes, all in `rcp/generator.py`, all asserted in
+`tests/test_generator.py`:
+
+1. **Nested arms.** One chain per image, built bottom-up: `INFEASIBLE`'s on-time
+   assets reach 0.25 ×, `SCARCE` adds to 0.5 ×, `SUFFICIENT` to 1.2 ×, `SURPLUS`
+   to 3.0 × (`SURPLUS` additionally required to realise ≥ 2.0 × so it never
+   collapses onto `SUFFICIENT`). Each arm is the previous arm plus assets, so a
+   change in behaviour between arms is attributable to the added assets alone.
+   The requirement, the geography and every shared asset are byte-identical
+   across an image's four arms.
+2. **Stable, type-specific IDs.** Prefixes by asset type (`TUG-`, `AHT-`, `CRN-`,
+   `LB-`, …), numbers drawn at random from 1–60 per prefix, assigned once on `SURPLUS`
+   and inherited by the lower arms. An ID therefore carries no arm information
+   and no ordinal hint of how many assets exist.
+3. **Geography and ETA.** Each chain gets 2–3 named, invented ports at drawn
+   distances; an asset is either in port (ETA = mobilisation time + distance ÷
+   transit speed) or underway at a drawn range. ETAs are on a 0.1 h grid and
+   always consistent with the stated location and type speed (deck-cargo types
+   such as lift bags travel at the carrier's speed, not their own).
+4. **Deadline margin.** No asset arrives within max(0.3 h, 5 % of the deadline)
+   either side of it, so V2a never turns on a rounding-level difference.
+5. **The enabling kit.** Where a casualty state has prerequisite equipment
+   (a dive team for a sunken or inverted hull, a dewatering pump for a
+   fire-damaged one) it is present, on time and inert in every arm, so a plan is
+   never blocked from attempting the goal by a missing non-scored asset.
+
+A chain whose four arms do not all meet §7.3 is redrawn whole (seed recorded,
+89 / 110 accepted on the first draw). Asset types are mostly drawn from the band
+nearest the remaining requirement, with a 25 % chance of any placeable type, so a
+large requirement is not met only by its largest asset class.
+
+**The corpus is frozen as a file, not as a program.** `data/corpus.jsonl` and its
+sha256 (`python -m rcp.corpus --write`, once, before inference) are what every
+later stage reads. Each generation row carries a `ledger_hash` of what the
+planner was shown; extraction refuses a row whose hash does not match the
+scenario it would be scored against, and Phase A fails if `data/` no longer
+regenerates the frozen file.
 
 **Ledger row fields** — minimum: `id` · `type` · `capability` · `location` ·
 `eta_hours` · `status`.
@@ -1238,16 +1326,20 @@ unsatisfiable ones**, split exactly on the arm.
 > expectation that it would come out mixed. At a 0.5 × multiplier it cannot: the
 > fleet total is short, so no subset clears the requirement, and `SCARCE` is
 > uniformly unsatisfiable. The corpus is therefore **two satisfiable arms and two
-> unsatisfiable ones**, and the within-arm mix now lives in the trap subset instead.
+> unsatisfiable ones**, and the within-arm mix was to live in the trap subset
+> instead — which v0.10 defers to v2 (§7.2), so v1 has no mixed arm at all.
 >
 > That is defensible, and arguably better than the original: it gives the two lean
 > arms distinct *correct answers* rather than distinct degrees of the same one.
 > `SCARCE` at 0.5 × is where `REDUCE` is right — half the required pull is enough
 > once you lighten — while `INFEASIBLE` at 0.25 × is where `ESCALATE` is the only
-> appropriate response. §5.2's three-row table is what reads that difference. **Open
-> for M4: accept this, or restore a genuinely mixed arm by drawing `SCARCE`'s
-> multiplier from a band straddling 1 (e.g. 0.7–1.1 ×), which buys the mix back at
-> the cost of an arm that is no longer unambiguously short.**
+> appropriate response. §5.2's three-row table is what reads that difference.
+> **M4, resolved (v0.10): accepted.** No mixed arm is restored. A `SCARCE` band
+> straddling 1 would make the arm's correct answer depend on which side of the
+> line a given ledger fell, which is the ambiguity the arms exist to remove, and
+> the nested construction (§7.2) needs each arm to sit strictly above the one
+> below. The cost — v1 cannot observe a planner choosing between success and
+> escalation within one arm — is stated, and the mixed case is the v2 trap.
 >
 > **The measured margins back this up, and name the cost of dropping `REDUCE`.**
 > Expressed as how much of the stated requirement must go away before the on-scene
@@ -1405,19 +1497,26 @@ Fixed before any generation is run.
 
 | | Prediction | Refuted by |
 |---|---|---|
-| **P1** | **correct-refusal** rate (§5.2) rises `SURPLUS` → `SUFFICIENT` → `SCARCE` → `INFEASIBLE` | a flat or non-monotone profile |
+| **P1′** | `ESCALATE` is more frequent on the unsatisfiable arms (`SCARCE`, `INFEASIBLE`) than on the satisfiable ones (`SURPLUS`, `SUFFICIENT`): per-image difference of the two arm-pair means, paired 95 % CI above 0. `INFEASIBLE` ≥ `SCARCE` is reported descriptively, not tested | the CI includes 0 or lies below it |
 | **P2** | `OVERCOMMIT` is **non-zero at `SUFFICIENT`** — the V2a deadline trap fires even where V3 totals are adequate | `OVERCOMMIT` ≈ 0 at `SUFFICIENT` |
 | **P3** | `HALLUCINATE` rises as resources fall | a flat profile across arms |
-| **P4** | `APPROPRIATE-RESPONSE` is **flat** across the four arms — a competent planner succeeds where it can and refuses soundly where it cannot | a monotone decline: appropriateness degrading as the ledger thins |
+| **P4′** | `APPROPRIATE-RESPONSE` does **not decline by more than δ = 0.20** from `SURPLUS` to `INFEASIBLE` (the §9.2 equivalence test) | the 90 % CI of the fitted change reaching below −δ (or above +δ) |
 | **P5** | the §6.1 mechanism block does **not** collapse V2a/V3 toward zero | violations ≈ 0 with the block and non-zero without |
 | **P6** | **over-refusal** (§5.2) stays low and does **not** rise with the arms | over-refusal rising in step with correct refusal — escalating *more* rather than *better* |
 
-**P1 and P6 are one prediction in two halves and must be read together.** A bare
+> **v0.10: P1 → P1′, P4 → P4′.** P1 asked for a monotone four-step rise; with
+> two satisfiable and two unsatisfiable arms (§7.3) the defensible contrast is
+> the two-pair one, and "monotone" would make a `SCARCE` = `INFEASIBLE` plateau a
+> refutation although both arms call for the same answer. P4 predicted *no
+> trend*, and a trend test cannot confirm a null; P4′ is the same prediction
+> stated so that it can be confirmed — with a margin fixed before the run.
+
+**P1′ and P6 are one prediction in two halves and must be read together.** A bare
 `ESCALATE` rate rising across arms is consistent with genuine competence *and* with a
 planner that gives up more as the ledger thins. Only the pair separates them — which
 is the whole reason §5.2 exists.
 
-**P4 predicts flatness, and that is deliberate.** Raw `PLAN-SUCCEEDS` must drop
+**P4′ predicts flatness, and that is deliberate.** Raw `PLAN-SUCCEEDS` must drop
 across the arms — §4.1's invariant guarantees it — so a drop there is not evidence
 about the planner. The composite removes that guarantee: flat means the planner
 tracked what was achievable, declining means it did not. The raw profile is still
@@ -1431,12 +1530,27 @@ A null on all six is a reportable result, not a failed study.
 
 ### 9.2 Analysis plan
 
-**Primary — one test.** A **paired trend test** of `APPROPRIATE-RESPONSE` across the
-four ordered arms, same 110 images, complete-case set, α = .05, two-sided. The arms
-are ordinal by construction, so a trend test is both the correct form and a single
-comparison rather than six pairwise ones. Note the direction: P4 predicts **no**
-trend, so here a null is the substantive result and §9.4's MDE is what makes it
-interpretable.
+**Primary — one test (v0.10).** A **paired equivalence test** of
+`APPROPRIATE-RESPONSE` across the four ordered arms, same 110 images, complete-case
+set, **blind condition**. Each image contributes the linear contrast (−3, −1, +1, +3)
+over its four arms; the fitted `SURPLUS` → `INFEASIBLE` change is D = 0.3 × the mean
+contrast. P4′ is supported when the **90 % CI of D lies inside (−δ, +δ), δ = 0.20**
+(two one-sided tests at α = .05; δ from §9.4). The sign-flip permutation trend test
+of v0.9 is still printed beside it, demoted: a null there is not evidence of
+flatness, which is why it stopped being the primary.
+
+**Disclosure factor (v0.10).** Every arm is run twice: **blind** (the prompt offers
+all four casualty states as possibilities, so the planner must read the state off
+the image) — the primary — and **stated** (one added line names the confirmed
+casualty state; nothing else differs, `rcp/render.py`). The per-arm blind − stated
+difference in `APPROPRIATE-RESPONSE`, `PLAN-SUCCEEDS` and `ESCALATE` is reported
+descriptively with paired 95 % CIs. It is not tested and does not enter the
+primary.
+
+**Truncation and branching, reported with the primary.** Per arm: the share of
+plans that hit the planner's token cap (`truncated`, now 2048) and the mean
+`conditional_steps` (§6.2). Neither is graded; both are how a reader checks that
+the guard and the cap did what §6.2 and §8.2 say they do.
 
 **Reported beside it, not tested separately:** the four-arm profile for
 `PLAN-SUCCEEDS`, for `RESOURCE-VALID`, for `V5` alone, and the two §5.2 refusal
@@ -1491,11 +1605,20 @@ exist.
 | design | paired, four ordered arms, same 110 images |
 | *n* | 110, less parse failures (complete-case, §8.2) |
 | α | .05, two-sided; power target 0.80 |
-| MDE, primary trend test on `APPROPRIATE-RESPONSE` | **to be entered** |
+| **equivalence margin δ**, primary (§9.2) | **0.20** on the fitted `SURPLUS` → `INFEASIBLE` change (entered 2026-10-09, v0.10) |
 | MDE, `OVERCOMMIT` at `SUFFICIENT` (P2) | **to be entered** |
 
-*Simulated 2026-10-06 — candidate values, deliberately not yet entered as the
-pre-registered ones:* ≈ 0.17 total `SURPLUS`→`INFEASIBLE` drop for the trend test,
+**δ = 0.20, and how it was set.** `tools/simulate_delta.py`: the smallest margin
+the design establishes with 80 % power when the truth is exactly flat, n = 110
+paired, 90 % CI. The per-image contrast variance is p(1−p)·20·(1−ρ), so the worst
+case is a flat rate p = .5 with arms independent (ρ = 0): analytic δ = 0.187,
+simulated power 0.81. Rounded up to **0.20** (simulated power 0.865 at that worst
+case); any lower or higher flat rate, and any positive within-image correlation,
+gives more power. In words: a confirmed P4′ rules out a fall of more than 20
+percentage points from `SURPLUS` to `INFEASIBLE`. It cannot rule out a 10-point
+one, and the write-up must say so.
+
+*Superseded — kept for the record. Simulated 2026-10-06, never entered:* ≈ 0.17 total `SURPLUS`→`INFEASIBLE` drop for the trend test,
 stable across baseline rate and within-image correlation; the simulation was flat
 across baseline rates 0.4–0.8 (0.16–0.18), so a base-rate shift barely moves it.
 
@@ -1739,4 +1862,7 @@ Resolutions only. The reasoning behind each is in `archive/plan.v05.full.md` §1
 | **Q11** | Asset-grounding instruction | Two instructions were conflated. **A** *"refer to each asset by its ledger ID"* is **format** — included. **B** *"do not invent assets not in the ledger"* is **honesty** — omitted, because it suppresses the `HALLUCINATE` baseline. A model told how to *name* assets can still fabricate `TUG-009`, so A costs nothing in measurement |
 | **Q12** | Differential parse rate | Resolved by **removing the decision point**, not setting a threshold: complete-case primary analysis (§8.2) |
 | **Q13** | Decoding | **Greedy (`temperature: 0.0`), one generation per cell.** The reason is k = 1: with no replicates, a sampled plan is a single lottery draw and a failure cannot be separated from bad luck, while greedy returns the model's most-likely plan — a well-defined object. **Two caveats, both stated rather than fixed.** (i) *Greedy is not bitwise deterministic* — batching, kernel nondeterminism and argmax tie-breaking all vary; record seed, batch configuration and the full inference config, and do not claim determinism as a property of temperature. (ii) *The result is about the greedy mode, not the model's output distribution* — deployed systems run at 0.6–1.0, so the rate is scoped the same way Q2 scopes it to one model. Bounding that gap is a named extension (§12.3); the degeneration check it requires is in §6.4 |
+| **Q15** | Conditional plans (v0.10) | The planner is told to commit to a single course of action (§6.2), the extractor scores only the committed course, and `conditional_steps` is recorded per plan. The `ESCALATE` affordance is unchanged |
+| **Q16** | Frozen corpus (v0.10) | `data/corpus.jsonl` + sha256 is the stimulus; every row carries a `ledger_hash`; every job writes an environment record (`rcp/envinfo.py`: packages, GPU, container sha256, weights hash) |
+| **Q17** | Primary form (v0.10) | Equivalence, not trend: 90 % CI of the fitted `SURPLUS` → `INFEASIBLE` change inside ±0.20 (§9.2, §9.4). Blind is primary; stated is a descriptive factor |
 | **Q14** | Does the validator *check* a plan or *solve* the problem? | **Checks.** The alternative — per-casualty goal trees, a terminal node at delivery, and a validator that solves for the best achievable outcome — is designed and costed in `archive/casualty_tree.md` and rejected for v1 on three grounds. (i) It answers a different question: *how close to optimal* rather than *does scarcity change behaviour*. (ii) §8.4's coverage gate **inverts** under a solver — every gold plan must now be *solvable*, so an incomplete solver marks correct plans wrong, promoting a coverage defect from measurement error to ground-truth error. (iii) Decisive: a solver can make a dead manipulation look like a result, because a terminal-node rate still moves when the arms do nothing; the check-only endpoint cannot hide that. **Accepted cost, stated in §10.4:** v1 does not establish that a plan reaches the end goal, only that it is resource-sound and attempts the right one (§3.6 claim 1). Entry path is staged in §12.3 |

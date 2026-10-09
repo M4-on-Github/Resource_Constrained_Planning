@@ -13,6 +13,7 @@ import pytest
 from rcp.report import (
     ARMS,
     REQUIRED_SATISFIABLE,
+    SCORES,
     _rate,
     build,
     contrasts,
@@ -237,3 +238,46 @@ def test_the_refusal_rates_are_na_where_the_denominator_does_not_apply(run):
 def test_the_provenance_block_carries_the_domain_digest(run):
     rep = build(*run, provenance={"domain_digest": "deadbeef"})
     assert "deadbeef" in render(rep)
+
+
+# --------------------------------------------------------------------------- #
+# equivalence: the primary (plan.md sec. 9.2, v0.9)
+# --------------------------------------------------------------------------- #
+
+
+def test_equivalence_holds_for_a_flat_noisy_run():
+    from rcp.report import equivalence
+
+    # 110 images, contrasts symmetric around 0 with the worst-case spread
+    cs = [-4.0, 4.0, -2.0, 2.0, 0.0] * 22
+    res = equivalence(cs)
+    assert abs(res["change"]) < 1e-12
+    assert res["equivalent"] is True
+
+
+def test_equivalence_fails_for_a_real_decline():
+    from rcp.report import equivalence
+
+    # every image drops from success at SURPLUS to failure at INFEASIBLE
+    cs = [-4.0, -6.0] * 55
+    res = equivalence(cs)
+    assert res["change"] < -0.2
+    assert res["equivalent"] is False
+
+
+def test_equivalence_change_is_the_fitted_surplus_to_infeasible_drop():
+    from rcp.report import equivalence
+
+    # rates 1, 2/3, 1/3, 0 -> a linear drop of exactly 1.0
+    arms = [(1, 1, 1, 0), (1, 1, 0, 0), (1, 0, 0, 0)]
+    cs = [sum(s * y for s, y in zip(SCORES, a)) for a in arms] * 10
+    assert equivalence(cs)["change"] == pytest.approx(-1.0)
+
+
+def test_escalation_contrast_is_positive_when_escalation_tracks_the_arm():
+    from rcp.report import escalation_contrast
+
+    vs = [Verdict(scenario_id=f"I{i}", arm=a, escalate=a in ("SCARCE", "INFEASIBLE"))
+          for i in range(5) for a in ARMS]
+    res = escalation_contrast(vs)
+    assert res["diff"] == 1.0 and res["n"] == 5

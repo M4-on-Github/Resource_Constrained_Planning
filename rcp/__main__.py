@@ -5,6 +5,7 @@ stop you:
 
     data admissibility  (plan.md §7.3 invariant 6)
     corpus build        (§7.3 invariants 1-5, enforced)
+    corpus freeze       (data/corpus.jsonl sha-checked, and no drift from data/)
     instrument controls (§8.3: positive, negative, minimal-pass probe)
     V5 coverage         (§8.4 — reported, and it needs prose, see below)
     freeze status       (§12.2)
@@ -16,9 +17,9 @@ from __future__ import annotations
 
 import sys
 
+from . import corpus as frozen
 from . import coverage
 from .controls import run_controls
-from .generator import build_corpus, manifest
 from .validator import eligible_assets
 from .world import ARMS, assert_granularity_floor, unfrozen
 
@@ -37,22 +38,34 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[{BAD}] {exc}")
 
     print("\n== corpus (sec. 7.1, sec. 7.3) ==")
+    # Every later stage reads the frozen file, so that is what is gated: it must
+    # load (sha matches) and a fresh regeneration must reproduce it (no drift).
     try:
-        corpus = build_corpus(manifest())
-    except RuntimeError as exc:
+        corpus = frozen.load()
+    except (FileNotFoundError, ValueError, RuntimeError) as exc:
         print(f"[{BAD}] {exc}")
         return 1
     print(f"[{OK}] {len(corpus)} scenarios "
           f"({len(corpus) // len(ARMS)} images x {len(ARMS)} arms), "
-          f"{sum(s.seed > 0 for s in corpus)} needed a redraw")
+          f"{sum(s.seed > 0 for s in corpus)} needed a redraw, "
+          f"sha256 {frozen.recorded_sha()[:12]}…")
+    try:
+        drifted = frozen.drift()
+    except RuntimeError as exc:
+        drifted = [f"regeneration failed: {exc}"]
+    if drifted:
+        failed = True
+        print(f"[{BAD}] data/ no longer regenerates the frozen corpus: "
+              f"{len(drifted)} cells differ, e.g. {drifted[:3]}")
+    else:
+        print(f"[{OK}] regeneration from data/ matches the frozen corpus")
 
-    print(f"\n{'arm':<12}{'sat':>8}{'trap':>7}{'r_fleet':>10}{'r_dline':>10}"
+    print(f"\n{'arm':<12}{'sat':>8}{'r_fleet':>10}{'r_dline':>10}"
           f"{'assets':>8}{'elig':>6}")
     for arm in ARMS:
         rows = [s for s in corpus if s.arm == arm]
         n = len(rows)
         print(f"{arm:<12}{sum(s.ledger_satisfiable for s in rows):>4}/{n:<3}"
-              f"{sum(s.is_trap for s in rows):>7}"
               f"{sum(s.ratio_fleet for s in rows) / n:>10.2f}"
               f"{sum(s.ratio_deadline for s in rows) / n:>10.2f}"
               f"{sum(len(s.ledger) for s in rows) / n:>8.1f}"
@@ -92,9 +105,13 @@ def main(argv: list[str] | None = None) -> int:
 
     print("\n== freeze status (sec. 12.2) ==")
     un = unfrozen()
-    print(f"[ note ] unfrozen data files: {', '.join(un) if un else 'none'}")
-    print("[ note ] sec. 9.4's MDE table must be re-derived against a FLATNESS "
-          "alternative before freeze")
+    if un:
+        failed = True
+        print(f"[{BAD}] unfrozen data files: {', '.join(un)}")
+    else:
+        print(f"[{OK}] data files frozen; corpus sha256 {frozen.recorded_sha()[:12]}…")
+    from .report import DELTA
+    print(f"[{OK}] sec. 9.4 equivalence margin entered: delta = {DELTA:.2f}")
 
     print("\nPHASE A:", "FAILED" if failed else "all gates green")
     return 1 if failed else 0

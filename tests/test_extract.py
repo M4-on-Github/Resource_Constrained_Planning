@@ -114,14 +114,15 @@ def test_non_assets_resolve_to_nothing(prose, scenario):
 
 
 def test_port_mahon_excludes_itself(scenario):
-    """§6.3 calls this the whole rule: `Port Mahon` is *in* the ledger, as the
+    """§6.3 calls this the whole rule: a port name is *in* the ledger, as the
     `location` of the assets being named, but resolution runs against
     `ledger_ids` and never against field values."""
-    assert any(a.location == "Port Mahon" for a in scenario.ledger), \
-        "fixture no longer has Port Mahon as a location"
+    ports = [a.location.split(",")[0] for a in scenario.ledger
+             if not a.location.startswith("underway")]
+    assert ports, "fixture has no asset at a port"
     a, b = _two_ids(scenario)
     out = extract_det.scan_ledger_ids(
-        "Use " + a + " and " + b + " to tow the casualty to Port Mahon.", scenario)
+        "Use " + a + " and " + b + " to tow the casualty to " + ports[0] + ".", scenario)
     assert out == (a, b)
 
 
@@ -129,6 +130,68 @@ def test_an_id_from_another_cell_does_not_resolve(scenario):
     absent = "ZZZ-999"
     assert absent not in scenario.ledger_ids
     assert extract_det.scan_ledger_ids("Use " + absent + ".", scenario) == ()
+
+
+def _invented_id(scenario) -> str:
+    """An ID with a real prefix and a number this ledger does not hold."""
+    prefix = scenario.ledger_ids[0].split("-")[0]
+    taken = {int(i.split("-")[1]) for i in scenario.ledger_ids if i.startswith(prefix + "-")}
+    return f"{prefix}-{next(n for n in range(900, 1000) if n not in taken):03d}"
+
+
+def test_an_invented_id_is_recorded_so_v1_can_fail(scenario):
+    """V1 was unfalsifiable when only resolving tokens were recorded: no recorded
+    token could fail to resolve, so HALLUCINATE was 0 by construction."""
+    from rcp.validator import score
+
+    a, ghost = scenario.ledger_ids[0], _invented_id(scenario)
+    prose = f"1. Use {a} and {ghost} to refloat her."
+    det = extract_det.deterministic_pass(prose, scenario)
+    assert det["assets_named"] == (a, ghost)
+    assert det["assets_unresolved"] == (ghost,)
+    plan, _ = extract.compose(prose, scenario, dict(GOOD))
+    v = score(plan, scenario)
+    assert not v.passed("V1") and v.hallucinate
+
+
+@pytest.mark.parametrize("prose", [
+    "Use two tugs and the available salvage assets.",   # classes (§8.3 negative control)
+    "Tug 1 and Tug 2 take the strain.",                 # ordinals, not IDs
+    "A 100 FT barge; FT 30 rated.",                     # units that collide with a prefix
+])
+def test_classes_and_ordinals_are_not_id_shaped(prose, scenario):
+    assert extract_det.deterministic_pass(prose, scenario)["assets_unresolved"] == ()
+
+
+def test_a_dropped_zero_pad_is_not_an_invented_asset(scenario):
+    a = scenario.ledger_ids[0]
+    prefix, num = a.split("-")
+    assert extract_det.scan_ledger_ids(f"Use {prefix}-{int(num)}.", scenario) == ()
+
+
+def test_a_generation_cut_off_mid_id_is_not_an_invented_asset(scenario):
+    a = scenario.ledger_ids[0]
+    assert extract_det.scan_ledger_ids(f"1. Use {a[:-1]}", scenario) == ()
+    # ...but the same partial ID mid-text is a token the planner chose to write
+    assert extract_det.scan_ledger_ids(f"1. Use {a[:-1]} now.", scenario) == (a[:-1],)
+
+
+def test_conditional_steps_are_counted():
+    steps = ["1. Make fast with the tug.",
+             "2. If the tow parts, reconnect.",
+             "3. Should the first pull fail, wait for the tide.",
+             "4. Otherwise begin the refloat.",
+             "5. Lift the stern."]
+    assert extract_det.conditional_steps(steps) == 3
+
+
+def test_the_trace_keeps_the_raw_reply(scenario):
+    a = scenario.ledger_ids[0]
+    meta = {"text": "{\"attempts_goal\": tr", "finish_reason": "length", "attempts": 2}
+    _, tr = extract.compose("Use " + a + " to refloat her.", scenario, meta["text"], meta)
+    assert tr["llm_parse_failed"]
+    assert tr["llm_raw"] == meta["text"] and tr["llm_finish_reason"] == "length"
+    assert tr["llm_attempts"] == 2
 
 
 # --------------------------------------------------------------------------- #

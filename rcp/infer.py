@@ -28,7 +28,9 @@ import json
 import pathlib
 import sys
 
-from .generator import build_corpus, manifest, manifest_images
+from . import corpus as frozen
+from . import envinfo
+from .generator import manifest, manifest_images
 from .render import CONDITIONS, domain_digest, planner_prompt
 from .schema import Scenario
 
@@ -38,7 +40,10 @@ DEFAULT_MODEL_DIR = "/data/$USER/qwen3vl-8b"
 #: A salvage plan in numbered steps. Generous enough that a long plan is not
 #: truncated into a parse failure, and §9.2 reports word count per arm, so a cap
 #: that bit would be a ceiling artifact in the headline's own control column.
-DEFAULT_MAX_TOKENS = 1024
+#: 1024 did bite: 37 blind and 31 stated exploratory plans stopped mid-sentence
+#: (docs/deviations.md). Every row now records its token count and whether it hit
+#: the cap, so any truncation that remains is counted rather than inferred.
+DEFAULT_MAX_TOKENS = 2048
 
 #: Arms in §7.2's order. Written out rather than derived so the output file's row
 #: order is stable across runs.
@@ -74,7 +79,9 @@ def corpus(limit: int | None = None,
     rows = manifest()
     if limit:
         rows = rows[:max(1, limit // len(arms))]
-    by_key = {key(s): s for s in build_corpus(rows)}
+    # The frozen corpus, not a regeneration (rcp.corpus): the ledger the planner
+    # sees must be byte-for-byte the one extraction scores against.
+    by_key = frozen.by_key()
     out = []
     for img, _, _ in rows:
         for arm in arms:
@@ -84,8 +91,14 @@ def corpus(limit: int | None = None,
     return out
 
 
-def done_keys(path: pathlib.Path) -> set[str]:
-    """Scenario keys already present in an output file, for `--resume`."""
+def done_keys(path: pathlib.Path, digest: str | None = None) -> set[str]:
+    """Scenario keys already present in an output file, for `--resume`.
+
+    The key is `scenario_id/arm`, not the condition, so resuming into a file
+    written under another condition or prompt would skip every cell. Given
+    `digest`, a row carrying a different `domain_digest` is therefore an error,
+    not a skip.
+    """
     if not path.exists():
         return set()
     seen = set()
@@ -96,6 +109,10 @@ def done_keys(path: pathlib.Path) -> set[str]:
             r = json.loads(line)
         except json.JSONDecodeError:
             continue
+        if digest is not None and r.get("domain_digest") not in (None, digest):
+            raise ValueError(
+                f"{path} holds rows from another prompt/condition (domain_digest "
+                f"{str(r.get('domain_digest'))[:12]}…); write this run to its own file")
         if r.get("prose", "").strip():
             seen.add(f"{r['scenario_id']}/{r['arm']}")
     return seen
@@ -103,7 +120,7 @@ def done_keys(path: pathlib.Path) -> set[str]:
 
 def run(scenarios: list[Scenario], root: pathlib.Path, model_dir: str,
         max_tokens: int = DEFAULT_MAX_TOKENS, condition: str = "blind"):
-    """Yield `(scenario, prose)` one cell at a time. Cluster-only.
+    """Yield `(scenario, prose, n_tokens)` one cell at a time. Cluster-only.
 
     **Transformers, not vLLM.** The planner runs in `castor_qwen.sif`, which is the
     container QWEN-Maritime already validated against these exact weights on this
@@ -163,9 +180,9 @@ def run(scenarios: list[Scenario], root: pathlib.Path, model_dir: str,
                                  do_sample=False)
         trimmed = ids[0][inputs["input_ids"].shape[1]:]
         prose = processor.decode(trimmed, skip_special_tokens=True)
-        print(f"  [{i}/{len(scenarios)}] {key(sc)}  {len(prose.split())} words",
-              flush=True)
-        yield sc, prose
+        print(f"  [{i}/{len(scenarios)}] {key(sc)}  {len(prose.split())} words, "
+              f"{len(trimmed)} tokens", flush=True)
+        yield sc, prose, int(len(trimmed))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -206,7 +223,7 @@ def main(argv: list[str] | None = None) -> int:
 
     digest = domain_digest(args.condition)
     if args.resume:
-        already = done_keys(out)
+        already = done_keys(out, digest)
         cells = [sc for sc in cells if key(sc) not in already]
         print(f"  resuming: {len(already)} done, {len(cells)} to go")
     print(f"  arms         : {', '.join(arms)}")
@@ -234,11 +251,20 @@ def main(argv: list[str] | None = None) -> int:
     # Flushed per cell. A walltime kill then leaves a file `--resume` can read, and
     # a half-written final line is tolerated by `done_keys`, which skips rows it
     # cannot parse rather than aborting.
+    # One environment record per job, appended so a resumed file keeps every
+    # job's record; each row names the job that wrote it.
+    env = envinfo.record(args.model_dir, stage="plan", condition=args.condition,
+                         arms=list(arms), max_tokens=args.max_tokens,
+                         domain_digest=digest, corpus_sha256=frozen.recorded_sha())
+    envinfo.append(out.with_suffix(".env.jsonl"), env)
+    print(f"  environment  : {out.with_suffix('.env.jsonl')}  ({env['run_id']})")
+
     mode = "a" if args.resume and out.exists() else "w"
-    n = empty = 0
+    n = empty = truncated = 0
     with out.open(mode, encoding="utf-8", newline="\n") as fh:
-        for sc, prose in run(cells, root, args.model_dir, args.max_tokens,
-                             args.condition):
+        for sc, prose, n_tokens in run(cells, root, args.model_dir, args.max_tokens,
+                                       args.condition):
+            hit_cap = n_tokens >= args.max_tokens
             fh.write(json.dumps({
                 "scenario_id": sc.id,
                 "arm": sc.arm,
@@ -246,14 +272,21 @@ def main(argv: list[str] | None = None) -> int:
                 "condition": args.condition,
                 "prose": prose.strip(),
                 "domain_digest": digest,
+                "ledger_hash": frozen.ledger_hash(sc),
                 "model_dir": args.model_dir,
+                "n_tokens": n_tokens,
+                "max_tokens": args.max_tokens,
+                "truncated": hit_cap,
+                "run_id": env["run_id"],
             }, sort_keys=True) + "\n")
             fh.flush()
             n += 1
             empty += 0 if prose.strip() else 1
+            truncated += hit_cap
 
     print(f"  {n} generations -> {out}")
     print(f"  empty          : {empty}")
+    print(f"  hit max_tokens : {truncated}")
     return 0
 
 

@@ -10,7 +10,8 @@ Four behaviours, chosen so every branch of §9.2's tables gets exercised:
   `gold`       commits exactly the assets `controls.gold_commitment` picks, so
                PLAN-SUCCEEDS must be true wherever the ledger is satisfiable.
   `greedy`     commits every asset of the right class regardless of ETA — the
-               §7.2 trap taken, so V2a and V3 separate.
+               late assets §7.2 places in every chain are taken, so V2a and V3
+               separate.
   `escalate`   names nothing and says it cannot be done, so correct-refusal and
                over-refusal both have a numerator.
   `empty`      writes nothing, so the parse-failure path is exercised.
@@ -29,7 +30,8 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 from rcp.controls import gold_commitment                      # noqa: E402
-from rcp.generator import build_corpus, manifest              # noqa: E402
+from rcp import corpus                                         # noqa: E402
+from rcp.generator import manifest                             # noqa: E402
 from rcp.schema import Scenario                               # noqa: E402
 from rcp.world import states                                  # noqa: E402
 
@@ -82,7 +84,8 @@ def main(argv: list[str] | None = None) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     counts: dict[str, int] = {}
     with out.open("w", encoding="utf-8", newline="\n") as fh:
-        for sc in build_corpus(rows):
+        keep = {img for img, _, _ in rows}
+        for sc in (s for s in corpus.load() if s.id in keep):
             kind = behaviour(sc)
             counts[kind] = counts.get(kind, 0) + 1
             fh.write(json.dumps({
@@ -90,6 +93,7 @@ def main(argv: list[str] | None = None) -> int:
                 "casualty_state": sc.casualty_state,
                 "prose": prose(sc, kind),
                 "mock_behaviour": kind,
+                "ledger_hash": corpus.ledger_hash(sc),
             }, sort_keys=True) + "\n")
     print(f"{out}: {sum(counts.values())} mock generations  {counts}")
     return 0

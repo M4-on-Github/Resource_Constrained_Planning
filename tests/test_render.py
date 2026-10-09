@@ -97,6 +97,17 @@ def test_the_domain_half_never_says_what_to_do_when_resources_fall_short():
         assert phrase not in text, f"Rule 1 violated by: {phrase!r}"
 
 
+def test_the_task_half_forbids_conditional_steps_without_naming_a_remedy():
+    """The no-branching guard (plan.md §6.2) is a format rule. It must not say
+    what to do when resources fall short, or it becomes an escalation cue."""
+    t = task_block().lower()
+    assert "do not write conditional steps" in t
+    guard = next(ln for ln in t.splitlines() if "conditional" in ln)
+    for word in ("resource", "enough", "short", "insufficient", "escalat", "request"):
+        assert word not in guard, word
+    assert "include any assumptions, limitations, or requests" in t
+
+
 def test_the_digest_is_stable_and_covers_both_halves():
     assert domain_digest() == domain_digest()
     assert len(domain_digest()) == 64

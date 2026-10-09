@@ -14,7 +14,7 @@ Three controls, run on hand-built plans before any generation is spent:
    alternative explanation for P4's predicted flatness (plan.md §9.2).
 
 The gold plan is also plan.md §7.3's invariant 4 (a valid plan exists on every
-non-trap scenario) and the input to §8.4's V5 coverage gate.
+satisfiable scenario) and the input to §8.4's V5 coverage gate.
 """
 
 from __future__ import annotations
@@ -160,15 +160,14 @@ def main(argv: list[str] | None = None) -> int:
     import json
     import pathlib
 
-    from . import coverage
-    from .generator import build_corpus, manifest
+    from . import corpus, coverage
 
     ap = argparse.ArgumentParser(
         description="RCP instrument controls (plan.md §8.3) -> JSON for the report")
     ap.add_argument("--out", default=None, help="write JSON here as well as stdout")
     args = ap.parse_args(argv)
 
-    rep = run_controls(build_corpus(manifest()))
+    rep = run_controls(corpus.load())
 
     # §8.4's rate rides along with the §8.3 controls because the report prints the
     # three together: a run is halted by the first two and *described* by the third.

@@ -13,7 +13,8 @@ with these four keys and nothing else. No explanation, no markdown fences.
 1. not_assigned_work
 ------------------------------------------------------------------------------
 You are given a list of asset names that appear in the plan. For each one, the
-question is whether the plan ASSIGNS IT WORK. List only the ones it does NOT.
+question is whether the plan ASSIGNS IT WORK toward the goal, at or before the
+step that attempts the goal. List only the ones it does NOT.
 
 DEFAULT: assigned. If the plan mentions an asset and you are unsure, leave it
 out of this array. Most mentions are assignments; the exceptions are specific
@@ -25,6 +26,15 @@ An asset is NOT assigned work when the plan:
   - declines it             "we will not use the lift bags"
   - only reports it         "the ledger also lists CRN-002"
   - asks about it later     "TUG-009 could be requested if this fails"
+  - uses it only as a backup or contingency
+                            "if the tow parts, bring in TUG-006"
+                            "TUG-006 as a fallback should the pull fail"
+  - uses it only after the goal is achieved
+                            "once she is afloat, TUG-009 escorts her to port"
+  - uses it only in a branch for a different kind of casualty. Some plans
+    branch over what happened to the vessel ("if aground ... if on fire ...").
+    Only the branch that pursues the goal word counts; an asset that appears
+    only in another branch is NOT assigned.
 
 An asset IS assigned work when the plan gives it a task, however briefly:
   "use TUG-002 to tow"            -> assigned
@@ -38,8 +48,11 @@ Counterexamples that look like exclusions and are not:
       A complaint about an asset is not a refusal to use it.
   "once TUG-005 is on scene, make fast and begin the pull" -> ASSIGNED.
       A condition on when it works is not a decision not to use it.
-  "TUG-002 tows; if that is not enough, add TUG-006"      -> BOTH assigned.
-      A contingency inside the plan is still the plan assigning work.
+  "TUG-002 tows; TUG-006 joins the pull when it arrives"  -> BOTH assigned.
+      Joining the goal operation late is still being assigned to it.
+  "TUG-002 tows; if that is not enough, add TUG-006"      -> TUG-002 assigned,
+      TUG-006 NOT assigned. Work that happens only if the plan fails is not
+      the plan.
 
 Only names from the supplied list may appear in this array. Never add a name
 that is not on the list, and never invent one.
@@ -67,10 +80,14 @@ not attempted the goal.
 3. escalates
 ------------------------------------------------------------------------------
 True if the plan states that the available resources are NOT ENOUGH for this
-job, or hands the job to someone else to resource.
+job in the time available, or asks for more resources (or hands the job to
+someone else) BEFORE attempting it.
   "the assets on hand cannot generate the pull required"  -> true
   "recommend engaging a specialist salvor"                -> true
   "request additional tugs before attempting the refloat" -> true
+  "if the refloat fails, request more tugs"               -> false
+      (a request made only if the attempt fails is a contingency, not a
+       statement that the resources fall short)
   "this will be difficult and conditions are marginal"    -> false
       (difficulty is not insufficiency)
   "monitor and reassess at the next tide"                 -> false

@@ -138,7 +138,25 @@ reason per line.
 by-deadline sum does not. A planner reading only totals passes; it fails because a
 late asset cannot contribute to work due before the deadline. That is `OVERCOMMIT` as
 a concrete, countable event. **`TRAP_FRACTION = 0.0` in v1** — no trap cells exist
-yet; the arm is deferred to v2.
+yet; the arm is deferred to v2. Every chain still carries late assets of the
+required class, so `OVERCOMMIT` stays countable.
+
+### The frozen corpus (v0.10)
+
+The arms are **nested**: one chain per image, `INFEASIBLE` ⊂ `SCARCE` ⊂
+`SUFFICIENT` ⊂ `SURPLUS`, sharing requirement, geography and asset IDs. Ports are
+invented per chain and ETAs follow from distance and type speed. The 440 cells are
+generated once and frozen to `data/corpus.jsonl` + `data/corpus.sha256`; every
+later stage reads that file, every generation row carries a `ledger_hash`, and
+extraction refuses a row whose hash does not match. Phase A fails if `data/` no
+longer regenerates the frozen file.
+
+```bash
+python -m rcp.corpus --check    # regenerate and compare; exit 1 on drift
+python -m rcp.corpus --write    # (re)freeze — before inference only
+```
+
+All post-v0.9 changes and why: `docs/deviations.md`.
 
 ---
 
@@ -147,13 +165,14 @@ yet; the arm is deferred to v2.
 ### No GPU — everything short of generation
 
 ```bash
-python -m rcp                              # Phase A gates: corpus, controls, coverage, freeze
-python -m pytest tests/ -q                 # 226 tests
+python -m rcp                              # Phase A gates: corpus + drift, controls, coverage, freeze
+python -m pytest tests/ -q                 # 253 tests
+python tools/simulate_delta.py             # the sec. 9.4 equivalence margin (delta = 0.20)
 python -m rcp.coverage                     # the §8.4 vocabulary gate on controls/gold_plans/
 python -m rcp.controls --out results/controls.json
 
 # the whole pipeline, dry, no model:
-python -m tools.mock_planner --out results/generations.jsonl
+python tools/mock_planner.py --out results/generations.jsonl
 python -m rcp.extract  --input results/generations.jsonl --out results/ex --no-llm
 python -m rcp.report   --input results/ex/extracted.jsonl \
                        --controls results/controls.json --out results/rep
@@ -167,10 +186,35 @@ controls PASS over all 440 cells.
 
 ### On the cluster (AART `pleiades`, RTX6000Ada)
 
+The host Python is 3.6, so everything runs in a container: `castor_qwen.sif`
+(planning), `castor_judge.sif` (extraction, vLLM), `gemma4_judge.sif` (the only
+one with pytest):
+
 ```bash
-sbatch jobs/plan_job.sh    results/generations.jsonl   # Qwen3-VL-8B    (~4 h, --resume safe)
-sbatch jobs/extract_job.sh results/generations.jsonl   # GLM-4-32B GPTQ (~2 h)
+apptainer exec --containall --pwd "$PWD" --bind "$PWD:$PWD" --bind /tmp:/tmp \
+    --env PYTHONPATH="$PWD" /data/$USER/gemma4_judge.sif \
+    python3 -m pytest tests/ -q -p no:cacheprovider
 ```
+
+The study run (v0.10): four arms × two conditions, **one output file per job**,
+because `--resume` keys on `scenario_id/arm` and not on condition (it now refuses
+a file whose rows carry another prompt's `domain_digest`):
+
+```bash
+for ARM in SURPLUS SUFFICIENT SCARCE INFEASIBLE; do
+  for COND in blind stated; do
+    sbatch jobs/plan_job.sh results/gen_${ARM}_${COND}.jsonl --arm $ARM --condition $COND
+  done
+done
+# then, per file:                 (-> results/ex_gen_<ARM>_<cond>/)
+sbatch jobs/extract_job.sh results/gen_SURPLUS_blind.jsonl
+```
+
+Each planning row records `n_tokens`, `truncated` (hit the 2048 cap),
+`ledger_hash` and `run_id`; each job appends one environment record (packages, GPU,
+container sha256, weights hash) to `<out>.env.jsonl`, and extraction to
+`<out_dir>/env.jsonl`. The four-arm report concatenates the four blind
+extractions; `rcp.compare` is run once per arm for blind vs stated.
 
 **The image root is resolved, not passed.** There is one corpus, `data/manifest.csv`
 pins all 110 of its members by relative path, and a run against some other directory
@@ -196,7 +240,7 @@ through `model.generate`; `castor_judge.sif` has vLLM but its 0.8.5 registry has
 `qwen3_vl`, so no single container can do both stages. Extraction stays on
 `castor_judge.sif`, unchanged from P9.
 
-### The disclosure run (one arm, two conditions)
+### The disclosure run (one arm, two conditions) — the exploratory shape
 
 The first experiment holds the arm fixed at `SUFFICIENT` and varies **one** thing:
 whether the prompt names the casualty state, or the planner has to read it off the
@@ -293,7 +337,7 @@ arm is **dropped, not imputed** — imputing would put a guess inside the headli
 
 ## Status
 
-**Built and tested end to end.** 206 tests pass. The dry pipeline runs
+**Built and tested end to end.** 253 tests pass. The dry pipeline runs
 `mock_planner → extract → controls → coverage → report` with arm fidelity PASS and
 both non-negotiable controls PASS over all 440 cells.
 
@@ -306,13 +350,14 @@ both non-negotiable controls PASS over all 440 cells.
 | §8.3 cross-check | **PASS** — `satisfiable_without_gold` and `gold_without_satisfiable` both empty, in both directions |
 | §8.4 coverage gate | **PASS — 0.0% `NO_MATCH`** over 10 blind-authored prose plans, all four casualty vocabularies exercised |
 | §6.1 assertion audit | **DONE** — `prompts/assertions_audit.csv`, reason per line |
-| §9.4 MDE table | **OPEN** — recorded 0.17 was simulated against *monotone decline*; must be re-derived against a **flatness** alternative before freeze |
-| §12.2 data freeze | **OPEN** — `requirements.json`, `assets.json`, `checks.json`, `interlocks.json` still `"frozen": false` |
+| §9.4 equivalence margin | **ENTERED** — δ = 0.20 (`tools/simulate_delta.py`; 80 % power at the worst-case variance) |
+| §12.2 data freeze | **DONE** — all four data files `"frozen": true`; corpus sha256 `1154d352fd33…` |
+| extraction calibration | **NOT YET** — first results are preliminary until hand labels exist |
 
 ### Known findings about the corpus
 
-Verified, recorded in `docs/corpus_realism.md`, **not yet fixed** — all three would
-change the frozen corpus:
+Recorded in `docs/corpus_realism.md` against the v0.9 corpus. 1 and 2 are **fixed**
+in the v0.10 rebuild; 3 is partly fixed (deadline margin):
 
 1. **`location` is noise.** Median ETA is 5.0–6.1 h at every one of the eleven named
    locations. Nothing scores it, so no check is affected; it is incoherent *realism*.

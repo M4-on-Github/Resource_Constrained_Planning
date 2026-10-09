@@ -62,13 +62,21 @@ def deterministic_only(prose: str, scenario: Scenario) -> tuple[ExtractedPlan, d
         goal_attempted=det["goal_hit_det"],
         step_count=det["step_count"],
         word_count=det["word_count"],
+        conditional_steps=det["conditional_steps"],
         parse_failed=det["parse_failed"],
     )
     return plan, {**det, "llm": None}
 
 
-def compose(prose: str, scenario: Scenario, llm_raw: object) -> tuple[ExtractedPlan, dict]:
-    """The real extraction: deterministic pass, then the model's subtraction."""
+def compose(prose: str, scenario: Scenario, llm_raw: object,
+            llm_meta: dict | None = None) -> tuple[ExtractedPlan, dict]:
+    """The real extraction: deterministic pass, then the model's subtraction.
+
+    `llm_meta` is the backend's record of the call (raw text, finish reason,
+    attempts). It goes into the trace verbatim so a parse failure can be read
+    rather than guessed at — the exploratory run's 24 failures could not be
+    diagnosed because the raw reply was discarded.
+    """
     det = extract_det.deterministic_pass(prose, scenario)
     named = det["assets_named"]
     llm = extract_llm.parse_response(llm_raw, named)
@@ -89,12 +97,15 @@ def compose(prose: str, scenario: Scenario, llm_raw: object) -> tuple[ExtractedP
         reduce=llm["reduces"],
         step_count=det["step_count"],
         word_count=det["word_count"],
+        conditional_steps=det["conditional_steps"],
         parse_failed=det["parse_failed"],
     )
     trace = {
         "scenario_id": scenario.id,
         "arm": scenario.arm,
         "assets_named": list(named),
+        # ID-shaped tokens not in the ledger: what V1 fails on
+        "assets_unresolved": list(det["assets_unresolved"]),
         "not_assigned_work": list(llm["not_assigned_work"]),
         "commitments": list(commitments),
         "goal_hit_det": det["goal_hit_det"],
@@ -107,8 +118,12 @@ def compose(prose: str, scenario: Scenario, llm_raw: object) -> tuple[ExtractedP
         "reduce": llm["reduces"],
         "step_count": det["step_count"],
         "word_count": det["word_count"],
+        "conditional_steps": det["conditional_steps"],
         "parse_failed": det["parse_failed"],
         "llm_parse_failed": llm["llm_parse_failed"],
+        "llm_raw": (llm_meta or {}).get("text"),
+        "llm_finish_reason": (llm_meta or {}).get("finish_reason"),
+        "llm_attempts": (llm_meta or {}).get("attempts"),
     }
     return plan, trace
 
@@ -118,16 +133,40 @@ def compose(prose: str, scenario: Scenario, llm_raw: object) -> tuple[ExtractedP
 # --------------------------------------------------------------------------- #
 
 
-def _load_scenarios() -> dict[str, Scenario]:
-    """The corpus, keyed as the generation rows reference it.
+def _load_scenarios(path: str | pathlib.Path | None = None) -> dict[str, Scenario]:
+    """The frozen corpus (rcp.corpus), keyed as the generation rows reference it.
 
-    Rebuilt rather than read from disk: the generator is deterministic given
-    data/, so this is the same 440 cells the planner was shown, and a drift in
-    data/ shows up as a missing key instead of a silently different ledger.
+    Read from data/corpus.jsonl, sha-checked, never regenerated: a regeneration
+    after an edit to data/ would score plans against ledgers the planner never
+    saw. `path` points at another frozen corpus (its .sha256 beside it) — the
+    exploratory calibration plans in cal/exploratory/ were written against one.
     """
-    from .generator import build_corpus, manifest
+    from . import corpus
 
-    return {f"{s.id}/{s.arm}": s for s in build_corpus(manifest())}
+    if path is None:
+        return corpus.by_key()
+    p = pathlib.Path(path)
+    return {f"{s.id}/{s.arm}": s for s in corpus.load(p, p.with_suffix(".sha256"))}
+
+
+def check_ledger_hashes(rows: list[dict], scenarios: dict[str, Scenario],
+                        allow_unhashed: bool = False) -> list[str]:
+    """Rows whose recorded ledger_hash does not match the scenario they would be
+    scored against. A row with no hash is a mismatch unless `allow_unhashed`."""
+    from .corpus import ledger_hash
+
+    bad = []
+    for r in rows:
+        k = f"{r['scenario_id']}/{r['arm']}"
+        sc = scenarios.get(k)
+        if sc is None:
+            continue
+        got = r.get("ledger_hash")
+        if got is None and allow_unhashed:
+            continue
+        if got != ledger_hash(sc):
+            bad.append(k)
+    return bad
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -141,13 +180,25 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--no-llm", action="store_true",
                     help="deterministic pass only; no GPU, no model")
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--corpus", default=None,
+                    help="frozen corpus JSONL to score against (default data/corpus.jsonl)")
+    ap.add_argument("--allow-unhashed", action="store_true",
+                    help="accept generation rows written before ledger_hash existed "
+                         "(the exploratory calibration plans); never for a study run")
     args = ap.parse_args(argv)
 
-    scenarios = _load_scenarios()
+    scenarios = _load_scenarios(args.corpus)
     rows = [json.loads(ln) for ln in
             pathlib.Path(args.input).read_text(encoding="utf-8").splitlines() if ln.strip()]
     if args.limit:
         rows = rows[:args.limit]
+    bad = check_ledger_hashes(rows, scenarios, args.allow_unhashed)
+    if bad:
+        print(f"ERROR: {len(bad)} generation rows were written against a different "
+              f"ledger than the corpus being scored, e.g. {bad[:3]}. Refusing: these "
+              "plans would be scored against assets the planner never saw.",
+              file=sys.stderr)
+        return 1
 
     items = []
     for r in rows:
@@ -165,12 +216,20 @@ def main(argv: list[str] | None = None) -> int:
         results = [deterministic_only(it["prose"], it["scenario"]) for it in items]
     else:
         prompts = extract_llm.build_prompts(items)
-        raws = backends.run_vllm_batch(prompts, args.model_dir, extract_llm.SCHEMA)
-        results = [compose(it["prose"], it["scenario"], raw)
-                   for it, raw in zip(items, raws)]
+        metas = backends.run_vllm_batch(
+            prompts, args.model_dir, extract_llm.SCHEMA,
+            retry_if=lambda text: extract_llm.parse_response(text, ())["llm_parse_failed"])
+        results = [compose(it["prose"], it["scenario"], m["text"], m)
+                   for it, m in zip(items, metas)]
 
     out = pathlib.Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
+    if not args.no_llm:
+        from . import envinfo
+        envinfo.append(out / "env.jsonl", envinfo.record(
+            args.model_dir, stage="extract", input=str(args.input),
+            max_tokens=backends.DEFAULT_MAX_TOKENS,
+            retry_max_tokens=backends.RETRY_MAX_TOKENS))
     with (out / "extracted.jsonl").open("w", encoding="utf-8", newline="\n") as fh:
         for it, (plan, trace) in zip(items, results):
             # condition and domain_digest are carried through from the generation
@@ -183,7 +242,13 @@ def main(argv: list[str] | None = None) -> int:
             # that insists on them.
             fh.write(json.dumps({"plan": _plan_dict(plan), "trace": trace,
                                  "condition": it["row"].get("condition"),
-                                 "domain_digest": it["row"].get("domain_digest")},
+                                 "domain_digest": it["row"].get("domain_digest"),
+                                 # §9.2 reports truncation per arm beside the
+                                 # primary; the generation row is its only source.
+                                 "truncated": it["row"].get("truncated"),
+                                 "n_tokens": it["row"].get("n_tokens"),
+                                 "ledger_hash": it["row"].get("ledger_hash"),
+                                 "run_id": it["row"].get("run_id")},
                                 sort_keys=True) + "\n")
 
     failed = sum(1 for _, t in results if t.get("llm_parse_failed"))

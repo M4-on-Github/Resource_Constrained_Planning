@@ -2,7 +2,7 @@
   "_meta": {
     "canonical": "plan.md 4 -- THE check registry. Everything else references by id.",
     "code_contract": "plan.md 12.1: registries, not branches. Adding V2c is one row plus one predicate, never an executor edit.",
-    "frozen": false,
+    "frozen": true,
     "implemented_in_v1": [
       "V1",
       "V2a",

@@ -207,3 +207,13 @@ def test_an_invariant_violation_suppresses_every_table():
     assert rep["suppressed"] is True
     assert rep["invariant_violations"] == ["A/SUFFICIENT"]
     assert "endpoints" not in rep
+
+
+def test_paired_ci_brackets_the_difference_and_is_zero_width_when_concordant():
+    from rcp.compare import paired_ci
+
+    ps = [(False, True)] * 30 + [(True, True)] * 50 + [(True, False)] * 10
+    lo, hi = paired_ci(ps)
+    assert lo < 20 / 90 < hi
+    assert paired_ci([(True, True)] * 10) == (0.0, 0.0)
+    assert paired_ci([(True, False)]) is None

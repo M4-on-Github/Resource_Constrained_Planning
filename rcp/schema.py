@@ -103,6 +103,9 @@ class ExtractedPlan:
     #: §9.2 ceiling-artifact column
     step_count: int = 0
     word_count: int = 0
+    #: steps carrying an if/unless/otherwise branch despite §6.2's guard. Counted
+    #: deterministically, reported per arm, never graded.
+    conditional_steps: int = 0
     #: set when the generation could not be parsed at all (plan.md §8.2)
     parse_failed: bool = False
 
@@ -175,6 +178,7 @@ class Verdict:
 
     step_count: int = 0
     word_count: int = 0
+    conditional_steps: int = 0
 
     #: the per-resource audit trail every check was read off. Descriptive: the
     #: endpoints above are unchanged by its presence.

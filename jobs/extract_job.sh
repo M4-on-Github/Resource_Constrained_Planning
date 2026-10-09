@@ -57,12 +57,24 @@ done
 
 mkdir -p "$OUT_DIR"
 
+# ── Container digest, for the run's environment record (rcp/envinfo.py) ──────
+# Hashed on the host because the container cannot see its own image file.
+# Cached beside the SIF and reused while the SIF is older than the cache, so a
+# multi-GB image is hashed once per rebuild rather than once per job.
+SIF_SHA_CACHE="$DATA_DIR/.cache/$(basename "$SIF").sha256"
+mkdir -p "$(dirname "$SIF_SHA_CACHE")"
+if [ ! -s "$SIF_SHA_CACHE" ] || [ "$SIF" -nt "$SIF_SHA_CACHE" ]; then
+    sha256sum "$SIF" | cut -d' ' -f1 > "$SIF_SHA_CACHE"
+fi
+SIF_SHA="$(cat "$SIF_SHA_CACHE")"
+
 echo "==========================================="
 echo " RCP extraction (plan.md sec. 6.3)"
 echo " Model     : $MODEL"
 echo " Model dir : $MODEL_DIR"
 echo " Input     : $INPUT"
 echo " Output    : $OUT_DIR/extracted.jsonl"
+echo " Container : $SIF ($SIF_SHA)"
 echo " Job ID    : ${SLURM_JOB_ID:-none}"
 echo " Node      : $(hostname)"
 echo " Started   : $(date)"
@@ -83,6 +95,9 @@ apptainer exec \
     --env PYTHONPATH="$REPO" \
     --env HF_HOME="$DATA_DIR/.cache/huggingface" \
     --env HF_HUB_DISABLE_PROGRESS_BARS=1 \
+    --env RCP_CONTAINER="$SIF" \
+    --env RCP_CONTAINER_SHA256="$SIF_SHA" \
+    --env SLURM_JOB_ID="${SLURM_JOB_ID:-}" \
     --env CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}" \
     "$SIF" \
     python3 -m rcp.extract \

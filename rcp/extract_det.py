@@ -23,14 +23,25 @@ The class exclusion is load-bearing for a different reason: §8.3's negative
 control names only classes ("two tugs", "the available salvage assets") and must
 fail on **V3**, not V1. Since no class resolves, `assets_named` comes back empty
 and V1 passes vacuously, which is the behaviour that control checks for.
+
+**But resolution alone made V1 unfalsifiable.** If only tokens that resolve are
+recorded, no recorded token can fail to resolve, so V1 passed on every plan and
+`HALLUCINATE` was 0 by construction (found on the exploratory run; plan.md §4,
+docs/deviations.md). A planner that writes `TUG-012` against a ledger with no such
+row has named an asset that does not exist, and that is exactly V1's question. So
+`scan_ledger_ids` also records **ID-shaped** tokens that do not resolve: a
+catalogue prefix followed by digits, in the shape the ledger prints. A shape test,
+not a meaning test: "two tugs" and "Port Haldane" are still not names, and a
+token like "Tug 1" (a prefix-word plus a bare ordinal) is not ID-shaped either.
 """
 
 from __future__ import annotations
 
+import functools
 import re
 
 from .schema import Scenario
-from .world import states
+from .world import assets, states
 
 #: A step is a line that opens like a step. Three shapes, because §6.2's format
 #: affordance asks for numbered steps but a planner that ignores the format must
@@ -49,6 +60,27 @@ _WORD = re.compile(r"[A-Za-z0-9'’-]+")
 _SPAN_TOKEN = re.compile(r"[A-Za-z0-9]+(?:[-_.][A-Za-z0-9]+)*")
 
 MAX_SPAN_WORDS = 2
+
+#: A step carries a branch if it contains one of these. Counted, never graded:
+#: plan.md §6.2 forbids conditional steps in the prompt, and this records how
+#: often the planner wrote one anyway (reported per arm).
+_CONDITIONAL = re.compile(
+    r"\b(?:if|unless|in case|in the event|otherwise|failing that|"
+    r"as a (?:contingency|backup|fallback)|should (?:\w+\s+){0,6}?fail)\b",
+    re.IGNORECASE)
+
+
+@functools.lru_cache(maxsize=1)
+def _id_shape() -> re.Pattern:
+    """`<PREFIX>-<digits>` in any case, or `<PREFIX><digits>` / `<PREFIX> <digits>`
+    with the prefix in capitals and three digits, as the ledger prints it. The
+    second form is what a planner types when it drops the hyphen; requiring the
+    capitals and the full width keeps "FT 30" and "Tug 1" out."""
+    prefixes = sorted({t["prefix"] for t in assets()["types"].values()},
+                      key=len, reverse=True)
+    alt = "|".join(map(re.escape, prefixes))
+    return re.compile(
+        rf"(?<![A-Za-z0-9])(?:(?i:(?:{alt})[-_]\d{{1,4}})|(?:{alt}) ?\d{{3}})(?![A-Za-z0-9])")
 
 
 def word_count(prose: str) -> int:
@@ -75,19 +107,21 @@ def segment_steps(prose: str) -> list[str]:
 
 
 def scan_ledger_ids(prose: str, scenario: Scenario) -> tuple[str, ...]:
-    """Tokens in `prose` that name exactly one ledger asset, in order, deduped.
+    """Tokens in `prose` that name an asset, in order of first appearance, deduped.
 
-    Returned **as written**, not canonicalised: `ExtractedPlan.assets_named` is
-    documented as raw tokens, and V1's failure detail quotes them back so a
-    reader can see what the planner actually typed.
+    Two kinds, both returned **as written** (`ExtractedPlan.assets_named` is raw
+    tokens, and V1's failure detail quotes them back):
 
-    Dedup is on the resolved id, not on the token: a plan that writes "TUG-002"
-    once and "Tug 002" once has named one asset, and V1 should say so.
+      * tokens resolving to exactly one ledger ID — deduped on the resolved id,
+        so "TUG-002" once and "Tug 002" once is one asset;
+      * ID-shaped tokens resolving to none — deduped on their normalised form.
+        These are what V1 exists to catch (module docstring).
     """
-    from .normalize import resolve
+    from .normalize import normalize, resolve
 
     ids = list(scenario.ledger_ids)
-    found: dict[str, tuple[int, str]] = {}  # resolved id -> (offset, token as written)
+    found: dict[str, tuple[int, str]] = {}  # resolved id / unresolved key -> (offset, token)
+    end_of_text = len((prose or "").rstrip())
     offset = 0
     for line in (prose or "").splitlines(keepends=True):
         tokens = list(_SPAN_TOKEN.finditer(line))
@@ -99,11 +133,54 @@ def scan_ledger_ids(prose: str, scenario: Scenario) -> tuple[str, ...]:
                 aid = resolve(line[start:end], ids)
                 if aid is not None and aid not in found:
                     found[aid] = (offset + start, line[start:end])
+        for m in _id_shape().finditer(line):
+            if offset + m.end() >= end_of_text and _cut_off(m.group(0), ids):
+                continue
+            if resolve(m.group(0), ids) is None and not _zero_padded_match(m.group(0), ids):
+                key = "?" + normalize(m.group(0))
+                if key not in found:
+                    found[key] = (offset + m.start(), m.group(0))
         offset += len(line)
     # First appearance in the prose, by the offset the match was found at — not by
     # re-searching for the token, which would mis-order a token that also occurs
     # inside an earlier unresolved span.
     return tuple(tok for _, tok in sorted(found.values()))
+
+
+def _unpad(token: str) -> str:
+    from .normalize import normalize
+
+    return re.sub(r"0+(?=\d)", "", normalize(token))
+
+
+def _zero_padded_match(token: str, ids: list[str]) -> bool:
+    """`WIN-6` against a ledger holding `WIN-006`: not resolvable under the frozen
+    §4 rule (so never credited), but not an invented asset either, so V1 is not
+    failed for it."""
+    want = _unpad(token)
+    return any(_unpad(aid) == want for aid in ids)
+
+
+def _cut_off(token: str, ids: list[str]) -> bool:
+    """A generation truncated mid-ID ends in `RGT-00`. The exploratory run's only
+    unresolved ID-shaped tokens were exactly this, so the last token of the prose
+    is not counted as invented when it is a strict prefix of a ledger ID."""
+    from .normalize import normalize
+
+    want = normalize(token)
+    return any(normalize(aid).startswith(want) and normalize(aid) != want for aid in ids)
+
+
+def unresolved_named(named: tuple[str, ...], scenario: Scenario) -> tuple[str, ...]:
+    """The ID-shaped tokens in `named` that are not in this ledger — V1's failures."""
+    from .normalize import resolve
+
+    return tuple(t for t in named if resolve(t, scenario.ledger_ids) is None)
+
+
+def conditional_steps(steps: list[str]) -> int:
+    """How many steps carry an if/unless/otherwise/should-…-fail branch."""
+    return sum(1 for st in steps if _CONDITIONAL.search(st))
 
 
 def goal_vocabulary(state: str) -> tuple[str, ...]:
@@ -140,8 +217,11 @@ def deterministic_pass(prose: str, scenario: Scenario) -> dict:
     """
     steps = segment_steps(prose)
     hit, matched = goal_hit(prose, scenario.casualty_state)
+    named = scan_ledger_ids(prose, scenario)
     return {
-        "assets_named": scan_ledger_ids(prose, scenario),
+        "assets_named": named,
+        "assets_unresolved": unresolved_named(named, scenario),
+        "conditional_steps": conditional_steps(steps),
         "step_count": len(steps),
         "word_count": word_count(prose),
         "goal_hit_det": hit,

@@ -4,7 +4,7 @@
     "status": "DRAFT -- plan.md names four interlocks by label only; these are the first written rules and need M4's review",
     "family": "F5 -- forbidden pattern over step sequence. Each rule is: TRIGGER must not occur unless REQUIRES_BEFORE occurred earlier in the same scope.",
     "split": "V4a = the two interlocks STATED in the assertion block (tests whether the model applies a given fact). V4b = the two WITHHELD (tests latent knowledge). plan.md 13 Q6c: averaging them is uninterpretable, and V4b denominators must be reported.",
-    "frozen": false
+    "frozen": true
   },
 
   "interlocks": [

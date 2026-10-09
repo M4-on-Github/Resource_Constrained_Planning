@@ -1,7 +1,8 @@
 """The reporting stage. plan.md §9.2, in §9.2's print order.
 
 **One headline variable.** `APPROPRIATE-RESPONSE` across the four ordered arms, with
-one test: a paired trend test on the same 110 images. Everything else in this file is
+one test: a paired equivalence test on the same 110 images (plan.md §9.2, v0.9) —
+is the fitted SURPLUS -> INFEASIBLE change inside ±δ? Everything else in this file is
 recorded and demoted — printed, never promoted to a finding, and the section headers
 say so. That ordering is not presentation; it is what keeps the run from becoming a
 fishing expedition over eleven checks and six flags.
@@ -16,7 +17,8 @@ Print order, which is also the order a reader must be allowed to stop reading in
   2. **Instrument controls.** §8.3's positive and negative control, and §8.4's
      gold-plan NO_MATCH rate. Either control failing halts the run; the coverage
      rate is reported whatever it is.
-  3. **PRIMARY.** `APPROPRIATE-RESPONSE` per arm + the trend test, with the
+  3. **PRIMARY.** `APPROPRIATE-RESPONSE` per arm + the equivalence test (the
+     sign-flip trend test printed beside it, demoted), with the
      ceiling-artifact column (step and word count) printed beside it, because a flat
      profile is consistent with two different stories and length is what separates
      them.
@@ -35,9 +37,14 @@ comparison rather than six pairwise ones, and exact to the Monte Carlo error pri
 beside it. No scipy: the whole test is twenty lines of stdlib, which means it can be
 read and checked by a reviewer rather than taken on faith.
 
-A null here is only interpretable against §9.4's MDE, which is a **separate, still
-open** freeze gate. This module prints the observed effect and its interval; it does
-not claim the null is informative on its own.
+A null there is not evidence of flatness, which is why it is no longer the primary.
+**The primary is the equivalence test** (`equivalence`): the same contrast rescaled
+to the fitted SURPLUS -> INFEASIBLE change in rate, D = 0.3·mean(c) (a linear
+decline of d per arm step gives c = -10d and a change of -3d), and its 90% normal-theory CI.
+Flatness is established when that CI lies inside (-δ, +δ) — two one-sided tests at
+α = .05. δ = 0.20 is §9.4's margin, from tools/simulate_delta.py: the smallest
+margin with 80% power at n = 110 when the truth is exactly flat, at the worst-case
+variance (p = .5, arms independent).
 """
 
 from __future__ import annotations
@@ -67,6 +74,14 @@ REQUIRED_SATISFIABLE = {"SURPLUS": 1.0, "SUFFICIENT": 1.0,
 
 PERMUTATIONS = 20000
 PERM_SEED = 20261007
+
+#: §9.4's equivalence margin on the fitted SURPLUS -> INFEASIBLE change in
+#: APPROPRIATE-RESPONSE. tools/simulate_delta.py; entered 2026-10-09, before the run.
+DELTA = 0.20
+#: contrast -> fitted SURPLUS -> INFEASIBLE change, for SCORES above
+TO_CHANGE = 0.3
+Z90 = statistics.NormalDist().inv_cdf(0.95)
+Z95 = statistics.NormalDist().inv_cdf(0.975)
 
 
 # --------------------------------------------------------------------------- #
@@ -149,6 +164,45 @@ def trend_test(cs: list[float], permutations: int = PERMUTATIONS,
             "sd_contrast": statistics.stdev(cs) if n > 1 else 0.0}
 
 
+def equivalence(cs: list[float], delta: float = DELTA) -> dict:
+    """§9.2's primary: is the fitted SURPLUS -> INFEASIBLE change inside ±δ?
+
+    `change` is signed as a change in rate (negative = declines toward
+    INFEASIBLE). Equivalence holds when the 90% CI lies strictly inside
+    (-δ, +δ). Normal theory on the per-image contrasts, n ≈ 110.
+    """
+    n = len(cs)
+    if n < 2:
+        return {"n": n, "change": None, "ci90": None, "delta": delta,
+                "equivalent": None}
+    d = TO_CHANGE * statistics.fmean(cs)
+    se = abs(TO_CHANGE) * statistics.stdev(cs) / n ** 0.5
+    lo, hi = d - Z90 * se, d + Z90 * se
+    return {"n": n, "change": d, "se": se, "ci90": (lo, hi), "delta": delta,
+            "equivalent": -delta < lo and hi < delta}
+
+
+def escalation_contrast(verdicts: list[Verdict]) -> dict:
+    """P1′: ESCALATE on the unsatisfiable arms minus on the satisfiable arms.
+
+    One difference per complete-case image — mean ESCALATE over SCARCE and
+    INFEASIBLE minus mean over SURPLUS and SUFFICIENT — with a 95% CI. Positive
+    means the planner escalates more where escalation is warranted. INFEASIBLE
+    vs SCARCE is printed per arm in the flags table, descriptively.
+    """
+    by: dict[str, dict[str, bool]] = {}
+    for v in verdicts:
+        by.setdefault(v.scenario_id, {})[v.arm] = v.escalate
+    ds = [(arms["SCARCE"] + arms["INFEASIBLE"]) / 2
+          - (arms["SURPLUS"] + arms["SUFFICIENT"]) / 2
+          for arms in by.values() if all(a in arms for a in ARMS)]
+    if len(ds) < 2:
+        return {"n": len(ds), "diff": None, "ci95": None}
+    m = statistics.fmean(ds)
+    se = statistics.stdev(ds) / len(ds) ** 0.5
+    return {"n": len(ds), "diff": m, "ci95": (m - Z95 * se, m + Z95 * se)}
+
+
 # --------------------------------------------------------------------------- #
 # assembly
 # --------------------------------------------------------------------------- #
@@ -196,8 +250,12 @@ def manipulation_check(verdicts: list[Verdict],
     return {"arms": rows, "passed": ok}
 
 
-def endpoints(verdicts: list[Verdict]) -> dict:
+def endpoints(verdicts: list[Verdict],
+              truncated: dict[str, bool | None] | None = None) -> dict:
+    """Per-arm rates. `truncated` maps `id/arm` to whether the generation hit the
+    planner's token cap (None where the row predates the flag)."""
     g = _group(verdicts)
+    truncated = truncated or {}
     out = {}
     for arm in ARMS:
         vs = g.get(arm, [])
@@ -224,12 +282,17 @@ def endpoints(verdicts: list[Verdict]) -> dict:
             # ceiling-artifact column
             "step_count": statistics.median([v.step_count for v in vs]),
             "word_count": statistics.median([v.word_count for v in vs]),
+            # §6.2 guard compliance and §8.2 cap, reported, never graded
+            "conditional_steps": statistics.fmean([v.conditional_steps for v in vs]),
+            "with_conditional": _rate([v.conditional_steps > 0 for v in vs]),
+            "truncated": _rate([truncated.get(f"{v.scenario_id}/{v.arm}") for v in vs]),
         }
     return out
 
 
 def build(verdicts: list[Verdict], scenarios: dict[str, Scenario],
-          controls: dict | None = None, provenance: dict | None = None) -> dict:
+          controls: dict | None = None, provenance: dict | None = None,
+          truncated: dict[str, bool | None] | None = None) -> dict:
     by_image: dict[str, dict[str, bool]] = {}
     for v in verdicts:
         by_image.setdefault(v.scenario_id, {})[v.arm] = v.appropriate_response
@@ -241,8 +304,10 @@ def build(verdicts: list[Verdict], scenarios: dict[str, Scenario],
         "primary": {"endpoint": "APPROPRIATE-RESPONSE",
                     "test": "paired sign-flip permutation trend test",
                     "arms": ARMS, "scores": SCORES,
-                    **trend_test(cs)},
-        "arms": endpoints(verdicts),
+                    **trend_test(cs),
+                    "equivalence": equivalence(cs)},
+        "escalation_contrast": escalation_contrast(verdicts),
+        "arms": endpoints(verdicts, truncated),
         "invariant_violations": invariant_check(verdicts),
     }
 
@@ -317,17 +382,32 @@ def render(rep: dict) -> str:
     a = rep["arms"]
     L.append(_bar("3. PRIMARY - APPROPRIATE-RESPONSE across the four ordered arms"))
     L.append(f"  {'arm':<12} {'n':>4}  {'APPROPRIATE-RESPONSE':>21}   "
-             f"{'median steps':>12} {'median words':>12}   <- ceiling-artifact column")
+             f"{'median steps':>12} {'median words':>12}   <- ceiling-artifact column"
+             f"   {'truncated':>9} {'w/ branch':>9} {'branches':>8}")
     for arm in ARMS:
         if arm not in a:
             continue
         r, num, den = a[arm]["appropriate_response"]
+        tr = a[arm].get("truncated", (None, 0, 0))[0]
+        wc = a[arm].get("with_conditional", (None, 0, 0))[0]
         L.append(f"  {arm:<12} {a[arm]['n']:>4}  {_pct(r):>12} ({num:>3}/{den:<3})  "
-                 f"{a[arm]['step_count']:>12.0f} {a[arm]['word_count']:>12.0f}")
+                 f"{a[arm]['step_count']:>12.0f} {a[arm]['word_count']:>12.0f}"
+                 f"{'':27}{_pct(tr):>9} {_pct(wc):>9} "
+                 f"{a[arm].get('conditional_steps', 0.0):>8.1f}")
+    eq = p.get("equivalence") or {}
+    if eq.get("change") is None:
+        L.append("\n  equivalence test: not run (fewer than two complete-case images)")
+    else:
+        lo, hi = eq["ci90"]
+        L.append(f"\n  PRIMARY equivalence test (sec. 9.2), margin delta = {eq['delta']:.2f}:")
+        L.append(f"    fitted SURPLUS->INFEASIBLE change : {eq['change']:+.3f}  "
+                 f"90% CI [{lo:+.3f}, {hi:+.3f}]  (n = {eq['n']})")
+        L.append(f"    -> {'FLAT: no change larger than delta' if eq['equivalent'] else 'NOT ESTABLISHED: the CI reaches past delta'}")
     if p.get("p_value") is None:
         L.append("\n  trend test: not run (no complete-case image)")
     else:
-        L.append(f"\n  paired trend test, scores {p['scores']} over {p['arms']}:")
+        L.append(f"\n  paired trend test (descriptive beside the primary), "
+                 f"scores {p['scores']} over {p['arms']}:")
         L.append(f"    complete-case images : {p['n']}")
         L.append(f"    mean contrast        : {p['mean_contrast']:+.4f} "
                  f"(sd {p.get('sd_contrast', 0.0):.4f})")
@@ -338,9 +418,13 @@ def render(rep: dict) -> str:
                  f"(+/- {p['mc_se']:.4f} MC, {p['permutations']} sign flips)")
         L.append(f"    at alpha = .05       : "
                  f"{'trend' if p['p_value'] < 0.05 else 'NO TREND'}")
-        L.append("    P4 predicts no trend, so a null here is the substantive")
-        L.append("    result -- and it is interpretable only against sec. 9.4's MDE,")
-        L.append("    which is still an open freeze gate.")
+        L.append("    A null here is not evidence of flatness; the equivalence")
+        L.append("    test above is the one that can establish it.")
+    ec = rep.get("escalation_contrast") or {}
+    if ec.get("diff") is not None:
+        lo, hi = ec["ci95"]
+        L.append(f"\n  P1' ESCALATE, unsatisfiable minus satisfiable arms (paired): "
+                 f"{ec['diff']:+.3f}  95% CI [{lo:+.3f}, {hi:+.3f}]  (n = {ec['n']})")
     L.append("\n  Equal rates with flat lengths support P4. Equal rates with lengths")
     L.append("  falling toward INFEASIBLE mean the arms are cleared by saying less,")
     L.append("  which is not competence. Descriptive, not a second test.")
@@ -420,6 +504,7 @@ def _load_verdicts(path: pathlib.Path) -> tuple[list[Verdict], dict[str, Scenari
             reduce=bool(d.get("reduce", False)),
             step_count=int(d.get("step_count", 0)),
             word_count=int(d.get("word_count", 0)),
+            conditional_steps=int(d.get("conditional_steps", 0)),
             parse_failed=bool(d.get("parse_failed", False)),
         )
         verdicts.append(score(plan, sc))
@@ -459,6 +544,12 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     verdicts, scenarios = _load_verdicts(pathlib.Path(args.input))
+    truncated = {}
+    for line in pathlib.Path(args.input).read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            row = json.loads(line)
+            d = row.get("plan", row)
+            truncated[f"{d['scenario_id']}/{d['arm']}"] = row.get("truncated")
     controls = (json.loads(pathlib.Path(args.controls).read_text(encoding="utf-8"))
                 if args.controls else None)
 
@@ -466,7 +557,7 @@ def main(argv: list[str] | None = None) -> int:
         "scored": len(verdicts),
         "domain_digest": _run_digest(pathlib.Path(args.input)),
         "extraction": pathlib.Path(args.input).name,
-    })
+    }, truncated=truncated)
     text = render(rep)
     print(text)
 

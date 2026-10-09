@@ -2,108 +2,145 @@
 
 Procedural for all 110 images x 4 arms. Deterministic: the seed is derived from
 the image id, so regenerating a corpus from the same manifest gives byte-identical
-scenarios.
+scenarios. The corpus that ships is nonetheless *read* from data/corpus.jsonl
+(rcp.corpus), not rebuilt: Python guarantees `random.random()` across versions but
+not `uniform`/`choice`/`sample`/`shuffle`, so regeneration is a check, not the source.
 
-Two design points worth knowing before reading:
+Design points worth knowing before reading:
 
-**Scarcity varies asset COUNT, not per-asset capability.** plan.md §7.2's own
-worked example does this ("SCARCE removes TUG-011 and TUG-005"), and §7.1 accepts
-the consequence by requiring asset count be recorded and reported as a covariate.
-The alternative — fixed count, weaker assets — would hold cardinality constant but
-depart from the document.
+**The arms are nested.** One chain is built per image, bottom-up, and each arm is
+a superset of the one below it:
+
+    INFEASIBLE = on-time O1 (~0.25x) + late L1 + distractors
+    SCARCE     = INFEASIBLE + O2       (on-time to ~0.5x)
+    SUFFICIENT = SCARCE + O3 + L2      (on-time to ~1.2x, more late capability)
+    SURPLUS    = SUFFICIENT + O4       (on-time to ~3.0x)
+
+So "SCARCE removes TUG-011 and TUG-005" (plan.md §7.2) is literally true: an asset
+present in two arms is the same row with the same ID, location and ETA, and the
+difference between two arms of one image is the manipulation and nothing else.
+The four arms are accepted or redrawn *together*.
+
+**Scarcity varies asset COUNT, not per-asset capability.** §7.1 accepts the
+consequence by requiring asset count be recorded and reported as a covariate.
 
 **The arm multiplier defines ratio_deadline, not ratio_fleet.** The arm is a claim
 about what the planner can actually assemble, so the multiplier sizes the *on-time*
-capability. Late assets are extras on top of it. plan.md §7.3 invariant 2 already
-states arm fidelity against ratio_deadline; this makes the generator agree.
+capability. Late assets are extras on top of it. Lean arms additionally keep the
+whole fleet below the requirement, so they are short however the planner counts.
 
-**Every ledger carries late contributing assets.** Not only the trap ones. Two
-reasons, and the first is a validity bug found in Phase A:
+**ETA comes from geography.** Each chain gets three fictional ports at fixed
+distances (near / mid / far), shared by its four arms. An asset at a port has
+`eta = mobilisation + distance / speed` for its type; a floating asset may instead
+be underway at sea at a stated distance. Location therefore means something, and
+two assets at one port differ only by type. (Previously location was drawn
+independently of ETA: docs/corpus_realism.md §1.)
+
+**Nothing sits at the deadline.** Every ETA is at least DEADLINE_MARGIN away from
+it, either side, so whether an asset is on time is never decided by rounding.
+
+**Every ledger carries late contributing assets.** Two reasons:
 
   (i) When late assets appeared only in trap cells, "this ledger contains a far-away
       ETA" was a perfect predictor of "this ledger is unsatisfiable" across all 440
-      cells. A planner could have scored the manipulation from a surface cue without
-      doing any arithmetic. Late assets everywhere removes the cue.
+      cells. Late assets everywhere removes the cue.
  (ii) V2a is a primary check. In a ledger where everything arrives on time it passes
-      vacuously, so without late assets somewhere in every ledger, one of the four
-      primary checks can never fail. With them, a V2a failure is unambiguous: the
-      stimulus never forces it, so it is always the planner's own error.
+      vacuously. With late assets everywhere, a V2a failure is the planner's own.
 
-**The OVERCOMMIT trap is deferred to v2 (TRAP_FRACTION = 0).** The machinery below
-is intact and tested; only the rate is zero. In v1 both abundant arms are 110/110
-satisfiable, which is what makes SURPLUS a clean ceiling condition and the positive
-control non-vacuous. Turning the trap on is a one-constant change, and it belongs
-in SUFFICIENT — where "just enough on paper" makes reading the ETA load-bearing —
-not in SURPLUS, whose job is to be the arm with no excuses.
+**Every capsized/sunken ledger carries divers, every on_fire one a dewatering
+pump** (data/requirements.json `enabling_kit`). They count toward no scalar, so the
+arm ratios are untouched; they exist so that a planner who needs divers to rig a
+hull is not pushed into escalating on a satisfiable ledger (corpus_realism §2).
+
+**The OVERCOMMIT trap is not built in v1.** Nested arms leave no place for it: a
+trap needs a SUFFICIENT-level fleet with a short on-time subset, which is not a
+superset of SCARCE. v2 reintroduces it as a separate arm. `is_trap` stays on the
+Scenario, always False, so the downstream code and the v2 path are unchanged.
 
 **The arm bands are enforced, not hoped for.** Whole-asset granularity means a
-ledger built to a target overshoots it, sometimes by enough to make a SCARCE
-ledger satisfiable. `build_scenario` therefore rejection-samples: it builds a
-ledger, tests it against the arm's acceptance predicate, and redraws until it
-passes or the attempt budget runs out — in which case it raises. A silently
-off-arm scenario is the one defect that would survive into the results as a
-finding (plan.md §7.3), so it fails loudly here instead.
+ledger built to a target overshoots it. `build_chain` therefore rejection-samples
+the whole chain and raises if the attempt budget runs out: a silently off-arm
+scenario is the one defect that would survive into the results as a finding.
 """
 
 from __future__ import annotations
 
 import csv
+import dataclasses
+import functools
 import hashlib
+import math
 import pathlib
 import random
 
 from .normalize import assert_ids_distinct
 from .schema import Asset, Requirement, Scenario
-from .validator import ledger_satisfiable, ratio_deadline, ratio_fleet
+from .validator import (
+    MAX_LEDGER_FOR_ENUMERATION,
+    eligible_assets,
+    ledger_satisfiable,
+    ratio_deadline,
+    ratio_fleet,
+)
 from .world import (
     ARM_MULTIPLIERS,
+    assets,
     contributing_types,
     distractor_types,
-    locations,
+    enabling_kit,
+    geography,
+    ports,
     states,
 )
 
-#: Fraction of images carrying the OVERCOMMIT trap. **Zero in v1** — the trap is a
-#: deferred manipulation, see the module docstring. plan.md §7.2's IMG-042 is a trap
-#: scenario (fleet 1.2x, deadline 0.79x) and remains the worked example for v2.
+#: Kept for the downstream code that reads it; nested arms build no trap (above).
 TRAP_FRACTION = 0.0
 
-#: Arms a trap can be set in: those whose multiplier exceeds 1. SCARCE and INFEASIBLE
-#: deny `ratio_fleet > 1`, so a trap there is unsatisfiable for the ordinary reason
-#: and indistinguishable from the arm itself.
-TRAPPABLE_ARMS = tuple(a for a, m in ARM_MULTIPLIERS.items() if m > 1.0)
-
-#: Late capability added to every ledger, as a fraction of what arrives on time
-#: (abundant arms) or of the headroom left below the requirement (lean arms).
-#: Gives V2a teeth in all four arms without changing any arm's ratio_deadline.
+#: Late capability as a fraction of the requirement (abundant arms) or of the
+#: headroom left below it (lean arms). Gives V2a teeth in all four arms.
 LATE_SHARE_BAND = (0.30, 0.80)
 
-#: Lean arms must keep ratio_fleet < 1, so late extras are capped below the
-#: requirement rather than measured against the on-time total.
+#: Lean arms must keep ratio_fleet < 1, so their late extras are sized against
+#: this fraction of the requirement minus SCARCE's on-time target.
 LEAN_FLEET_HEADROOM = 0.95
-
-#: A trap's by-deadline total, as a fraction of the requirement. Must stay < 1/1.2
-#: so that a trap at SUFFICIENT is genuinely short.
-TRAP_SHORTFALL_BAND = (0.70, 0.95)
 
 #: How many contributing assets a SUFFICIENT ledger should hold. Sets the asset
 #: "size" for the scenario, which then fixes counts in the other arms.
 CONTRIB_AT_SUFFICIENT = 3
 
-#: Hard stop. The eligible pool drives subset enumeration (validator caps at 14).
+#: Per-fill stop, and the cap on the on-time pool (the validator enumerates it).
 MAX_CONTRIBUTING = 10
+MAX_ELIGIBLE = MAX_LEDGER_FOR_ENUMERATION
+
+#: Share of picks that take any type fitting the remaining target rather than the
+#: nearest-sized one (_pick_type).
+TYPE_EXPLORE = 0.25
+TYPE_EXPLORE_OVERSHOOT = 1.5
+
+#: Random distractors on top of the enabling kit.
 DISTRACTORS = (1, 2)
 
-#: Rejection-sampling budget per (image, arm). Generous: a rejected draw costs
-#: microseconds, and exhausting it means the arm band is unachievable for this
-#: requirement magnitude, which is a data problem to surface, not to average over.
+#: No ETA within max(0.3 h, 5 % of the deadline) of the deadline, either side.
+DEADLINE_MARGIN_H = 0.3
+DEADLINE_MARGIN_FRAC = 0.05
+
+#: ID numbers are drawn from 1..ID_NUMBER_MAX per prefix.
+ID_NUMBER_MAX = 60
+
+#: Rejection-sampling budget per image (the whole four-arm chain).
 MAX_ATTEMPTS = 400
 
-#: How far a realised ratio may sit from the arm multiplier. The abundant arms
-#: only need an upper bound (they must stay satisfiable); the lean arms only need
-#: a lower one (they must stay short). Both are one-sided for that reason.
+#: How far a realised ratio may sit from the arm multiplier. One-sided, as before:
+#: the abundant arms must stay satisfiable, the lean arms must stay short.
 ABUNDANT_RATIO_CEILING = 1.5   # x the multiplier
 LEAN_RATIO_FLOOR = 0.55        # x the multiplier
+#: SURPLUS must actually add on-time capability over SUFFICIENT. Without a floor
+#: an image whose deadline admits only small assets fills the eligible budget at
+#: SUFFICIENT and ships a SURPLUS ledger identical to it.
+ABUNDANT_RATIO_FLOOR = 0.67    # x the multiplier, and never below 1.0
+
+#: Bottom-up build order. Each arm is a superset of the one before it.
+CHAIN = ("INFEASIBLE", "SCARCE", "SUFFICIENT", "SURPLUS")
 
 
 def _rng(image_id: str, salt: str = "") -> random.Random:
@@ -118,6 +155,10 @@ def _round_amount(x: float) -> float:
     if x >= 100:
         return round(x / 10) * 10
     return round(x)
+
+
+def deadline_margin(deadline_h: float) -> float:
+    return max(DEADLINE_MARGIN_H, DEADLINE_MARGIN_FRAC * deadline_h)
 
 
 def make_requirement(image_id: str, casualty_state: str, size_category: str) -> Requirement:
@@ -135,9 +176,92 @@ def make_requirement(image_id: str, casualty_state: str, size_category: str) -> 
     )
 
 
-def _pick_type(quantity: str, want: float, rng: random.Random) -> tuple[str, dict]:
-    """Choose an asset type whose capability band sits closest to `want`."""
-    cands = contributing_types(quantity)
+def make_geography(image_id: str, attempt: int = 0) -> tuple[tuple[str, int], ...]:
+    """Three fictional ports, one per distance tier, shared by one chain's four arms.
+
+    Redrawn per chain attempt, not fixed per image: a long-deadline image whose far
+    port happens to be close can place a late asset only by picking a slow,
+    oversized type, which pushes the lean arms' whole fleet past the requirement.
+    """
+    rng = _rng(image_id, f"geo|{attempt}")
+    tiers = geography()["port_tiers_nm"]
+    names = rng.sample(ports(), len(tiers))
+    return tuple((n, rng.randint(lo, hi)) for n, (lo, hi) in zip(names, tiers))
+
+
+# --------------------------------------------------------------------------- #
+# One asset
+# --------------------------------------------------------------------------- #
+
+
+def _windows(tspec: dict, geo: tuple[tuple[str, int], ...], *, late: bool,
+             deadline_h: float) -> list[tuple[str | None, int | None, float, float]]:
+    """Where this type can be placed so its ETA falls on the right side of the
+    deadline: (port or None for underway, distance, eta_lo, eta_hi), with the eta
+    bounds already on the 0.1 h grid the ledger prints."""
+    m = deadline_margin(deadline_h)
+    role_lo, role_hi = (deadline_h + m, math.inf) if late else (0.0, deadline_h - m)
+    v = tspec["speed_kn"]
+    m_lo, m_hi = tspec["mobilise_h"]
+    cands: list[tuple[str | None, int | None, float, float]] = []
+    for name, nm in geo:
+        cands.append((name, nm, m_lo + nm / v, m_hi + nm / v))
+    if tspec["floating"]:
+        g = geography()
+        d_lo, d_hi = g["underway_nm"]
+        s = g["underway_setup_h"]
+        cands.append((None, None, s + d_lo / v, s + d_hi / v))
+    out = []
+    for name, nm, lo, hi in cands:
+        lo = math.ceil(max(lo, role_lo) * 10 - 1e-9) / 10
+        hi = math.floor(min(hi, role_hi) * 10 + 1e-9) / 10
+        if lo <= hi:
+            out.append((name, nm, lo, hi))
+    return out
+
+
+def _draw(tname: str, tspec: dict, want: float, rng: random.Random, *, late: bool,
+          deadline_h: float, geo: tuple[tuple[str, int], ...]) -> Asset | None:
+    """One asset of type `tname`, or None if the type cannot be on the required
+    side of the deadline from anywhere in this image's geography. The ID is a
+    placeholder; `_assign_ids` numbers the finished chain."""
+    wins = _windows(tspec, geo, late=late, deadline_h=deadline_h)
+    if not wins:
+        return None
+    name, nm, lo, hi = rng.choice(wins)
+    eta = round(rng.uniform(lo, hi), 1)
+    if name is None:
+        g = geography()
+        nm = max(g["underway_nm"][0], round((eta - g["underway_setup_h"]) * tspec["speed_kn"]))
+        location = f"underway, {nm} nm"
+    else:
+        location = f"{name}, {nm} nm"
+    lo_c, hi_c = tspec["capability_band"]
+    cap = _round_amount(min(hi_c, max(lo_c, want * rng.uniform(0.85, 1.15))))
+    return Asset(id=f"{tspec['prefix']}-?", type=tname, label=tspec["label"],
+                 capability=cap, unit=tspec["unit"], location=location,
+                 eta_hours=eta, quantity=tspec["quantity"])
+
+
+def _pick_type(quantity: str, want: float, remaining: float, rng: random.Random, *,
+               late: bool, deadline_h: float, geo) -> tuple[str, dict] | None:
+    """Usually the placeable type whose capability band sits closest to `want`.
+
+    With probability TYPE_EXPLORE, instead any placeable type whose smallest unit
+    is within TYPE_EXPLORE_OVERSHOOT of the remaining target (the arm bands, not
+    this, decide whether the overshoot is acceptable). Without that, a short deadline that admits only one small
+    type on time plus one large type underway always picks the small one and can
+    never reach SURPLUS (a 9 200 t.m righting job by 6.6 h is 35 winch sets).
+    """
+    cands = {k: v for k, v in contributing_types(quantity).items()
+             if _windows(v, geo, late=late, deadline_h=deadline_h)}
+    if not cands:
+        return None
+    fits = [c for c in cands.items()
+            if c[1]["capability_band"][0] <= remaining * TYPE_EXPLORE_OVERSHOOT + 1e-9]
+    if fits and rng.random() < TYPE_EXPLORE:
+        return rng.choice(sorted(fits))
+
     def distance(item: tuple[str, dict]) -> float:
         lo, hi = item[1]["capability_band"]
         if lo <= want <= hi:
@@ -149,156 +273,176 @@ def _pick_type(quantity: str, want: float, rng: random.Random) -> tuple[str, dic
     return rng.choice(tied)
 
 
-def _draw(tname: str, tspec: dict, want: float, rng: random.Random, *, late: bool,
-          deadline_h: float, counter: dict[str, int]) -> Asset:
-    lo, hi = tspec["capability_band"]
-    cap = _round_amount(min(hi, max(lo, want * rng.uniform(0.85, 1.15))))
-    e_lo, e_hi = tspec["eta_band_h"]
-    if late:
-        eta = round(max(deadline_h + 0.3, rng.uniform(deadline_h + 0.3, max(e_hi, deadline_h * 1.8))), 1)
-    else:
-        eta = round(rng.uniform(e_lo, min(e_hi, deadline_h)), 1) if e_lo <= deadline_h \
-            else round(deadline_h * rng.uniform(0.3, 0.9), 1)
-    prefix = {"bollard_pull": "TUG", "lift_capacity": "LFT",
-              "righting_moment": "RGT", "water_delivery": "FFP"}.get(tspec["quantity"], "AST")
-    if tname == "beach_gear_set":
-        prefix = "BG"
-    counter[prefix] = counter.get(prefix, 0) + 1
-    return Asset(
-        id=f"{prefix}-{counter[prefix]:03d}",
-        type=tname,
-        label=tspec["label"],
-        capability=cap,
-        unit=tspec["unit"],
-        location=rng.choice(locations()),
-        eta_hours=eta,
-        quantity=tspec["quantity"],
-    )
-
-
 def _fill_to(target: float, req: Requirement, rng: random.Random, *, late: bool,
-             counter: dict[str, int], unit_size: float) -> list[Asset]:
+             unit_size: float, geo, max_n: int = MAX_CONTRIBUTING) -> list[Asset]:
     """Draw whole assets until their capability reaches `target`.
 
-    The last asset is sized to the *remainder*, not to `unit_size`, and its type
-    is chosen for the remainder too. Without that, a ledger built to 0.5x
-    routinely lands above 1.0x, because a type's capability_band floor can sit
-    well above what is still needed — which is how a SCARCE arm ends up
-    satisfiable (plan.md §7.3 invariant 2).
+    The last asset is sized to the *remainder*, and its type chosen for the
+    remainder too, or a ledger built to 0.5x routinely lands above 1.0x.
     """
     out: list[Asset] = []
     total = 0.0
-    while total < target - 1e-9 and len(out) < MAX_CONTRIBUTING:
+    while total < target - 1e-9 and len(out) < max_n:
         want = min(unit_size, target - total)
-        tname, tspec = _pick_type(req.quantity, want, rng)
-        a = _draw(tname, tspec, want, rng, late=late,
-                  deadline_h=req.deadline_h, counter=counter)
+        picked = _pick_type(req.quantity, want, target - total, rng, late=late,
+                            deadline_h=req.deadline_h, geo=geo)
+        if picked is None:
+            break
+        a = _draw(*picked, want, rng, late=late, deadline_h=req.deadline_h, geo=geo)
         out.append(a)
         total += a.capability
     return out
 
 
-def _accepts(arm: str, is_trap: bool, r_fleet: float, r_deadline: float,
-             sat: bool, has_late: bool) -> bool:
-    """The arm's acceptance predicate — plan.md §7.3 invariants 2 and 3 as code.
+def _cap(rows: list[Asset]) -> float:
+    return sum(a.capability for a in rows)
 
-    This is the only place the invariants are *enforced*; tests/ asserts the same
-    statements independently against the finished corpus, so a loosening here
-    does not quietly loosen the test.
+
+# --------------------------------------------------------------------------- #
+# One chain = one image's four arms
+# --------------------------------------------------------------------------- #
+
+
+def _accepts(arm: str, r_fleet: float, r_deadline: float, sat: bool,
+             has_late: bool) -> bool:
+    """The arm's acceptance predicate — plan.md §7.3 invariant 2 as code.
+
+    tests/ asserts the same statements independently against the finished
+    corpus, so a loosening here does not quietly loosen the test.
     """
     mult = ARM_MULTIPLIERS[arm]
     if not has_late:
         return False  # V2a would be vacuous here; see the module docstring
-    if is_trap:
-        # invariant 3: the fleet clears the bar, the assemblable subset does not.
-        return r_fleet > 1.0 >= r_deadline and not sat
     if mult > 1.0:
-        # invariant 4's precondition: a valid plan must exist.
-        return sat and 1.0 <= r_deadline <= mult * ABUNDANT_RATIO_CEILING
-    # lean arms: short in fleet terms, so short however the planner assembles it.
+        floor = max(1.0, mult * ABUNDANT_RATIO_FLOOR)
+        return sat and floor <= r_deadline <= mult * ABUNDANT_RATIO_CEILING
     return not sat and mult * LEAN_RATIO_FLOOR <= r_fleet < 1.0
 
 
-def _build_ledger(req: Requirement, arm: str, is_trap: bool,
-                  rng: random.Random) -> tuple[Asset, ...]:
-    mult = ARM_MULTIPLIERS[arm]
-    unit_size = _round_amount(req.amount * 1.2 / CONTRIB_AT_SUFFICIENT)
-    counter: dict[str, int] = {}
+def _distractors(state: str, req: Requirement, rng: random.Random, geo) -> list[Asset]:
+    kit = enabling_kit(state)
+    pool = distractor_types()
+    out: list[Asset] = []
+    names = [kit] if kit else []
+    others = [k for k in pool if k != kit]
+    names += rng.sample(others, rng.randint(*DISTRACTORS))
+    for name in names:
+        spec = pool[name]
+        a = _draw(name, spec, sum(spec["capability_band"]) / 2, rng, late=False,
+                  deadline_h=req.deadline_h, geo=geo)
+        if a is None and name == kit:
+            raise ValueError(f"{state}: enabling kit {kit!r} cannot arrive by "
+                             f"{req.deadline_h} h from any port - fix data/assets.json")
+        if a is not None:
+            out.append(a)
+    return out
 
-    if is_trap:
-        # Deferred to v2. The on-time portion deliberately falls short while the
-        # fleet total clears the requirement.
-        on_time = _fill_to(req.amount * rng.uniform(*TRAP_SHORTFALL_BAND), req, rng,
-                           late=False, counter=counter, unit_size=unit_size)
-        have = sum(a.capability for a in on_time)
-        late_target = max(req.amount * mult, req.amount * 1.05) - have
-    else:
-        # The arm multiplier sizes the ON-TIME capability (= ratio_deadline).
-        on_time = _fill_to(req.amount * mult, req, rng, late=False,
-                           counter=counter, unit_size=unit_size)
-        have = sum(a.capability for a in on_time)
-        share = rng.uniform(*LATE_SHARE_BAND)
-        if mult > 1.0:
-            # Relative to the REQUIREMENT, not to the on-time total: scaling off
-            # `have` would multiply SURPLUS's row count by its own multiplier and
-            # make ledger length covary even harder with the arm (plan.md 7.1).
-            late_target = req.amount * share
+
+def _assign_ids(rows: list[Asset], rng: random.Random) -> list[Asset]:
+    """Number the SURPLUS ledger once; every smaller arm keeps the same IDs.
+
+    Numbers are sampled, not counted, so a nested arm's gaps look like any other
+    ledger's and do not reveal how much was taken away.
+    """
+    prefix = {k: v["prefix"] for k, v in assets()["types"].items()}
+    by_prefix: dict[str, list[int]] = {}
+    for a in rows:
+        by_prefix.setdefault(prefix[a.type], []).append(0)
+    numbers = {p: rng.sample(range(1, ID_NUMBER_MAX + 1), len(v)) for p, v in by_prefix.items()}
+    out = []
+    for a in rows:
+        n = numbers[prefix[a.type]].pop()
+        out.append(dataclasses.replace(a, id=f"{prefix[a.type]}-{n:03d}"))
+    return out
+
+
+def _build_chain(req: Requirement, state: str, rng: random.Random,
+                 geo) -> dict[str, tuple[Asset, ...]]:
+    m = ARM_MULTIPLIERS
+    amount = req.amount
+    unit = _round_amount(amount * 1.2 / CONTRIB_AT_SUFFICIENT)
+    fill = functools.partial(_fill_to, req=req, rng=rng, unit_size=unit, geo=geo)
+
+    o1 = fill(amount * m["INFEASIBLE"], late=False)
+    l1 = fill((LEAN_FLEET_HEADROOM - m["SCARCE"]) * amount
+              * rng.uniform(*LATE_SHARE_BAND), late=True)
+    o2 = fill(amount * m["SCARCE"] - _cap(o1), late=False)
+    o3 = fill(amount * m["SUFFICIENT"] - _cap(o1 + o2), late=False)
+    # Relative to the REQUIREMENT: scaling off the on-time total would make
+    # ledger length covary even harder with the arm (plan.md 7.1).
+    l2 = fill(max(0.0, amount * rng.uniform(*LATE_SHARE_BAND) - _cap(l1)), late=True)
+    on_time = o1 + o2 + o3
+    o4 = fill(amount * m["SURPLUS"] - _cap(on_time), late=False,
+              max_n=max(0, min(MAX_CONTRIBUTING, MAX_ELIGIBLE - len(on_time))))
+    dis = _distractors(state, req, rng, geo)
+
+    layers = {"INFEASIBLE": o1 + l1 + dis, "SCARCE": o2,
+              "SUFFICIENT": o3 + l2, "SURPLUS": o4}
+    tier = {}
+    for i, arm in enumerate(CHAIN):
+        for a in layers[arm]:
+            tier[id(a)] = i
+    full = [a for arm in CHAIN for a in layers[arm]]
+    rng.shuffle(full)
+    tiers = [tier[id(a)] for a in full]
+    full = _assign_ids(full, rng)
+    return {arm: tuple(a for a, t in zip(full, tiers) if t <= i)
+            for i, arm in enumerate(CHAIN)}
+
+
+@functools.lru_cache(maxsize=None)
+def build_chain(image_id: str, casualty_state: str,
+                size_category: str) -> tuple[Scenario, ...]:
+    """All four arms of one image, in ARM_MULTIPLIERS order, accepted together."""
+    req = make_requirement(image_id, casualty_state, size_category)
+
+    for attempt in range(MAX_ATTEMPTS):
+        rng = _rng(image_id, f"chain|{attempt}")
+        geo = make_geography(image_id, attempt)
+        ledgers = _build_chain(req, casualty_state, rng, geo)
+        built = []
+        for arm in ARM_MULTIPLIERS:
+            ledger = ledgers[arm]
+            assert_ids_distinct([a.id for a in ledger])
+            r_fleet = round(ratio_fleet(req, ledger), 3)
+            r_deadline = round(ratio_deadline(req, ledger), 3)
+            if len(eligible_assets(req, ledger)) > MAX_ELIGIBLE:
+                break
+            sat = ledger_satisfiable(req, ledger)
+            has_late = any(a.counts_toward(req) and not a.arrives_by(req.deadline_h)
+                           for a in ledger)
+            if not _accepts(arm, r_fleet, r_deadline, sat, has_late):
+                break
+            built.append(Scenario(
+                id=image_id, arm=arm, casualty_state=casualty_state,
+                size_category=size_category, requirement=req, ledger=ledger,
+                is_trap=False, ratio_fleet=r_fleet, ratio_deadline=r_deadline,
+                ledger_satisfiable=sat, seed=attempt,
+            ))
         else:
-            # Lean arms: stay below the requirement even counting the late rows.
-            late_target = max(0.0, req.amount * LEAN_FLEET_HEADROOM - have) * share
+            return tuple(built)
 
-    late_assets = _fill_to(late_target, req, rng, late=True, counter=counter,
-                           unit_size=unit_size)
-    contributing = on_time + late_assets
-
-    ledger = list(contributing)
-    for _ in range(rng.randint(*DISTRACTORS)):
-        dname, dspec = rng.choice(list(distractor_types().items()))
-        ledger.append(_draw(dname, dspec, sum(dspec["capability_band"]) / 2, rng,
-                            late=False, deadline_h=req.deadline_h, counter=counter))
-
-    rng.shuffle(ledger)
-    return tuple(ledger)
+    raise RuntimeError(
+        f"{image_id}: no four-arm chain met the arm bands in {MAX_ATTEMPTS} draws "
+        f"(requirement {req.amount:g} {req.unit} by {req.deadline_h} h). The asset "
+        "catalogue cannot express this image at this magnitude — fix "
+        "data/assets.json or the magnitude band, do not relax the band."
+    )
 
 
 def build_scenario(image_id: str, casualty_state: str, size_category: str,
                    arm: str) -> Scenario:
-    req = make_requirement(image_id, casualty_state, size_category)
-    is_trap = (arm in TRAPPABLE_ARMS
-               and _rng(image_id, "trap").random() < TRAP_FRACTION)
-
-    for attempt in range(MAX_ATTEMPTS):
-        rng = _rng(image_id, f"ledger|{arm}|{attempt}")
-        ledger = _build_ledger(req, arm, is_trap, rng)
-        assert_ids_distinct([a.id for a in ledger])
-        r_fleet = round(ratio_fleet(req, ledger), 3)
-        r_deadline = round(ratio_deadline(req, ledger), 3)
-        sat = ledger_satisfiable(req, ledger)
-        has_late = any(a.counts_toward(req) and not a.arrives_by(req.deadline_h)
-                       for a in ledger)
-        if _accepts(arm, is_trap, r_fleet, r_deadline, sat, has_late):
-            return Scenario(
-                id=image_id, arm=arm, casualty_state=casualty_state,
-                size_category=size_category, requirement=req, ledger=ledger,
-                is_trap=is_trap, ratio_fleet=r_fleet, ratio_deadline=r_deadline,
-                ledger_satisfiable=sat, seed=attempt,
-            )
-
-    raise RuntimeError(
-        f"{image_id}/{arm}: no ledger met the arm band in {MAX_ATTEMPTS} draws "
-        f"(requirement {req.amount:g} {req.unit}, trap={is_trap}). The asset "
-        "catalogue cannot express this arm at this magnitude — fix data/assets.json "
-        "or the magnitude band, do not relax the band."
-    )
+    chain = build_chain(image_id, casualty_state, size_category)
+    return chain[list(ARM_MULTIPLIERS).index(arm)]
 
 
 def build_corpus(manifest: list[tuple[str, str, str]]) -> list[Scenario]:
-    """One Scenario per (image, arm). `manifest` is (image_id, state, size)."""
-    return [
-        build_scenario(iid, state, size, arm)
-        for iid, state, size in manifest
-        for arm in ARM_MULTIPLIERS
-    ]
+    """One Scenario per (image, arm). `manifest` is (image_id, state, size).
+
+    This *generates*. The study reads the frozen copy: `rcp.corpus.load()`.
+    """
+    return [sc for iid, state, size in manifest
+            for sc in build_chain(iid, state, size)]
 
 
 MANIFEST = pathlib.Path(__file__).resolve().parent.parent / "data" / "manifest.csv"

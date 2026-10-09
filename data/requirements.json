@@ -3,8 +3,9 @@
     "canonical": "plan.md 7.1 -- the requirement tuple and per-casualty table",
     "status": "DRAFT MAGNITUDES -- bands below are Claude's first pass and need M4's review",
     "contract": "plan.md 7.1 admits a requirement if it is falsifiable, survives the gold plans, and is in scope. Magnitudes are not load-bearing in absolute terms (only in ratio), but ARE load-bearing for asset cardinality and for the blind human read.",
-    "frozen": false,
-    "size_scheme": "THREE categories, matching Eval_CASTOR human_gt.csv's size_estimate column (small <10m / medium 10-50m / large >50m). The former 'very_large' tier was merged into 'large': human_gt's 'large (>50m)' is open-ended and does not distinguish a 60 m coaster from a 350 m VLCC, so a fourth band would have been an inference the labels do not support. The merged band spans the two old ones, which is why 'large' is wide. DRAFT -- needs M4's review."
+    "frozen": true,
+    "size_scheme": "THREE categories, matching Eval_CASTOR human_gt.csv's size_estimate column (small <10m / medium 10-50m / large >50m). The former 'very_large' tier was merged into 'large': human_gt's 'large (>50m)' is open-ended and does not distinguish a 60 m coaster from a 350 m VLCC, so a fourth band would have been an inference the labels do not support. The merged band spans the two old ones, which is why 'large' is wide. DRAFT -- needs M4's review.",
+    "enabling_kit": "A non-contributing asset type every ledger for this state carries, on time, in every arm: divers to rig a submerged or inverted hull, a dewatering pump for a fire-damaged one. A precondition on ledger construction, not a check - it contributes to no scalar, so ratio_fleet and ratio_deadline are untouched. docs/corpus_realism.md sec. 2."
   },
   "size_categories": {
     "small": {
@@ -67,7 +68,8 @@
         "get afloat",
         "unground",
         "salvage off the ground"
-      ]
+      ],
+      "enabling_kit": null
     },
     "sunken": {
       "n": 33,
@@ -104,7 +106,8 @@
         "bring her up",
         "refloat from the bottom",
         "salvage lift"
-      ]
+      ],
+      "enabling_kit": "dive_team"
     },
     "capsized": {
       "n": 19,
@@ -140,7 +143,8 @@
         "roll her upright",
         "bring upright",
         "restore her upright"
-      ]
+      ],
+      "enabling_kit": "dive_team"
     },
     "on_fire": {
       "n": 16,
@@ -176,7 +180,8 @@
         "suppress the fire",
         "boundary cool and extinguish",
         "knock down the fire"
-      ]
+      ],
+      "enabling_kit": "submersible_pump"
     }
   }
 }

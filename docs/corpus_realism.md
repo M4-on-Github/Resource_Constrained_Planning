@@ -1,7 +1,21 @@
 # Corpus realism: findings from the hand-authored check
 
 **Date:** 2026-10-07 · **Corpus:** 110 images x 4 arms = 440 cells ·
-**Status:** recorded, **not fixed** — every item here would change the frozen corpus.
+**Status (2026-10-09, plan.md v0.10):** acted on before the freeze, in the
+corpus rebuild logged as `docs/deviations.md` D5. Per finding:
+
+1. `location` — **fixed.** Invented ports per chain; ETA = mobilisation +
+   distance ÷ type speed, or underway at a drawn range; consistency asserted in
+   `tests/test_generator.py`.
+2. Enabling kit — **fixed.** Present, on time and inert in every arm wherever the
+   casualty state has one (dive team for capsized/sunken, pump for on_fire).
+3. Boundary fragility — **partly.** No asset now arrives within max(0.3 h, 5 %)
+   of the deadline. Single-asset fragility at `SUFFICIENT` remains: a 1.2 × arm
+   built from whole assets is close to the line by design.
+4. Identical ratings — **partly.** 25 % of asset draws now come from any
+   placeable type rather than the nearest capability band.
+
+The findings below are kept as they were recorded, against the v0.9 corpus.
 
 §7.2 provides for ~10 ledgers authored by hand "to catch a generator that is
 internally consistent but maritime-implausible (a 200 m tanker offered three small

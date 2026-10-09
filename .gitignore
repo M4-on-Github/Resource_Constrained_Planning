@@ -25,3 +25,7 @@ logs/
 .DS_Store
 __pycache__/
 .pytest_cache/
+
+# The frozen stimulus is source, not output (rcp/corpus.py, docs/deviations.md D7)
+!data/corpus.jsonl
+!cal/exploratory/*.jsonl

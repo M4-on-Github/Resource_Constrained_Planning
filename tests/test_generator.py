@@ -64,8 +64,7 @@ def test_invariant_2_arm_fidelity(corpus):
 
     Stated against ratio_deadline, not ratio_fleet: the arm is a claim about what
     the planner can actually assemble. Trap scenarios are excluded here and
-    covered by invariant 3 instead — their whole point is that the two ratios
-    disagree.
+    excluded by construction; v1 builds none (nested arms leave no place for one).
     """
     for sc in corpus:
         if sc.is_trap:
@@ -73,6 +72,9 @@ def test_invariant_2_arm_fidelity(corpus):
         mult = ARM_MULTIPLIERS[sc.arm]
         if mult > 1.0:
             assert sc.ratio_deadline >= 1.0, f"{sc.id}/{sc.arm} {sc.ratio_deadline}"
+            if sc.arm == "SURPLUS":
+                # strictly more than SUFFICIENT can reach, not a copy of it
+                assert sc.ratio_deadline >= 2.0, f"{sc.id}/{sc.arm} {sc.ratio_deadline}"
         else:
             assert sc.ratio_fleet < 1.0, f"{sc.id}/{sc.arm} {sc.ratio_fleet}"
             assert sc.ratio_fleet >= mult * LEAN_RATIO_FLOOR
@@ -150,34 +152,92 @@ def test_no_traps_in_v1(corpus):
         assert len(rows) == 110
 
 
-def test_invariant_3_trap_reachability_when_enabled(monkeypatch):
-    """The deferred machinery, exercised so it cannot rot before v2.
-
-        ratio_fleet > 1 >= ratio_deadline
-
-    A planner that sums the ledger passes; one that reads ETAs does not. Forced on
-    here rather than drawn, because v1's corpus contains no traps to sample.
-    """
-    import rcp.generator as gen
-
-    monkeypatch.setattr(gen, "TRAP_FRACTION", 1.0)
-    for arm in gen.TRAPPABLE_ARMS:
-        sc = gen.build_scenario("TRAP-001", "aground", "medium", arm)
-        assert sc.is_trap, arm
-        assert sc.ratio_fleet > 1.0 >= sc.ratio_deadline
-        assert not sc.ledger_satisfiable
-        assert gold_plan(sc) is None, "a trap cell must admit no passing plan"
+# --- nesting: the arm is the only thing that varies within an image --------- #
 
 
-def test_traps_stay_out_of_the_lean_arms(monkeypatch):
-    """SCARCE and INFEASIBLE deny `ratio_fleet > 1`, so a trap there would be
-    unsatisfiable for the ordinary reason and indistinguishable from the arm."""
-    import rcp.generator as gen
+def test_arms_are_nested_with_stable_rows(corpus):
+    """INFEASIBLE ⊂ SCARCE ⊂ SUFFICIENT ⊂ SURPLUS, row for row: an asset present
+    in two arms has the same ID, location, ETA and capability in both."""
+    by_image: dict[str, dict[str, set]] = {}
+    for s in corpus:
+        by_image.setdefault(s.id, {})[s.arm] = set(s.ledger)
+    order = ("INFEASIBLE", "SCARCE", "SUFFICIENT", "SURPLUS")
+    for iid, arms in by_image.items():
+        for lo, hi in zip(order, order[1:]):
+            assert arms[lo] < arms[hi], (iid, lo, hi)
 
-    monkeypatch.setattr(gen, "TRAP_FRACTION", 1.0)
-    assert set(gen.TRAPPABLE_ARMS) == {"SURPLUS", "SUFFICIENT"}
-    for arm in ("SCARCE", "INFEASIBLE"):
-        assert not gen.build_scenario("TRAP-002", "aground", "medium", arm).is_trap
+
+def test_arms_share_requirement_and_geography(corpus):
+    by_image: dict[str, list] = {}
+    for s in corpus:
+        by_image.setdefault(s.id, []).append(s)
+    for iid, arms in by_image.items():
+        assert len({s.requirement for s in arms}) == 1, iid
+        ports = {a.location for s in arms for a in s.ledger
+                 if not a.location.startswith("underway")}
+        assert len({p.split(",")[0] for p in ports}) <= 3, iid
+
+
+# --- realism: ETA, margin, IDs, enabling kit -------------------------------- #
+
+
+def test_no_eta_near_the_deadline(corpus):
+    """Nothing within max(0.3 h, 5 % of D) of the deadline, either side, so
+    whether an asset is on time is never decided by rounding."""
+    from rcp.generator import deadline_margin
+
+    for s in corpus:
+        d = s.requirement.deadline_h
+        m = deadline_margin(d)
+        for a in s.ledger:
+            assert abs(a.eta_hours - d) >= m - 0.05 - 1e-9, (s.id, a.id, a.eta_hours, d)
+
+
+def test_eta_follows_location(corpus):
+    """ETA is mobilisation + distance / speed: an asset's arrival is consistent
+    with where the ledger says it is."""
+    from rcp.world import assets as catalogue, geography
+
+    types = catalogue()["types"]
+    setup = geography()["underway_setup_h"]
+    for s in corpus:
+        for a in s.ledger:
+            spec = types[a.type]
+            nm = int(a.location.rsplit(",", 1)[1].split()[0])
+            travel = nm / spec["speed_kn"]
+            if a.location.startswith("underway"):
+                assert spec["floating"], (s.id, a.id)
+                # distance is printed in whole nm: 0.5 nm of rounding, plus the 0.1 h grid
+                assert abs(a.eta_hours - (setup + travel)) <= 0.5 / spec["speed_kn"] + 0.051, \
+                    (s.id, a.id, a.location, a.eta_hours)
+            else:
+                lo, hi = spec["mobilise_h"]
+                assert lo + travel - 0.05 <= a.eta_hours <= hi + travel + 0.05, \
+                    (s.id, a.id, a.location, a.eta_hours)
+
+
+def test_ids_carry_their_type_prefix(corpus):
+    from rcp.world import assets as catalogue
+
+    types = catalogue()["types"]
+    for s in corpus:
+        for a in s.ledger:
+            assert a.id.split("-")[0] == types[a.type]["prefix"], (s.id, a.id, a.type)
+
+
+def test_enabling_kit_is_present_on_time_and_inert(corpus):
+    """Divers on every capsized/sunken ledger, a dewatering pump on every on_fire
+    one: on time, and counted toward no scalar, so the arm ratios are untouched."""
+    from rcp.world import enabling_kit
+
+    for s in corpus:
+        kit = enabling_kit(s.casualty_state)
+        if kit is None:
+            continue
+        rows = [a for a in s.ledger if a.type == kit]
+        assert rows, (s.id, s.arm, kit)
+        assert all(a.arrives_by(s.requirement.deadline_h) for a in rows), (s.id, s.arm)
+        assert not any(a.counts_toward(s.requirement) for a in rows), (s.id, s.arm)
 
 
 # --- invariant 4: a valid plan exists where one should ---------------------- #
@@ -239,5 +299,9 @@ def test_eligible_pool_within_enumeration_budget(corpus):
 def test_corpus_is_byte_identical_on_rebuild():
     """The seed is derived from the image id, so a corpus is reproducible from
     its manifest alone — no seed file to lose (plan.md §7.1)."""
+    from rcp.generator import build_chain
+
     m = manifest()[:12]
-    assert build_corpus(m) == build_corpus(m)
+    first = build_corpus(m)
+    build_chain.cache_clear()
+    assert build_corpus(m) == first
