@@ -251,3 +251,17 @@ without a word `conditional_steps` counts. On test 1 it is 33.3 % for both v0.10
 and v0.11. It is read alongside the branch criteria, never as one. If revision 2
 fails, prompt work stops here: v0.10 stands as the study and the branching is
 handled in extraction (D11).
+
+*Dtype check (job 50450, branch `dtype-check` at `60b2fdd`; not merged).* v0.10
+loads the planner in float16, copied from QWEN-Maritime's `run_inference.py`;
+the checkpoint is bfloat16. 30 `SURPLUS` / blind cells under the v0.10 prompt
+(same domain digest) were rerun in bfloat16 (`cal/dtype_check/ids.txt` on that
+branch): 20 whose float16 plan looped, 10 clean. Looped 6 / 20 and 2 / 10 (float16:
+20 / 20 and 0 / 10); prose identical in 0 / 30. The groups were selected on the
+float16 outcome, so most of the drop is that selection: any numerical change moves
+a greedy path off its repeat, and it moved two clean plans onto one. Weighted by
+stratum, bfloat16's `SURPLUS` / blind loop rate is roughly 23 % against float16's
+33 %, uncertain at n = 30. Dtype is not the loop's cause; greedy decoding on long,
+branching plans is. **Decision: dtype stays float16 for v0.11**, so the revision 2
+test and any v0.11 run differ from v0.10 in the prompt alone. bfloat16 is left as
+a named open item, to be settled before a later version, never mid-run.
