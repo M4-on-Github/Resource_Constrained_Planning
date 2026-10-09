@@ -192,17 +192,19 @@ def test_the_task_half_asks_for_a_commitment_header_before_the_plan():
         assert word not in header, word
 
 
-def test_revision_2_caps_the_steps_and_names_the_banned_branch_words():
-    """D10 revision 2: a step cap against the loops, a word-level guard, and
-    "name only the assets the plan uses" against backup assets in the steps."""
+def test_revision_2_caps_the_steps_and_describes_a_committed_plan():
+    """D10 revision 2: a step cap against the loops, "name only the assets the plan
+    uses" against backup assets in the steps, and a guard that says what a
+    committed plan is rather than listing words -- a word list is passed by
+    paraphrase, which the branch count cannot see."""
     t = task_block()
     assert "at most 15 steps" in t
     assert "Name only the assets the plan uses." in t
     guard = next(ln for ln in t.splitlines() if "conditional" in ln)
-    for w in ('"if"', '"unless"', '"in case"', '"in the event"', '"otherwise"',
-              '"as needed"', '"as required"'):
-        assert w in guard, w
-    for word in ("adequate", "sufficient", "enough", "short"):
+    assert "not a set of options" in guard
+    assert "no step depends on how an earlier step turns out" in guard
+    assert "backup or reserve steps" in guard
+    for word in ("adequate", "sufficient", "enough", "short", '"if"'):
         assert word not in guard, word
 
 

@@ -230,15 +230,22 @@ every Rule 1 / Rule 2 check are unchanged (`tests/test_render.py`):
   17, so the cap sits above most real plans and below where loops begin;
 - "Name only the assets the plan uses.", against backup and "will not be used"
   assets appearing in the steps (the D10 extractor audit);
-- the guard line now lists the words a step may not contain — "if", "unless",
-  "in case", "in the event", "otherwise", "as needed", "as required" — and asks
-  for each step as a plain statement of what is done. It names no shortfall and no
-  remedy; "adequate / sufficient" are not banned (P9's ban would suppress
-  `ESCALATE`), so a conditional request can become an unconditional one.
+- the guard line says what a committed plan is instead of only forbidding the
+  form: "write the one plan you will carry out, not a set of options to choose
+  from later. Every step is an action that will happen, and no step depends on
+  how an earlier step turns out. So do not write conditional steps, backup or
+  reserve steps, steps that wait to see whether an earlier step worked, or
+  alternatives." It names no shortfall and no remedy, and bans no word:
+  "adequate / sufficient" stay allowed (P9's ban would suppress `ESCALATE`), so a
+  conditional request can become an unconditional one.
+As first committed (`e113a84`), revision 2's guard was a list of banned words
+("if", "unless", "in case", "in the event", "otherwise", "as needed", "as
+required"). It was replaced before any generation, because banning the words the
+branch count looks for lets a plan pass the count by paraphrase without
+committing; a description of the goal leaves the count an honest measure.
 Same 60 cells, same criteria, same baseline; output
-`results/v011_guard/gen_blind_r2.jsonl`; domain digest `1043f79d…`. Banning the
-words the branch count looks for makes that count easier to pass by paraphrase,
-so `tools/guard_check.py` gains a report-only column, "hedge, no if": plans with a
+`results/v011_guard/gen_blind_r2.jsonl`; domain digest `c46a8667…`.
+`tools/guard_check.py` gains a report-only column, "hedge, no if": plans with a
 step that hedges ("as needed", "on standby", "backup", "where necessary", …)
 without a word `conditional_steps` counts. On test 1 it is 33.3 % for both v0.10
 and v0.11. It is read alongside the branch criteria, never as one. If revision 2
