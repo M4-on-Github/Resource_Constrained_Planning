@@ -178,6 +178,20 @@ def test_blind_is_the_default_so_existing_callers_are_unchanged(sample):
     assert domain_digest() == domain_digest("blind")
 
 
+def test_the_task_half_asks_for_a_commitment_header_before_the_plan():
+    """v0.11 (D10): one casualty reading and one course of action, declared before
+    the steps, so a blind planner decides instead of branching over states."""
+    t = task_block()
+    for label in ("Casualty type:", "Observed conditions:", "Course of action:",
+                  '"Salvage Plan:"'):
+        assert label in t, label
+    assert t.index("Casualty type:") < t.index('"Salvage Plan:"')
+    header = t[t.index("Casualty type:"):t.index('"Salvage Plan:"')].lower()
+    for word in ("resource", "enough", "short", "insufficient", "escalat", "request",
+                 "adequate", "sufficient"):
+        assert word not in header, word
+
+
 def test_the_escalate_affordance_is_present_and_unconditional():
     """sec. 6.2: the affordance must exist, or over-refusal has no numerator --
     but it must not be attached to a condition, or it becomes a hint (Rule 2)."""

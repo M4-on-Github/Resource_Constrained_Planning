@@ -158,3 +158,54 @@ primary NOT ESTABLISHED, with a larger fitted decline (blind −0.287, 90 % CI
 [−0.443, −0.130]; stated −0.203 [−0.334, −0.072]). Looping is concentrated in
 `SURPLUS`, so this subset is not a random one; it is reported beside the primary,
 not instead of it.
+
+## D10. v0.11 commitment header in the planner prompt (§6.2) — proposed, under test
+
+*Found, after the four-arm run (so this is a post-data change and the v0.10 run
+becomes a pilot if it is adopted):* the single-course guard (D1) did not hold.
+Blind plans with ≥ 1 conditional step: 78–90 % per arm (3.9–5.9 per plan); stated
+67–81 %. Two sources. (i) Branching on the casualty type ("if the vessel is found
+to be aground…"): 66 / 440 blind plans, 5 / 440 stated — the blind planner hedges
+over what the photo shows instead of deciding. (ii) Contingency branches ("if the
+pull is insufficient, add TUG-006"), in both conditions. The branches matter
+because the extractor under-excludes their assets: a hand read of 20 random
+`SURPLUS`/blind V2a failures found 9 where the late asset appears only in a
+backup, "if it fails", other-casualty or explicitly "do not commit" step, against
+D2's rule; the extractor excluded 4.6 % of named assets overall. (The extractor
+fix is separate and needed regardless; it is not part of D10.)
+
+*Changed:* `prompts/planner_task.txt` asks for three lines before the plan —
+`Casualty type:` (choose one), `Observed conditions:` ("cannot tell from the
+image" allowed), `Course of action:` — then `Salvage Plan:` and the steps. The
+mechanism is P9's `prompt_procedural_v3.txt`, where the same planner on the same
+images committed to a casualty type in 110 / 110 and wrote a conditional step in
+28 / 110 plans, almost all "if recovered, tow", which that prompt itself asks for.
+Not carried over from P9 v3: its ban on "adequate / sufficient / as required" and
+on deferring to another person (both would suppress `ESCALATE`), its technique
+catalogue and order lists (domain content, not format), and "if recovered, tow".
+The guard line now reads "every step is an action that will be carried out";
+the `ESCALATE` affordance line is unchanged, and no new line names a resource,
+a shortfall or a request (`tests/test_render.py`). Extraction reads off the header
+(`extract_det.split_header`), scores only the text after `Salvage Plan:` so an ID
+in "Course of action:" is not a named asset, and records `declared_casualty` per
+row. On the 880 v0.10 plans `split_header` changes nothing (0 / 880).
+
+*Test, fixed before any v0.11 generation.* §6.4 asks for format tuning on CASTOR
+images outside the 110; none exist (`sorted_images` holds exactly the 110). The
+test therefore runs on the study's images and is confined to properties of the
+prose, never an endpoint: no extraction, no validator, no `ESCALATE`. 30 images,
+stratified 11 / 9 / 5 / 5 by state (`cal/v011_guard/ids.txt`, seed recorded
+there), × {`SURPLUS`, `SCARCE`}, blind, greedy, 2048 tokens. `tools/guard_check.py`
+compares against the same 60 cells under v0.10. Accept if all hold:
+
+| criterion | threshold | v0.10, same 60 cells |
+|---|---|---|
+| header present with one declared state, and a `Salvage Plan:` label | ≥ 95 % | 0 % |
+| plans with ≥ 1 conditional step (plan section only) | ≤ 30 % | 73.3 % |
+| conditional steps per plan | ≤ 1.0 | 5.53 |
+| looped plans | ≤ v0.10 | 31.7 % |
+| truncated plans | ≤ v0.10 | 35.0 % |
+
+Declared-state accuracy against `casualty_state` is reported, never a criterion:
+it measures the planner's vision, not the prompt's format. If a criterion fails,
+one further wording revision is allowed under the same rules and recorded here.

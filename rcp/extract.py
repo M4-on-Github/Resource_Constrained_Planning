@@ -207,11 +207,15 @@ def main(argv: list[str] | None = None) -> int:
         if sc is None:
             print(f"  [skip] no scenario for {key}", file=sys.stderr)
             continue
+        # v0.11's commitment header is read off and only the plan below it is
+        # scored (D10); a v0.10 plan has no header and passes through whole.
+        declared, prose = extract_det.split_header(r["prose"])
         # A greedy loop is cut at its first repeated step before anything reads
         # the plan (D9); both the deterministic pass and the model see the cut.
-        prose, looped = extract_det.trim_repeated_steps(r["prose"])
+        prose, looped = extract_det.trim_repeated_steps(prose)
         det = extract_det.deterministic_pass(prose, sc)
         items.append({"row": r, "scenario": sc, "prose": prose, "looped": looped,
+                      "declared_casualty": declared,
                       "assets_named": det["assets_named"],
                       "goal": states()[sc.casualty_state]["goal"]})
 
@@ -252,6 +256,8 @@ def main(argv: list[str] | None = None) -> int:
                                  "n_tokens": it["row"].get("n_tokens"),
                                  # steps dropped by trim_repeated_steps; 0 = untouched
                                  "looped_steps_dropped": it["looped"],
+                                 # the header's "Casualty type:" (None = no header)
+                                 "declared_casualty": it["declared_casualty"],
                                  "ledger_hash": it["row"].get("ledger_hash"),
                                  "run_id": it["row"].get("run_id")},
                                 sort_keys=True) + "\n")

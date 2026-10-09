@@ -210,6 +210,40 @@ def trim_repeated_steps(prose: str) -> tuple[str, int]:
     return prose, 0
 
 
+#: v0.11's commitment header (plan.md §6.2): three labelled lines, then the plan.
+#: Markdown emphasis around a label ("**Salvage Plan:**") is tolerated.
+_PLAN_LABEL = re.compile(r"^[\s*#_]*salvage plan[\s*_]*:[\s*_]*", re.IGNORECASE | re.MULTILINE)
+_CASUALTY_LABEL = re.compile(r"^[\s*#_]*casualty type[\s*_]*:[\s*_]*(.*)$",
+                             re.IGNORECASE | re.MULTILINE)
+_STATE_WORDS = (("aground", r"aground|grounded"), ("capsized", r"capsized"),
+                ("sunken", r"sunken|sunk|sinking"), ("on_fire", r"on fire|on_fire|burning|ablaze"))
+
+
+def split_header(prose: str) -> tuple[str | None, str]:
+    """Separate the commitment header from the plan it commits to.
+
+    Returns `(declared casualty state, plan text)`. Only the plan text is scored:
+    an asset ID named in "Course of action:" is reasoning, not a step. A
+    generation with no "Salvage Plan:" label is returned whole, so v0.10 plans,
+    which have no header, extract exactly as before.
+
+    The declared state is one of `Scenario.casualty_state`'s values, "ambiguous"
+    when the line names more than one (a refusal to commit), or None when there
+    is no "Casualty type:" line at all.
+    """
+    if not prose:
+        return None, prose
+    declared = None
+    m = _CASUALTY_LABEL.search(prose)
+    if m:
+        value = m.group(1).lower()
+        hits = [s for s, pat in _STATE_WORDS if re.search(rf"\b(?:{pat})\b", value)]
+        declared = hits[0] if len(hits) == 1 else ("ambiguous" if hits else None)
+    p = _PLAN_LABEL.search(prose)
+    plan = prose[p.end():].strip() if p else prose
+    return declared, plan
+
+
 def conditional_steps(steps: list[str]) -> int:
     """How many steps carry an if/unless/otherwise/should-…-fail branch."""
     return sum(1 for st in steps if _CONDITIONAL.search(st))

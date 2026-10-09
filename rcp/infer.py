@@ -202,6 +202,9 @@ def main(argv: list[str] | None = None) -> int:
                          "state. Recorded in domain_digest so the two cannot pool")
     ap.add_argument("--limit", type=int, default=None,
                     help="first N cells, image-major (keeps arms complete)")
+    ap.add_argument("--ids-file", default=None,
+                    help="only these image ids, one per line (the v0.11 guard test, "
+                         "cal/v011_guard/ids.txt); default: every image")
     ap.add_argument("--resume", action="store_true",
                     help="append, skipping scenario keys already in --out")
     ap.add_argument("--dry-run", action="store_true",
@@ -214,6 +217,15 @@ def main(argv: list[str] | None = None) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
 
     cells = corpus(args.limit, arms)
+    if args.ids_file:
+        keep = {ln.strip() for ln in pathlib.Path(args.ids_file).read_text(
+            encoding="utf-8").splitlines() if ln.strip() and not ln.startswith("#")}
+        unknown = keep - {sc.id for sc in cells}
+        if unknown:
+            print(f"ERROR: {len(unknown)} ids in {args.ids_file} are not in the corpus, "
+                  f"first: {sorted(unknown)[:3]}", file=sys.stderr)
+            return 1
+        cells = [sc for sc in cells if sc.id in keep]
     images = manifest_images()
     missing = [sc.id for sc in cells if not image_path(sc, root, images).exists()]
     if missing:

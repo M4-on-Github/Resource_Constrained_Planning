@@ -1,0 +1,33 @@
+# v0.11 guard test (docs/deviations.md D10): 30 of the 110 images, stratified
+# by casualty state 11/9/5/5, drawn with random.Random(20261009).sample over
+# each state's ids in manifest order. Fixed before any v0.11 generation exists.
+AGR-00039
+AGR-00041
+AGR-00051
+AGR-00074
+AGR-00082
+AGR-00103
+AGR-00148
+AGR-00174
+AGR-00181
+AGR-00207
+AGR-00224
+SUN-00064
+SUN-00073
+SUN-00094
+SUN-00131
+SUN-00132
+SUN-00138
+SUN-00162
+SUN-00209
+SUN-00233
+CAP-00006
+CAP-00019
+CAP-00182
+CAP-00195
+CAP-00212
+ON_-00077
+ON_-00135
+ON_-00154
+ON_-00155
+ON_-00210

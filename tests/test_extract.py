@@ -465,3 +465,51 @@ def test_the_repeat_ignores_the_step_number_case_and_spacing():
 def test_unmarked_prose_is_never_cut():
     prose = "Monitor the tide. Monitor the tide. Monitor the tide."
     assert extract_det.trim_repeated_steps(prose) == (prose, 0)
+
+
+# --------------------------------------------------------------------------- #
+# D10: the v0.11 commitment header is read off; only the plan is scored
+# --------------------------------------------------------------------------- #
+
+HEADED = ("Casualty type: aground\n"
+          "Observed conditions: bow on a sandbar, no list\n"
+          "Course of action: tug pull on the rising tide, TUG-022 is closest\n"
+          "Salvage Plan:\n"
+          "1. Make fast TUG-006 aft.\n"
+          "2. Refloat on the rising tide.")
+
+
+def test_the_header_is_split_off_and_only_the_plan_is_kept():
+    declared, plan = extract_det.split_header(HEADED)
+    assert declared == "aground"
+    assert plan == "1. Make fast TUG-006 aft.\n2. Refloat on the rising tide."
+
+
+def test_an_id_in_the_header_is_not_named_by_the_plan(scenario):
+    a, b = scenario.ledger_ids[:2]
+    prose = HEADED.replace("TUG-022", a).replace("TUG-006", b)
+    _, plan = extract_det.split_header(prose)
+    assert extract_det.scan_ledger_ids(plan, scenario) == (b,)
+
+
+def test_a_v010_plan_without_a_header_passes_through_whole():
+    prose = "1. Make fast TUG-006 aft.\n2. Refloat."
+    assert extract_det.split_header(prose) == (None, prose)
+
+
+@pytest.mark.parametrize("line, want", [
+    ("Casualty type: on fire", "on_fire"),
+    ("**Casualty type:** Capsized", "capsized"),
+    ("Casualty type: sunken (partially)", "sunken"),
+    ("Casualty type: aground, no fire visible", "aground"),
+    ("Casualty type: aground or capsized", "ambiguous"),
+    ("Casualty type: cannot tell from the image", None),
+])
+def test_the_declared_state_is_one_value_or_flagged(line, want):
+    declared, _ = extract_det.split_header(line + "\nSalvage Plan:\n1. Refloat.")
+    assert declared == want
+
+
+def test_a_markdown_plan_label_is_tolerated():
+    _, plan = extract_det.split_header("Casualty type: aground\n**Salvage Plan:**\n1. Refloat.")
+    assert plan == "1. Refloat."
