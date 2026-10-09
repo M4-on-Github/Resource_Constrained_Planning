@@ -8,6 +8,9 @@ the prompt on the result (plan.md §6.4's reason for going off-corpus).
     python tools/guard_check.py --new results/v011_guard/gen_blind.jsonl \
         --baseline results/gen_SURPLUS_blind.jsonl results/gen_SCARCE_blind.jsonl
 
+Reading the test out of a full run (D10, revision 2): add `--ids-file
+cal/v011_guard/ids.txt` and pass the full SURPLUS and SCARCE blind files as `--new`.
+
 `--baseline` is restricted to the scenario keys in `--new`, so the two columns are
 the same cells under the v0.10 and v0.11 prompts.
 """
@@ -94,9 +97,15 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="v0.11 guard test (D10)")
     ap.add_argument("--new", nargs="+", required=True)
     ap.add_argument("--baseline", nargs="*", default=[])
+    ap.add_argument("--ids-file", help="keep only these image ids from --new (reading "
+                    "the test cells out of a full run, e.g. cal/v011_guard/ids.txt)")
     args = ap.parse_args(argv)
 
     new = load(args.new)
+    if args.ids_file:
+        with open(args.ids_file, encoding="utf-8") as fh:
+            ids = {ln.strip() for ln in fh if ln.strip() and not ln.startswith("#")}
+        new = [r for r in new if r["scenario_id"] in ids]
     keys = {(r["scenario_id"], r["arm"]) for r in new}
     base = [r for r in load(args.baseline) if (r["scenario_id"], r["arm"]) in keys]
     arms = sorted({r["arm"] for r in new})

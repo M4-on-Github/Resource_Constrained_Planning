@@ -306,6 +306,31 @@ a named open item, to be settled before a later version, never mid-run.
   comparison.
   If (c) and the primary disagree on ESTABLISHED / NOT ESTABLISHED, the report
   says so and leads with neither.
+- **Where test 1's state errors fall.** All 18 wrong cells are sunken images
+  (9 images: 5 read as capsized, 4 as aground). Every aground, capsized and on-fire
+  image was right. `prompt_procedural_v3.txt` adds a checklist of features to
+  look for, image-based reasons for ruling out each other technique, and "Do not
+  guess". On the same 30 images it does no better: 21 / 30, sunken 1 / 9. Over
+  all 110 it gets 70 / 110 (sunken 7 / 33). So this is the planner's vision, not
+  the prompt. No observation wording is added: tuning it toward the sunken label
+  on the study's own images is what §6.4 rules out. The image goes to the model
+  in both conditions (`rcp/infer.py`), and "stated" adds only the disclosure line.
+
+*Revision 2 is run as the full study, and the test is read from it (decided for
+time, before any revision 2 output exists).* The 8 v0.11 jobs (4 arms × 2
+conditions, `results/v011/gen_<ARM>_<cond>.jsonl`) are submitted together.
+Decoding is greedy and the prompt is the same, so the 60 test cells inside the
+full run are the cells a separate test job would have written. The acceptance
+rule is unchanged:
+1. Freeze the generation.
+2. Run `tools/guard_check.py --new results/v011/gen_SURPLUS_blind.jsonl
+   results/v011/gen_SCARCE_blind.jsonl` restricted to `cal/v011_guard/ids.txt`
+   (its `--ids-file`), against the same v0.10 cells.
+3. Record the result here.
+
+Nothing is extracted or validated until step 3 is done. If the criteria fail,
+the run is kept as a registered failed attempt and is never analysed. v0.10
+stands, with D11.
 
 ## Provenance: run registry and no-overwrite guards (2026-10-09)
 
