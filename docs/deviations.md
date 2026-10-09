@@ -209,3 +209,38 @@ compares against the same 60 cells under v0.10. Accept if all hold:
 Declared-state accuracy against `casualty_state` is reported, never a criterion:
 it measures the planner's vision, not the prompt's format. If a criterion fails,
 one further wording revision is allowed under the same rules and recorded here.
+
+*Test 1 (job 50449, pleiades-0-23, 60 / 60 cells): FAIL.* Header 100 % (state
+correct 70 %, reported only); plans with a branch 76.7 % (v0.10 73.3 %); branches
+per plan 2.68 (5.53); looped 31.7 % (31.7 %; `SURPLUS` 53.3 % vs 43.3 %, `SCARCE`
+10.0 % vs 20.0 %); truncated 33.3 % (35.0 %). The header did what it was for:
+plans branching on the casualty type fell from 12 / 60 to 1 / 60. What remains is
+contingency branches ("if the vessel does not refloat by T+3.1 h, lighter with
+BRG-048"; "use HLB-012 … if needed"), which the v0.10 guard line already forbade
+in words. In `SCARCE`, 28 of the 80 branch steps ask for more resources ("request
+additional resources if the 300 t lift capacity proves insufficient"): that is
+`ESCALATE` phrased as a condition, so a revision must remove the condition without
+discouraging the request.
+
+*Revision 2 (the one further revision allowed above), fixed before its generation.*
+Three changes to `prompts/planner_task.txt`; the `ESCALATE` affordance line and
+every Rule 1 / Rule 2 check are unchanged (`tests/test_render.py`):
+- the plan is "a numbered sequence of at most 15 steps": v0.10's clean plans have
+  a median of 10–14 steps and its looped plans start repeating after a median of
+  17, so the cap sits above most real plans and below where loops begin;
+- "Name only the assets the plan uses.", against backup and "will not be used"
+  assets appearing in the steps (the D10 extractor audit);
+- the guard line now lists the words a step may not contain — "if", "unless",
+  "in case", "in the event", "otherwise", "as needed", "as required" — and asks
+  for each step as a plain statement of what is done. It names no shortfall and no
+  remedy; "adequate / sufficient" are not banned (P9's ban would suppress
+  `ESCALATE`), so a conditional request can become an unconditional one.
+Same 60 cells, same criteria, same baseline; output
+`results/v011_guard/gen_blind_r2.jsonl`; domain digest `1043f79d…`. Banning the
+words the branch count looks for makes that count easier to pass by paraphrase,
+so `tools/guard_check.py` gains a report-only column, "hedge, no if": plans with a
+step that hedges ("as needed", "on standby", "backup", "where necessary", …)
+without a word `conditional_steps` counts. On test 1 it is 33.3 % for both v0.10
+and v0.11. It is read alongside the branch criteria, never as one. If revision 2
+fails, prompt work stops here: v0.10 stands as the study and the branching is
+handled in extraction (D11).

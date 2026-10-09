@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import statistics
 import sys
 
@@ -25,6 +26,15 @@ from rcp import extract_det
 MIN_HEADER = 0.95       # share with one declared state and a "Salvage Plan:" label
 MAX_BRANCHED = 0.30     # share of plans with >= 1 conditional step
 MAX_MEAN_BRANCHES = 1.0
+
+#: Report-only (added with D10's revision 2, before its generation): hedges that
+#: escape `conditional_steps`. Revision 2 bans the words the branch count looks for,
+#: so a paraphrase ("on standby", "where necessary") could pass the criterion
+#: without the plan committing; this column shows whether that happened.
+HEDGE = re.compile(r"\b(?:as needed|as required|where (?:necessary|required)|"
+                   r"when (?:necessary|required)|upon failure|on failure|"
+                   r"contingenc\w*|back-?up|stand-?by|fallback|alternatively)\b",
+                   re.IGNORECASE)
 
 
 def load(paths: list[str]) -> list[dict]:
@@ -40,7 +50,7 @@ def measure(rows: list[dict]) -> dict:
     if not n:
         return {"n": 0}
     header = committed = correct = branched = looped = truncated = 0
-    branches, tokens, ambiguous = [], [], 0
+    branches, tokens, ambiguous, hedged, steps = [], [], 0, 0, []
     for r in rows:
         declared, plan = extract_det.split_header(r["prose"])
         has_label = plan != r["prose"]
@@ -50,7 +60,11 @@ def measure(rows: list[dict]) -> dict:
         correct += declared == r.get("casualty_state")
         plan, dropped = extract_det.trim_repeated_steps(plan)
         looped += dropped > 0
-        k = extract_det.conditional_steps(extract_det.segment_steps(plan))
+        segs = extract_det.segment_steps(plan)
+        k = extract_det.conditional_steps(segs)
+        hedged += any(HEDGE.search(s) and not extract_det.conditional_steps([s])
+                      for s in segs)
+        steps.append(len(segs))
         branches.append(k)
         branched += k > 0
         truncated += bool(r.get("truncated"))
@@ -58,6 +72,7 @@ def measure(rows: list[dict]) -> dict:
     return {"n": n, "header": header / n, "committed": committed / n,
             "ambiguous": ambiguous / n, "correct": correct / n,
             "branched": branched / n, "mean_branches": sum(branches) / n,
+            "hedged": hedged / n, "median_steps": statistics.median(steps),
             "looped": looped / n, "truncated": truncated / n,
             "median_tokens": statistics.median(tokens)}
 
@@ -76,6 +91,7 @@ def main(argv: list[str] | None = None) -> int:
     cols = [("header ok", "header"), ("committed", "committed"),
             ("ambiguous", "ambiguous"), ("state correct", "correct"),
             ("w/ branch", "branched"), ("branches/plan", "mean_branches"),
+            ("hedge, no if", "hedged"), ("median steps", "median_steps"),
             ("looped", "looped"), ("truncated", "truncated"),
             ("median tokens", "median_tokens")]
     print(f"{'':12} {'prompt':8} {'n':>4}  " + "  ".join(f"{c:>13}" for c, _ in cols))
@@ -89,7 +105,7 @@ def main(argv: list[str] | None = None) -> int:
             for _, k in cols:
                 v = m[k]
                 cells.append(f"{v:>13.2f}" if k == "mean_branches" else
-                             f"{v:>13.0f}" if k == "median_tokens" else f"{v:>12.1%} ")
+                             f"{v:>13.0f}" if k in ("median_tokens", "median_steps") else f"{v:>12.1%} ")
             print(f"{arm:12} {label:8} {m['n']:>4}  " + "  ".join(cells))
 
     m, b = measure(new), measure(base) if base else None
@@ -113,6 +129,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  {'PASS' if ok else 'FAIL'}  {name:32} {detail}")
     print("  (state correct is reported, never a criterion: it is the planner's"
           " vision, not the prompt's format)")
+    print("  ('hedge, no if' and median steps are reported, never criteria)")
     return 0 if all(ok for _, ok, _ in checks) else 1
 
 

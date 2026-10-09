@@ -3,9 +3,9 @@ Before the plan, decide and commit to one reading of the casualty and one course
 Casualty type: [aground / capsized / sunken / on fire - choose one]
 Observed conditions: [what in the image shows it; write "cannot tell from the image" for anything the image does not show]
 Course of action: [the one method you will use, and the visible feature that justifies it]
-Then write "Salvage Plan:" and the plan for that course of action only, as a numbered sequence of steps in the order they should be carried out.
-Each step should state what vessel, resource, or response crew is used to perform it, referring to each asset by its ledger ID.
-Commit to a single course of action: every step is an action that will be carried out, so do not write conditional steps, backups, fallbacks, or alternatives (no "if ... then" branches).
+Then write "Salvage Plan:" and the plan for that course of action only, as a numbered sequence of at most 15 steps in the order they should be carried out.
+Each step should state what vessel, resource, or response crew is used to perform it, referring to each asset by its ledger ID. Name only the assets the plan uses.
+Commit to a single course of action: every step is an action that will be carried out, so do not write conditional steps, backups, fallbacks, or alternatives. Write each step as a plain statement of what is done: no step contains "if", "unless", "in case", "in the event", "otherwise", "as needed" or "as required".
 Include any assumptions, limitations, or requests alongside the steps.
 
 Write one step per line, beginning with step 1. No preamble before the three lines, no markdown tables, and do not restate the ledger.
