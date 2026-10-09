@@ -504,6 +504,9 @@ def test_a_v010_plan_without_a_header_passes_through_whole():
     ("Casualty type: aground, no fire visible", "aground"),
     ("Casualty type: aground or capsized", "ambiguous"),
     ("Casualty type: cannot tell from the image", None),
+    ("Casualty type: fire", "on_fire"),
+    ("Casualty type: fire (engine room)", "on_fire"),
+    ("Casualty type: aground, not fire", "aground"),
 ])
 def test_the_declared_state_is_one_value_or_flagged(line, want):
     declared, _ = extract_det.split_header(line + "\nSalvage Plan:\n1. Refloat.")
@@ -513,3 +516,28 @@ def test_the_declared_state_is_one_value_or_flagged(line, want):
 def test_a_markdown_plan_label_is_tolerated():
     _, plan = extract_det.split_header("Casualty type: aground\n**Salvage Plan:**\n1. Refloat.")
     assert plan == "1. Refloat."
+
+
+@pytest.mark.parametrize("label", [
+    "### Salvage Plan",
+    "Salvage Plan (refloat):",
+    "Salvage Plan - refloat on the tide:",
+    "4. Salvage Plan:",
+    "**4) Salvage Plan**",
+])
+def test_a_loose_plan_label_after_a_header_still_splits(label):
+    prose = HEADED.replace("Salvage Plan:", label)
+    declared, plan = extract_det.split_header(prose)
+    assert declared == "aground"
+    assert plan == "1. Make fast TUG-006 aft.\n2. Refloat on the rising tide."
+
+
+def test_a_step_that_mentions_the_salvage_plan_is_not_a_label():
+    prose = ("Casualty type: aground\nCourse of action: tow with TUG-022\n"
+             "1. Brief the crew on the salvage plan.\n2. Tow with TUG-006.")
+    assert extract_det.split_header(prose) == ("aground", prose)
+
+
+def test_a_loose_label_needs_a_header_so_v010_plans_are_untouched():
+    prose = "### Salvage Plan\n1. Make fast TUG-006 aft."
+    assert extract_det.split_header(prose) == (None, prose)

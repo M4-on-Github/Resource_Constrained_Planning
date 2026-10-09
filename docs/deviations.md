@@ -266,6 +266,47 @@ branching plans is. **Decision: dtype stays float16 for v0.11**, so the revision
 test and any v0.11 run differ from v0.10 in the prompt alone. bfloat16 is left as
 a named open item, to be settled before a later version, never mid-run.
 
+*Review before revision 2's generation (no new generation read; fixed before it).*
+- **Parser.** `split_header` missed three plan labels a model could plausibly
+  write: a heading with no colon ("### Salvage Plan"), a qualifier ("Salvage Plan
+  (refloat):") and a number ("4. Salvage Plan:"). In each the whole prose, header
+  included, would have been scored. It also read "Casualty type: fire" as no
+  declared state, so "header ok" would fail a committed plan. Fixed: the looser
+  label forms are tried only after a "Casualty type:" line and only when the
+  exact label is missing, and the label must stand alone on its line, so a step
+  that mentions "the salvage plan" is never taken for one. Bare "fire" now counts
+  as `on_fire` unless "no" or "not" precedes it. On the 880 v0.10 plans and test
+  1's 60, `split_header` returns the same result as before for all 940; the
+  cases are in `tests/test_extract.py`.
+- **No-harm flag for `ESCALATE` (report-only).** `tools/guard_check.py` gains
+  "asks/escalate": the share of plans whose plan section asks for resources or
+  escalates (a fixed regex, `REQUEST`). P1′ is the `ESCALATE` contrast, so a guard
+  that talked the planner out of asking would remove the outcome being measured.
+  Test 1 did not (`SURPLUS` 53.3 % → 66.7 %, `SCARCE` 36.7 % → 70.0 %, same
+  cells; v0.10 over all 110 blind images: 52–61 % per arm). The flag is not a
+  criterion. If it falls well below v0.10 on revision 2, the run is reported and
+  the drop is read before anything is adopted. Also reported only: the share of
+  plans over the 15-step cap.
+- **What committing does to V5, pre-specified before any v0.11 endpoint.** V5
+  credits a plan that attempts the goal for the *true* casualty state. A v0.10
+  blind plan that hedged over the casualty type could earn that credit from one
+  of its branches. A v0.11 plan names one state, and on test 1 that state was
+  wrong in 30 % of cells. Those plans fail V5 in every arm alike. That lowers
+  APPROPRIATE-RESPONSE levels, so blind SURPLUS and INFEASIBLE can both sit near
+  a floor, which makes equivalence easier to show for a reason unrelated to
+  resource reasoning. It also widens stated − blind. So, if v0.11 is run, its
+  reports add the following beside the pre-registered primary (which is
+  unchanged):
+  (a) the AR level in each arm, next to every difference;
+  (b) declared-state accuracy by arm and condition, and how often the four arms
+  of one image declare the same state;
+  (c) a sensitivity analysis: the blind primary restricted to images whose
+  declared state is correct in all four arms;
+  (d) the stated condition, which discloses the state, is the vision-free
+  comparison.
+  If (c) and the primary disagree on ESTABLISHED / NOT ESTABLISHED, the report
+  says so and leads with neither.
+
 ## Provenance: run registry and no-overwrite guards (2026-10-09)
 
 `results/` is gitignored, so until now the 880 v0.10 plans and every report
