@@ -49,3 +49,4 @@ Names: `<version>_<stage>` for study runs (`v011_gen`, `v011_extract`,
 | `v010` | 2026-10-09 | 56 | v0.10 study run: 880 plans (4 arms x blind/stated, float16, greedy), GLM extraction, reports, comparisons, loop sensitivity, smoke and resume-verify files |
 | `v011_guard_r1` | 2026-10-09 | 2 | D10 test 1: v0.11 commitment header, 30 images x SURPLUS/SCARCE blind, job 50449; FAILED the branch criteria |
 | `dtype_check_bf16` | 2026-10-09 | 2 | D10 dtype check: v0.10 prompt in bfloat16, 30 SURPLUS/blind cells, job 50450, branch dtype-check 60b2fdd |
+| `v011_gen` | 2026-10-09 | 16 | v0.11 revision 2 full run, FAILED D10 test 2 (branch criteria), never extracted or analysed: 880 plans (4 arms x blind/stated, float16, greedy), jobs 50538-50545, commit 8ccb922 |

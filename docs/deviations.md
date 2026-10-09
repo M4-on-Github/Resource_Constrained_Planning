@@ -349,6 +349,8 @@ jobs completed (110 rows each, no errors in the logs), while 50539
 files' sha256 at the time of the read was `13635a1c…` (`gen_SURPLUS_blind.jsonl`)
 and `5fa8ffe2…` (`gen_SCARCE_blind.jsonl`). The full run is frozen as
 `v011_gen` when the last job ends, and its record must show these hashes.
+Done: all 8 jobs completed (110 rows each, no errors) and `runs/v011_gen.json`
+(16 files) records both hashes unchanged.
 **Decision, as fixed above:** the v0.11 run is a registered failed attempt and
 is not extracted or analysed. Prompt work stops. v0.10 is the study, and
 contingency branches are handled in extraction (D11): an asset named only in a
@@ -366,5 +368,5 @@ read-only and copies them to `/data/$USER/rcp_archive/<name>/`, a separate volum
 `--out` without `--resume`, `rcp.extract` an existing `extracted.jsonl` and
 `rcp.report` an existing `report.txt`, unless `--overwrite`. Registered so far:
 `v010` (56 files, jobs 50412–50435), `v011_guard_r1` (job 50449) and
-`dtype_check_bf16` (job 50450, outputs copied from the `dtype-check` worktree).
+`dtype_check_bf16` (job 50450, outputs copied from the `dtype-check` worktree), and `v011_gen` (jobs 50538–50545, the failed revision 2 run, D10).
 Rules and layout: `runs/README.md`.
