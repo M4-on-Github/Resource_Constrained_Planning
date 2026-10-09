@@ -130,8 +130,31 @@ records predate the `git_commit` field (SLURM snapshots job scripts at
 submission), so this paragraph is the record of which commit each stage ran.
 
 *Job 50417 (`SUFFICIENT`, blind) crashed* at cell 44 of 110 (CAP-00006) with a
-CUDA device-side assert inside `generate`; the 43 rows before it were flushed and
-kept. Resumed as job 50430 (`--resume`, same commit, env record appended with its
-own `run_id`); it produced CAP-00006 normally (412 tokens), and the stated job had
-already done so, so the fault was transient, not the input. Its extraction is
-50431 (50418 cancelled, never ran). Rows from the two jobs are told apart by `run_id`.
+CUDA device-side assert inside `generate` (`modeling_qwen3_vl.py`, the
+`cache_position` check); the 43 rows before it were flushed and kept, and its
+extraction 50418 was cancelled before it ran. Resumed as job 50430 on the same node
+(pleiades-0-17, `--resume`, same commit): it wrote CAP-00006 normally (412 tokens)
+and crashed the same way at its cell 47 (SUN-00094); extraction 50431 was
+cancelled before it ran. Resumed again as job 50433 with `--exclude=pleiades-0-17`
+and `CUDA_LAUNCH_BLOCKING=1` (pleiades-0-23): it completed the remaining rows,
+SUN-00094 included, with no error. Extraction 50434 ran on all 110 rows (25 looped,
+0 parse failures). Rows from the three planning jobs are told apart by `run_id`.
+
+*Are the rows written by the crashed jobs sound?* Generation is deterministic: the
+smoke run (D8) and 50417 agree byte for byte on their 10 shared cells, the three
+2048-token loops included. Job 50435 (pleiades-0-23) regenerated five rows the
+crashed jobs saved — AGR-00224 and CAP-00002 from 50417, CAP-00006, SUN-00073 and
+SUN-00091 from 50430 — and all five are identical to the saved rows. Its output
+(`results/diag/verify_SUFFICIENT_blind.jsonl`) is a check, not a study result.
+Image size is not the trigger (29 images of 5 MP or more ran cleanly elsewhere),
+and both crashes hit different inputs that run cleanly on another node, so the
+likeliest cause is a faulty GPU on pleiades-0-17. Not proven: the planning jobs
+did not yet log the GPU's UUID, so it cannot be shown both crashes used the same
+card. The job scripts now log it.
+
+*Sensitivity to D9 (preliminary).* Dropping every looped plan and re-running the
+report on the complete-case images that remain (blind 45, stated 62) leaves the
+primary NOT ESTABLISHED, with a larger fitted decline (blind −0.287, 90 % CI
+[−0.443, −0.130]; stated −0.203 [−0.334, −0.072]). Looping is concentrated in
+`SURPLUS`, so this subset is not a random one; it is reported beside the primary,
+not instead of it.
