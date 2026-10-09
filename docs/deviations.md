@@ -265,3 +265,18 @@ stratum, bfloat16's `SURPLUS` / blind loop rate is roughly 23 % against float16'
 branching plans is. **Decision: dtype stays float16 for v0.11**, so the revision 2
 test and any v0.11 run differ from v0.10 in the prompt alone. bfloat16 is left as
 a named open item, to be settled before a later version, never mid-run.
+
+## Provenance: run registry and no-overwrite guards (2026-10-09)
+
+`results/` is gitignored, so until now the 880 v0.10 plans and every report
+existed on one disk with nothing in git describing them, and extraction and
+reports overwrote an existing output silently. Now: `runs/<name>.json` (tracked)
+records each finished run's files with sha256, size and line count, the jobs that
+wrote them, and the repo commit at freeze; `tools/runs.py freeze` makes the files
+read-only and copies them to `/data/$USER/rcp_archive/<name>/`, a separate volume;
+`tools/runs.py verify` rechecks both copies. `rcp.infer` refuses an existing
+`--out` without `--resume`, `rcp.extract` an existing `extracted.jsonl` and
+`rcp.report` an existing `report.txt`, unless `--overwrite`. Registered so far:
+`v010` (56 files, jobs 50412–50435), `v011_guard_r1` (job 50449) and
+`dtype_check_bf16` (job 50450, outputs copied from the `dtype-check` worktree).
+Rules and layout: `runs/README.md`.

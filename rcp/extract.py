@@ -185,7 +185,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--allow-unhashed", action="store_true",
                     help="accept generation rows written before ledger_hash existed "
                          "(the exploratory calibration plans); never for a study run")
+    ap.add_argument("--overwrite", action="store_true",
+                    help="replace an existing extracted.jsonl in --out (default: refuse)")
     args = ap.parse_args(argv)
+
+    # Checked before the model loads, so a wrong --out costs nothing. A finished
+    # run's files are also read-only once registered (runs/README.md).
+    existing = pathlib.Path(args.out) / "extracted.jsonl"
+    if existing.exists() and not args.overwrite:
+        print(f"ERROR: {existing} exists. Write to a new --out, or pass --overwrite.",
+              file=sys.stderr)
+        return 1
 
     scenarios = _load_scenarios(args.corpus)
     rows = [json.loads(ln) for ln in

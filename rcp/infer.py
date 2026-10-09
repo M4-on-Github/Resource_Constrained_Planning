@@ -214,6 +214,10 @@ def main(argv: list[str] | None = None) -> int:
 
     root = pathlib.Path(args.images)
     out = pathlib.Path(args.out)
+    if out.exists() and not args.resume and not args.dry_run:
+        print(f"ERROR: {out} exists. Pass --resume to continue it (same prompt only), "
+              "or write to a new --out.", file=sys.stderr)
+        return 1
     out.parent.mkdir(parents=True, exist_ok=True)
 
     cells = corpus(args.limit, arms)

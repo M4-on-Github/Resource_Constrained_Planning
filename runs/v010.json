@@ -1,0 +1,670 @@
+{
+  "archive": "/data/mmyatmau/rcp_archive/v010",
+  "files": [
+    {
+      "bytes": 2404,
+      "lines": 47,
+      "path": "results/cmp_INFEASIBLE",
+      "sha256": "eb73b2c5c4ac716c1bf0d33332260fb2acfc6783edc054a236886022351cfcfc"
+    },
+    {
+      "bytes": 2373,
+      "lines": 46,
+      "path": "results/cmp_SCARCE",
+      "sha256": "2a5588ee5706be46c5c678841013dbfd7da6ce9b1ced90b664c02f83b3560193"
+    },
+    {
+      "bytes": 2418,
+      "lines": 47,
+      "path": "results/cmp_SUFFICIENT",
+      "sha256": "3728e804459813ddb24a834afe85642bcb2c6c7ad3504fad654190dde9062839"
+    },
+    {
+      "bytes": 2409,
+      "lines": 47,
+      "path": "results/cmp_SURPLUS",
+      "sha256": "1f6648f8c25a078fb8560dd7e1aaf42bd9ec26bbaedccd3da103d00a3806e132"
+    },
+    {
+      "bytes": 1154,
+      "lines": 57,
+      "path": "results/controls.json",
+      "sha256": "af21cd260a1df10bc0790c38416f4b75847711b13783154c6f7c53a0b61112e9"
+    },
+    {
+      "bytes": 925,
+      "lines": 1,
+      "path": "results/diag/verify_SUFFICIENT_blind.env.jsonl",
+      "sha256": "45363e1a97081fc9ea7cffa852093be3d6c5b64cebc7ea9f0c2986df9b4b86b3"
+    },
+    {
+      "bytes": 451475,
+      "lines": 110,
+      "path": "results/diag/verify_SUFFICIENT_blind.jsonl",
+      "sha256": "ba209343ef9681ff44ebf84ddeadc33d991c2d433e45f9c54c6983003c744f5f"
+    },
+    {
+      "bytes": 508194,
+      "lines": 330,
+      "path": "results/ex_blind_3arm.jsonl",
+      "sha256": "406ec87f1bfcadbf11a20e0506a3ccf0afd5917c768d052a0a0a1ddbf6553b54"
+    },
+    {
+      "bytes": 673014,
+      "lines": 440,
+      "path": "results/ex_blind_all.jsonl",
+      "sha256": "fd14149f182c441aed156630677d80fde55190b3270891517f3a136713023958"
+    },
+    {
+      "bytes": 531030,
+      "lines": 351,
+      "path": "results/ex_blind_noloop.jsonl",
+      "sha256": "75258aae2e99e5c268da957106c552e4ca08867ca93a4466b38b4c266d042923"
+    },
+    {
+      "bytes": 712,
+      "lines": 1,
+      "path": "results/ex_gen_INFEASIBLE_blind/env.jsonl",
+      "sha256": "e7e59bbd4898d2b583065193f5946b58e389a3449dd5c28a85f7ce3d19d626fc"
+    },
+    {
+      "bytes": 163882,
+      "lines": 110,
+      "path": "results/ex_gen_INFEASIBLE_blind/extracted.jsonl",
+      "sha256": "fe06d3574e2409c0356065a606e92b57894625366c062310004ce2789ff43b1f"
+    },
+    {
+      "bytes": 713,
+      "lines": 1,
+      "path": "results/ex_gen_INFEASIBLE_stated/env.jsonl",
+      "sha256": "0e79a7ab6ee960d7e3201e50fa9f566185024fad9bb0473bced12d672fb00840"
+    },
+    {
+      "bytes": 147479,
+      "lines": 110,
+      "path": "results/ex_gen_INFEASIBLE_stated/extracted.jsonl",
+      "sha256": "71068b1b85afbfbc5ff8d9a2e3c400b3d925d9ba8b06e96f940b566686234bc3"
+    },
+    {
+      "bytes": 708,
+      "lines": 1,
+      "path": "results/ex_gen_SCARCE_blind/env.jsonl",
+      "sha256": "4eadbc1e59942813163355b1f5123cfc623ec8e027d9ee0c89b514f205bc1308"
+    },
+    {
+      "bytes": 158022,
+      "lines": 110,
+      "path": "results/ex_gen_SCARCE_blind/extracted.jsonl",
+      "sha256": "3e62d926c9285becc1732d3dea789592edcdaee6c7c7fafd4309ab5bac7e40c4"
+    },
+    {
+      "bytes": 709,
+      "lines": 1,
+      "path": "results/ex_gen_SCARCE_stated/env.jsonl",
+      "sha256": "20c8273f4353428c450e1150f83bec42a0b8113da8b661e35b23a2ddbf066c13"
+    },
+    {
+      "bytes": 149251,
+      "lines": 110,
+      "path": "results/ex_gen_SCARCE_stated/extracted.jsonl",
+      "sha256": "517bec97c881b091a279578ce97ba0580476e4017b6084586439b1448c2939d8"
+    },
+    {
+      "bytes": 750,
+      "lines": 1,
+      "path": "results/ex_gen_SUFFICIENT_blind/env.jsonl",
+      "sha256": "8ce9aa8c0dacfdfb7194e24903334e1216325e0cfcd26bbc5e730c4dd7e87ac4"
+    },
+    {
+      "bytes": 164820,
+      "lines": 110,
+      "path": "results/ex_gen_SUFFICIENT_blind/extracted.jsonl",
+      "sha256": "99647811285b88a4b7ed85b88226ca6f53410916b702fe80b97a23ac86fc9228"
+    },
+    {
+      "bytes": 713,
+      "lines": 1,
+      "path": "results/ex_gen_SUFFICIENT_stated/env.jsonl",
+      "sha256": "164e6980c152b3b00005011420b2f779ed91456a39945a0f2cac099a1f8c4f04"
+    },
+    {
+      "bytes": 167037,
+      "lines": 110,
+      "path": "results/ex_gen_SUFFICIENT_stated/extracted.jsonl",
+      "sha256": "2efc352a3e5e3ccc78a58885960c55707bccffdd13cdb38bb9d71f5bb2239d79"
+    },
+    {
+      "bytes": 709,
+      "lines": 1,
+      "path": "results/ex_gen_SURPLUS_blind/env.jsonl",
+      "sha256": "00dfcb08f2c385fce29919920b6bdef7450e2562b0fe61c8199843777bc62cea"
+    },
+    {
+      "bytes": 186290,
+      "lines": 110,
+      "path": "results/ex_gen_SURPLUS_blind/extracted.jsonl",
+      "sha256": "81f4a5a4a6bda65851351d6d4c8f10722ed9fff445b8718729a12c50bf8edd9f"
+    },
+    {
+      "bytes": 710,
+      "lines": 1,
+      "path": "results/ex_gen_SURPLUS_stated/env.jsonl",
+      "sha256": "dfb69037a749749d0aa854b51a7588e764db802212fca418c5f5d52055116f1b"
+    },
+    {
+      "bytes": 187357,
+      "lines": 110,
+      "path": "results/ex_gen_SURPLUS_stated/extracted.jsonl",
+      "sha256": "06e7cc62c61be0d59ffdff74d0a7df50137589345af8e79ac3c8d9a748932ffa"
+    },
+    {
+      "bytes": 651124,
+      "lines": 440,
+      "path": "results/ex_stated_all.jsonl",
+      "sha256": "8a08f29054e5932d17ba6f126339e377618cd4a7561a0be88fe689e60a3e78dd"
+    },
+    {
+      "bytes": 543205,
+      "lines": 376,
+      "path": "results/ex_stated_noloop.jsonl",
+      "sha256": "abcbb51e07cd1a968e42d0b04919dbfceacf9dee5093e1f48f7f615599e87011"
+    },
+    {
+      "bytes": 848,
+      "lines": 1,
+      "path": "results/gen_INFEASIBLE_blind.env.jsonl",
+      "sha256": "55a1e3aa6e0990ea6945c87b69e7d1320a7c94dfef205f676c036fb1129b39c9"
+    },
+    {
+      "bytes": 346843,
+      "lines": 110,
+      "path": "results/gen_INFEASIBLE_blind.jsonl",
+      "sha256": "9297dc36bf53866f5861b06fdd49b790dcaaa063b6127acc95efb321a266647a"
+    },
+    {
+      "bytes": 849,
+      "lines": 1,
+      "path": "results/gen_INFEASIBLE_stated.env.jsonl",
+      "sha256": "5df03976ee6005a4745918da47d8cb92eae6410088b99c05fb2cc2613b72564b"
+    },
+    {
+      "bytes": 277733,
+      "lines": 110,
+      "path": "results/gen_INFEASIBLE_stated.jsonl",
+      "sha256": "8ef6e21173db676d9257e6c66dd453d2ebbcb56582496eabf938b82a007c7be4"
+    },
+    {
+      "bytes": 844,
+      "lines": 1,
+      "path": "results/gen_SCARCE_blind.env.jsonl",
+      "sha256": "94bb0a257ddd0657d9b95d6cfc2757b5f971849b13964b979368e7de4e66133c"
+    },
+    {
+      "bytes": 363966,
+      "lines": 110,
+      "path": "results/gen_SCARCE_blind.jsonl",
+      "sha256": "ff768d5c1c7cf43d0ece3d1a6cf07a9824f4b517b663da8b1b1eca8d79ac2e04"
+    },
+    {
+      "bytes": 845,
+      "lines": 1,
+      "path": "results/gen_SCARCE_stated.env.jsonl",
+      "sha256": "8717d8607227568f730a09e386949589ad244b60137a90b5797df5f09275f96c"
+    },
+    {
+      "bytes": 341931,
+      "lines": 110,
+      "path": "results/gen_SCARCE_stated.jsonl",
+      "sha256": "ba2ee191b4c5ec1ad5572a39ee991972b889cbc78ed7380f352ed57206fae38a"
+    },
+    {
+      "bytes": 2698,
+      "lines": 3,
+      "path": "results/gen_SUFFICIENT_blind.env.jsonl",
+      "sha256": "2fa25845988f2742ee94076889942d7039635a19af00be7dc3b1dbf9c770e4c7"
+    },
+    {
+      "bytes": 451475,
+      "lines": 110,
+      "path": "results/gen_SUFFICIENT_blind.jsonl",
+      "sha256": "22cb301cc7a8e6724c64ef42440d26fa7d89032ba9dce20806bf5b85499ca631"
+    },
+    {
+      "bytes": 849,
+      "lines": 1,
+      "path": "results/gen_SUFFICIENT_stated.env.jsonl",
+      "sha256": "25c33de1405f48410e821537cd8c376c6adc1cb2507bc9762029729ef1419a8e"
+    },
+    {
+      "bytes": 419486,
+      "lines": 110,
+      "path": "results/gen_SUFFICIENT_stated.jsonl",
+      "sha256": "0bde17b38dc2ba477ae95e703ac92d75fe9538a3decd7a78a7c0e9753893cd69"
+    },
+    {
+      "bytes": 845,
+      "lines": 1,
+      "path": "results/gen_SURPLUS_blind.env.jsonl",
+      "sha256": "1708127ce39288782e89d3e0b4af92716d376586d3cf4aeb502e920a90787ba3"
+    },
+    {
+      "bytes": 519062,
+      "lines": 110,
+      "path": "results/gen_SURPLUS_blind.jsonl",
+      "sha256": "d834d9a942d317f0d44bd86c755de195ffdf8968dd416c860af64bf0ca4bcf73"
+    },
+    {
+      "bytes": 846,
+      "lines": 1,
+      "path": "results/gen_SURPLUS_stated.env.jsonl",
+      "sha256": "fb98aa5afbd9db7e4e32b2aff19f99a53cf61934c33e805c1069760e15856828"
+    },
+    {
+      "bytes": 525148,
+      "lines": 110,
+      "path": "results/gen_SURPLUS_stated.jsonl",
+      "sha256": "55f05f4c761a268b7985c2036ba40af2e059388df6b474d3f08252bc9a524500"
+    },
+    {
+      "bytes": 9171,
+      "lines": 516,
+      "path": "results/rep_blind/report.json",
+      "sha256": "afca6300923dca8b0a65c1b29e5e2ff5766dc98b8a8d5114edffbbd98e0a2fa5"
+    },
+    {
+      "bytes": 4641,
+      "lines": 71,
+      "path": "results/rep_blind/report.txt",
+      "sha256": "bdbf2e0e02d47e9e9c152bd1b082a0cc9fc43385701a440b65d4e772142a20a2"
+    },
+    {
+      "bytes": 7174,
+      "lines": 407,
+      "path": "results/rep_blind_3arm/report.json",
+      "sha256": "0be90fb92119e256f15b26d4a04eb4dd4fbd162aaa478821df42b1fb51a87d23"
+    },
+    {
+      "bytes": 3626,
+      "lines": 57,
+      "path": "results/rep_blind_3arm/report.txt",
+      "sha256": "c4701912b619d8a59ba04ca87b548264d185e68a8d3e2c0acbb5d7c33d3a1a56"
+    },
+    {
+      "bytes": 9186,
+      "lines": 516,
+      "path": "results/rep_stated/report.json",
+      "sha256": "ae80e79d780327006a6c76ca790c69ec8d39cd58d89671b59c91a68d48d658e1"
+    },
+    {
+      "bytes": 4642,
+      "lines": 71,
+      "path": "results/rep_stated/report.txt",
+      "sha256": "cdc02f55c581948e8004e22c3713fe2d37d5185a5f3821289c3c2833eacc7f6c"
+    },
+    {
+      "bytes": 8962,
+      "lines": 516,
+      "path": "results/sens_noloop_blind/report.json",
+      "sha256": "6033b25ef685eb685e7288f5a1c00c50dc2c22513d5f466600fb9db14a8fa854"
+    },
+    {
+      "bytes": 4641,
+      "lines": 71,
+      "path": "results/sens_noloop_blind/report.txt",
+      "sha256": "aba3ee4d918f7f04eb74dc8d05f064d8743871359a1f6556c2c6739be4494f2a"
+    },
+    {
+      "bytes": 8898,
+      "lines": 516,
+      "path": "results/sens_noloop_stated/report.json",
+      "sha256": "edafa161ef32795178d7afac9c76ba66752523b72612b29ea842c66168a0dad2"
+    },
+    {
+      "bytes": 4642,
+      "lines": 71,
+      "path": "results/sens_noloop_stated/report.txt",
+      "sha256": "2a97630c16e4508ddb2452b7981cb5011606329854c657fbb7df52243a5a28e5"
+    },
+    {
+      "bytes": 848,
+      "lines": 1,
+      "path": "results/smoke_SUFFICIENT_blind.env.jsonl",
+      "sha256": "99819daafbf9d7911baa25776613b5f178bcf72ca77a54f612258e807e9a8304"
+    },
+    {
+      "bytes": 41601,
+      "lines": 10,
+      "path": "results/smoke_SUFFICIENT_blind.jsonl",
+      "sha256": "570c618f56d9189bd25df54b254f3d4d2dd138d5a5fbbd4195aaded26eb5f121"
+    }
+  ],
+  "frozen_utc": "2026-10-09T18:09:58+00:00",
+  "jobs": [
+    {
+      "arms": [
+        "SUFFICIENT"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "22e9bbd8233453c71516fc07c7a901dc2df6968103a1676208b443189f063a2e",
+      "git_commit": "2a86040f62b994dedcd7f682a2d9a32e77afc8be",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 2048,
+      "record": "results/diag/verify_SUFFICIENT_blind.env.jsonl",
+      "run_id": "slurm-50435",
+      "stage": "plan",
+      "time_utc": "2026-10-09T12:46:51+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "container_sha256": "856149e58cc76ac14a67876b67f56d3a3a3c85b27a5f5ad2c122864a56e5687a",
+      "git_commit": null,
+      "git_dirty": null,
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "input": "results/gen_INFEASIBLE_blind.jsonl",
+      "max_tokens": 768,
+      "record": "results/ex_gen_INFEASIBLE_blind/env.jsonl",
+      "run_id": "slurm-50426",
+      "stage": "extract",
+      "time_utc": "2026-10-09T10:28:00+00:00",
+      "weights_sha256": "676057b9b569b43f547be020d86c37202f94523acdd72def14b0cc4007fa6bd7"
+    },
+    {
+      "container_sha256": "856149e58cc76ac14a67876b67f56d3a3a3c85b27a5f5ad2c122864a56e5687a",
+      "git_commit": null,
+      "git_dirty": null,
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "input": "results/gen_INFEASIBLE_stated.jsonl",
+      "max_tokens": 768,
+      "record": "results/ex_gen_INFEASIBLE_stated/env.jsonl",
+      "run_id": "slurm-50428",
+      "stage": "extract",
+      "time_utc": "2026-10-09T10:23:18+00:00",
+      "weights_sha256": "676057b9b569b43f547be020d86c37202f94523acdd72def14b0cc4007fa6bd7"
+    },
+    {
+      "container_sha256": "856149e58cc76ac14a67876b67f56d3a3a3c85b27a5f5ad2c122864a56e5687a",
+      "git_commit": null,
+      "git_dirty": null,
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "input": "results/gen_SCARCE_blind.jsonl",
+      "max_tokens": 768,
+      "record": "results/ex_gen_SCARCE_blind/env.jsonl",
+      "run_id": "slurm-50422",
+      "stage": "extract",
+      "time_utc": "2026-10-09T10:33:28+00:00",
+      "weights_sha256": "676057b9b569b43f547be020d86c37202f94523acdd72def14b0cc4007fa6bd7"
+    },
+    {
+      "container_sha256": "856149e58cc76ac14a67876b67f56d3a3a3c85b27a5f5ad2c122864a56e5687a",
+      "git_commit": null,
+      "git_dirty": null,
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "input": "results/gen_SCARCE_stated.jsonl",
+      "max_tokens": 768,
+      "record": "results/ex_gen_SCARCE_stated/env.jsonl",
+      "run_id": "slurm-50424",
+      "stage": "extract",
+      "time_utc": "2026-10-09T10:27:10+00:00",
+      "weights_sha256": "676057b9b569b43f547be020d86c37202f94523acdd72def14b0cc4007fa6bd7"
+    },
+    {
+      "container_sha256": "856149e58cc76ac14a67876b67f56d3a3a3c85b27a5f5ad2c122864a56e5687a",
+      "git_commit": "2a86040f62b994dedcd7f682a2d9a32e77afc8be",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "input": "results/gen_SUFFICIENT_blind.jsonl",
+      "max_tokens": 768,
+      "record": "results/ex_gen_SUFFICIENT_blind/env.jsonl",
+      "run_id": "slurm-50434",
+      "stage": "extract",
+      "time_utc": "2026-10-09T12:49:57+00:00",
+      "weights_sha256": "676057b9b569b43f547be020d86c37202f94523acdd72def14b0cc4007fa6bd7"
+    },
+    {
+      "container_sha256": "856149e58cc76ac14a67876b67f56d3a3a3c85b27a5f5ad2c122864a56e5687a",
+      "git_commit": null,
+      "git_dirty": null,
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "input": "results/gen_SUFFICIENT_stated.jsonl",
+      "max_tokens": 768,
+      "record": "results/ex_gen_SUFFICIENT_stated/env.jsonl",
+      "run_id": "slurm-50420",
+      "stage": "extract",
+      "time_utc": "2026-10-09T10:42:57+00:00",
+      "weights_sha256": "676057b9b569b43f547be020d86c37202f94523acdd72def14b0cc4007fa6bd7"
+    },
+    {
+      "container_sha256": "856149e58cc76ac14a67876b67f56d3a3a3c85b27a5f5ad2c122864a56e5687a",
+      "git_commit": null,
+      "git_dirty": null,
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "input": "results/gen_SURPLUS_blind.jsonl",
+      "max_tokens": 768,
+      "record": "results/ex_gen_SURPLUS_blind/env.jsonl",
+      "run_id": "slurm-50414",
+      "stage": "extract",
+      "time_utc": "2026-10-09T11:01:55+00:00",
+      "weights_sha256": "676057b9b569b43f547be020d86c37202f94523acdd72def14b0cc4007fa6bd7"
+    },
+    {
+      "container_sha256": "856149e58cc76ac14a67876b67f56d3a3a3c85b27a5f5ad2c122864a56e5687a",
+      "git_commit": null,
+      "git_dirty": null,
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "input": "results/gen_SURPLUS_stated.jsonl",
+      "max_tokens": 768,
+      "record": "results/ex_gen_SURPLUS_stated/env.jsonl",
+      "run_id": "slurm-50416",
+      "stage": "extract",
+      "time_utc": "2026-10-09T11:02:06+00:00",
+      "weights_sha256": "676057b9b569b43f547be020d86c37202f94523acdd72def14b0cc4007fa6bd7"
+    },
+    {
+      "arms": [
+        "INFEASIBLE"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "22e9bbd8233453c71516fc07c7a901dc2df6968103a1676208b443189f063a2e",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "max_tokens": 2048,
+      "record": "results/gen_INFEASIBLE_blind.env.jsonl",
+      "run_id": "slurm-50425",
+      "stage": "plan",
+      "time_utc": "2026-10-09T09:37:59+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "INFEASIBLE"
+      ],
+      "condition": "stated",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "bb5bebf4732ddedd9a15128513131fcd70695fa8cca108294aab7b21518b0eb7",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 2048,
+      "record": "results/gen_INFEASIBLE_stated.env.jsonl",
+      "run_id": "slurm-50427",
+      "stage": "plan",
+      "time_utc": "2026-10-09T09:37:59+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SCARCE"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "22e9bbd8233453c71516fc07c7a901dc2df6968103a1676208b443189f063a2e",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "max_tokens": 2048,
+      "record": "results/gen_SCARCE_blind.env.jsonl",
+      "run_id": "slurm-50421",
+      "stage": "plan",
+      "time_utc": "2026-10-09T09:37:59+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SCARCE"
+      ],
+      "condition": "stated",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "bb5bebf4732ddedd9a15128513131fcd70695fa8cca108294aab7b21518b0eb7",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "max_tokens": 2048,
+      "record": "results/gen_SCARCE_stated.env.jsonl",
+      "run_id": "slurm-50423",
+      "stage": "plan",
+      "time_utc": "2026-10-09T09:37:59+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SUFFICIENT"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "22e9bbd8233453c71516fc07c7a901dc2df6968103a1676208b443189f063a2e",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "max_tokens": 2048,
+      "record": "results/gen_SUFFICIENT_blind.env.jsonl",
+      "run_id": "slurm-50417",
+      "stage": "plan",
+      "time_utc": "2026-10-09T09:37:59+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SUFFICIENT"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "22e9bbd8233453c71516fc07c7a901dc2df6968103a1676208b443189f063a2e",
+      "git_commit": "4e348e678e5c6556a559c1b39185b9452b777d25",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "max_tokens": 2048,
+      "record": "results/gen_SUFFICIENT_blind.env.jsonl",
+      "run_id": "slurm-50430",
+      "stage": "plan",
+      "time_utc": "2026-10-09T10:04:58+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SUFFICIENT"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "22e9bbd8233453c71516fc07c7a901dc2df6968103a1676208b443189f063a2e",
+      "git_commit": "2a86040f62b994dedcd7f682a2d9a32e77afc8be",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 2048,
+      "record": "results/gen_SUFFICIENT_blind.env.jsonl",
+      "run_id": "slurm-50433",
+      "stage": "plan",
+      "time_utc": "2026-10-09T12:26:07+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SUFFICIENT"
+      ],
+      "condition": "stated",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "bb5bebf4732ddedd9a15128513131fcd70695fa8cca108294aab7b21518b0eb7",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "max_tokens": 2048,
+      "record": "results/gen_SUFFICIENT_stated.env.jsonl",
+      "run_id": "slurm-50419",
+      "stage": "plan",
+      "time_utc": "2026-10-09T09:37:59+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SURPLUS"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "22e9bbd8233453c71516fc07c7a901dc2df6968103a1676208b443189f063a2e",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "max_tokens": 2048,
+      "record": "results/gen_SURPLUS_blind.env.jsonl",
+      "run_id": "slurm-50413",
+      "stage": "plan",
+      "time_utc": "2026-10-09T09:37:59+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SURPLUS"
+      ],
+      "condition": "stated",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "bb5bebf4732ddedd9a15128513131fcd70695fa8cca108294aab7b21518b0eb7",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "max_tokens": 2048,
+      "record": "results/gen_SURPLUS_stated.env.jsonl",
+      "run_id": "slurm-50415",
+      "stage": "plan",
+      "time_utc": "2026-10-09T09:37:59+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SUFFICIENT"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "22e9bbd8233453c71516fc07c7a901dc2df6968103a1676208b443189f063a2e",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "max_tokens": 2048,
+      "record": "results/smoke_SUFFICIENT_blind.env.jsonl",
+      "run_id": "slurm-50412",
+      "stage": "plan",
+      "time_utc": "2026-10-09T09:16:17+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    }
+  ],
+  "name": "v010",
+  "purpose": "v0.10 study run: 880 plans (4 arms x blind/stated, float16, greedy), GLM extraction, reports, comparisons, loop sensitivity, smoke and resume-verify files",
+  "repo_commit_at_freeze": "ea9f29c8a672eda1b1d6e8e104db1c6e91743f17",
+  "repo_dirty_at_freeze": true
+}

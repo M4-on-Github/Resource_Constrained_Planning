@@ -547,7 +547,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--controls", default=None,
                     help="controls JSON from `python -m rcp.controls`")
     ap.add_argument("--permutations", type=int, default=PERMUTATIONS)
+    ap.add_argument("--overwrite", action="store_true",
+                    help="replace an existing report in --out (default: refuse)")
     args = ap.parse_args(argv)
+    if args.out and (pathlib.Path(args.out) / "report.txt").exists() and not args.overwrite:
+        print(f"ERROR: {pathlib.Path(args.out) / 'report.txt'} exists. Write to a new "
+              "--out, or pass --overwrite.", file=sys.stderr)
+        return 1
 
     verdicts, scenarios = _load_verdicts(pathlib.Path(args.input))
     truncated, looped = {}, {}
