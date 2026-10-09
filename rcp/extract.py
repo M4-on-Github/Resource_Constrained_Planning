@@ -207,8 +207,11 @@ def main(argv: list[str] | None = None) -> int:
         if sc is None:
             print(f"  [skip] no scenario for {key}", file=sys.stderr)
             continue
-        det = extract_det.deterministic_pass(r["prose"], sc)
-        items.append({"row": r, "scenario": sc, "prose": r["prose"],
+        # A greedy loop is cut at its first repeated step before anything reads
+        # the plan (D9); both the deterministic pass and the model see the cut.
+        prose, looped = extract_det.trim_repeated_steps(r["prose"])
+        det = extract_det.deterministic_pass(prose, sc)
+        items.append({"row": r, "scenario": sc, "prose": prose, "looped": looped,
                       "assets_named": det["assets_named"],
                       "goal": states()[sc.casualty_state]["goal"]})
 
@@ -247,6 +250,8 @@ def main(argv: list[str] | None = None) -> int:
                                  # primary; the generation row is its only source.
                                  "truncated": it["row"].get("truncated"),
                                  "n_tokens": it["row"].get("n_tokens"),
+                                 # steps dropped by trim_repeated_steps; 0 = untouched
+                                 "looped_steps_dropped": it["looped"],
                                  "ledger_hash": it["row"].get("ledger_hash"),
                                  "run_id": it["row"].get("run_id")},
                                 sort_keys=True) + "\n")
@@ -254,7 +259,9 @@ def main(argv: list[str] | None = None) -> int:
     failed = sum(1 for _, t in results if t.get("llm_parse_failed"))
     empty = sum(1 for _, t in results if t["parse_failed"])
     no_match = sum(1 for _, t in results if t.get("v5_no_match"))
+    looped = sum(1 for it in items if it["looped"])
     print(f"  {len(results)} extracted -> {out / 'extracted.jsonl'}")
+    print(f"  looped, cut at repeat  : {looped}")
     print(f"  empty generations      : {empty}")
     print(f"  llm parse failures     : {failed}")
     print(f"  V5 vocabulary misses   : {no_match}  (sec. 8.4 coverage gate)")

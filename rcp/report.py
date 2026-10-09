@@ -251,11 +251,14 @@ def manipulation_check(verdicts: list[Verdict],
 
 
 def endpoints(verdicts: list[Verdict],
-              truncated: dict[str, bool | None] | None = None) -> dict:
+              truncated: dict[str, bool | None] | None = None,
+              looped: dict[str, bool | None] | None = None) -> dict:
     """Per-arm rates. `truncated` maps `id/arm` to whether the generation hit the
-    planner's token cap (None where the row predates the flag)."""
+    planner's token cap (None where the row predates the flag); `looped` to whether
+    extraction cut it at a repeated step (D9)."""
     g = _group(verdicts)
     truncated = truncated or {}
+    looped = looped or {}
     out = {}
     for arm in ARMS:
         vs = g.get(arm, [])
@@ -286,13 +289,15 @@ def endpoints(verdicts: list[Verdict],
             "conditional_steps": statistics.fmean([v.conditional_steps for v in vs]),
             "with_conditional": _rate([v.conditional_steps > 0 for v in vs]),
             "truncated": _rate([truncated.get(f"{v.scenario_id}/{v.arm}") for v in vs]),
+            "looped": _rate([looped.get(f"{v.scenario_id}/{v.arm}") for v in vs]),
         }
     return out
 
 
 def build(verdicts: list[Verdict], scenarios: dict[str, Scenario],
           controls: dict | None = None, provenance: dict | None = None,
-          truncated: dict[str, bool | None] | None = None) -> dict:
+          truncated: dict[str, bool | None] | None = None,
+          looped: dict[str, bool | None] | None = None) -> dict:
     by_image: dict[str, dict[str, bool]] = {}
     for v in verdicts:
         by_image.setdefault(v.scenario_id, {})[v.arm] = v.appropriate_response
@@ -307,7 +312,7 @@ def build(verdicts: list[Verdict], scenarios: dict[str, Scenario],
                     **trend_test(cs),
                     "equivalence": equivalence(cs)},
         "escalation_contrast": escalation_contrast(verdicts),
-        "arms": endpoints(verdicts, truncated),
+        "arms": endpoints(verdicts, truncated, looped),
         "invariant_violations": invariant_check(verdicts),
     }
 
@@ -383,16 +388,17 @@ def render(rep: dict) -> str:
     L.append(_bar("3. PRIMARY - APPROPRIATE-RESPONSE across the four ordered arms"))
     L.append(f"  {'arm':<12} {'n':>4}  {'APPROPRIATE-RESPONSE':>21}   "
              f"{'median steps':>12} {'median words':>12}   <- ceiling-artifact column"
-             f"   {'truncated':>9} {'w/ branch':>9} {'branches':>8}")
+             f"   {'truncated':>9} {'looped':>7} {'w/ branch':>9} {'branches':>8}")
     for arm in ARMS:
         if arm not in a:
             continue
         r, num, den = a[arm]["appropriate_response"]
         tr = a[arm].get("truncated", (None, 0, 0))[0]
+        lp = a[arm].get("looped", (None, 0, 0))[0]
         wc = a[arm].get("with_conditional", (None, 0, 0))[0]
         L.append(f"  {arm:<12} {a[arm]['n']:>4}  {_pct(r):>12} ({num:>3}/{den:<3})  "
                  f"{a[arm]['step_count']:>12.0f} {a[arm]['word_count']:>12.0f}"
-                 f"{'':27}{_pct(tr):>9} {_pct(wc):>9} "
+                 f"{'':27}{_pct(tr):>9} {_pct(lp):>7} {_pct(wc):>9} "
                  f"{a[arm].get('conditional_steps', 0.0):>8.1f}")
     eq = p.get("equivalence") or {}
     if eq.get("change") is None:
@@ -544,12 +550,14 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     verdicts, scenarios = _load_verdicts(pathlib.Path(args.input))
-    truncated = {}
+    truncated, looped = {}, {}
     for line in pathlib.Path(args.input).read_text(encoding="utf-8").splitlines():
         if line.strip():
             row = json.loads(line)
             d = row.get("plan", row)
             truncated[f"{d['scenario_id']}/{d['arm']}"] = row.get("truncated")
+            lp = row.get("looped_steps_dropped")
+            looped[f"{d['scenario_id']}/{d['arm']}"] = None if lp is None else lp > 0
     controls = (json.loads(pathlib.Path(args.controls).read_text(encoding="utf-8"))
                 if args.controls else None)
 
@@ -557,7 +565,7 @@ def main(argv: list[str] | None = None) -> int:
         "scored": len(verdicts),
         "domain_digest": _run_digest(pathlib.Path(args.input)),
         "extraction": pathlib.Path(args.input).name,
-    }, truncated=truncated)
+    }, truncated=truncated, looped=looped)
     text = render(rep)
     print(text)
 

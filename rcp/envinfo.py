@@ -104,6 +104,10 @@ def record(model_dir: str, **extra) -> dict:
         **_gpu(),
         "container": os.environ.get("RCP_CONTAINER"),
         "container_sha256": os.environ.get("RCP_CONTAINER_SHA256"),
+        # read on the host by the job script: the container cannot see the
+        # superproject's .git. "dirty" = uncommitted changes at submission.
+        "git_commit": os.environ.get("RCP_GIT_COMMIT"),
+        "git_dirty": os.environ.get("RCP_GIT_DIRTY"),
         "model_dir": os.path.expandvars(model_dir),
         "weights_sha256": weights_hash(model_dir),
         **extra,

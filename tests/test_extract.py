@@ -434,3 +434,34 @@ def test_an_empty_generation_scores_without_crashing(scenario):
     v = score(plan, scenario)
     assert v.plan_succeeds is False          # V3 and V5 demand positive evidence
     assert v.allocations == ()
+
+
+# --------------------------------------------------------------------------- #
+# D9: greedy loops are cut at the first repeated step
+# --------------------------------------------------------------------------- #
+
+
+def test_a_loop_is_cut_at_its_first_repeated_step():
+    prose = ("1. Deploy TUG-022 to the scene.\n"
+             "2. Deploy TUG-006 to the scene.\n"
+             "3. Deploy TUG-022 to the scene.\n"
+             "4. Deploy TUG-006 to the scene.\n"
+             "5. Deploy TUG-022 to")
+    kept, dropped = extract_det.trim_repeated_steps(prose)
+    assert kept == "1. Deploy TUG-022 to the scene.\n2. Deploy TUG-006 to the scene."
+    assert dropped == 3
+
+
+def test_a_plan_without_a_repeat_is_untouched():
+    prose = "1. Deploy TUG-022.\n2. Refloat on the rising tide.\n3. Tow to port."
+    assert extract_det.trim_repeated_steps(prose) == (prose, 0)
+
+
+def test_the_repeat_ignores_the_step_number_case_and_spacing():
+    prose = "1. Monitor the  tide.\n2. Refloat.\n7) monitor the tide."
+    assert extract_det.trim_repeated_steps(prose) == ("1. Monitor the  tide.\n2. Refloat.", 1)
+
+
+def test_unmarked_prose_is_never_cut():
+    prose = "Monitor the tide. Monitor the tide. Monitor the tide."
+    assert extract_det.trim_repeated_steps(prose) == (prose, 0)

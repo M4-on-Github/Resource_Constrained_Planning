@@ -109,12 +109,19 @@ if [ ! -s "$SIF_SHA_CACHE" ] || [ "$SIF" -nt "$SIF_SHA_CACHE" ]; then
 fi
 SIF_SHA="$(cat "$SIF_SHA_CACHE")"
 
+# ── Code version, for the same record ─────────────────────────────────────────
+# SLURM snapshots this script at submission but the Python is read when the job
+# starts, so this is the commit the job actually runs.
+GIT_COMMIT="$(git -C "$REPO" rev-parse HEAD 2>/dev/null || echo unknown)"
+GIT_DIRTY="$(git -C "$REPO" status --porcelain 2>/dev/null | grep -q . && echo yes || echo no)"
+
 echo "==========================================="
 echo " RCP planning (plan.md sec. 7.1)"
 echo " Planner   : $MODEL_DIR"
 echo " Images    : $IMAGES"
 echo " Output    : $OUT"
 echo " Container : $SIF ($SIF_SHA)"
+echo " Commit    : $GIT_COMMIT (dirty: $GIT_DIRTY)"
 echo " Job ID    : ${SLURM_JOB_ID:-none}"
 echo " Node      : $(hostname)"
 echo " Started   : $(date)"
@@ -138,6 +145,8 @@ apptainer exec \
     --env HF_HUB_DISABLE_PROGRESS_BARS=1 \
     --env RCP_CONTAINER="$SIF" \
     --env RCP_CONTAINER_SHA256="$SIF_SHA" \
+    --env RCP_GIT_COMMIT="$GIT_COMMIT" \
+    --env RCP_GIT_DIRTY="$GIT_DIRTY" \
     --env SLURM_JOB_ID="${SLURM_JOB_ID:-}" \
     --env CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}" \
     "$SIF" \

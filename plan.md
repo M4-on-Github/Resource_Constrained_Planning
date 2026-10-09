@@ -1548,7 +1548,8 @@ descriptively with paired 95 % CIs. It is not tested and does not enter the
 primary.
 
 **Truncation and branching, reported with the primary.** Per arm: the share of
-plans that hit the planner's token cap (`truncated`, now 2048) and the mean
+plans that hit the planner's token cap (`truncated`, now 2048), the share cut at
+a repeated step (`looped`, docs/deviations.md D9) and the mean
 `conditional_steps` (§6.2). Neither is graded; both are how a reader checks that
 the guard and the cap did what §6.2 and §8.2 say they do.
 

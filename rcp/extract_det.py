@@ -178,6 +178,38 @@ def unresolved_named(named: tuple[str, ...], scenario: Scenario) -> tuple[str, .
     return tuple(t for t in named if resolve(t, scenario.ledger_ids) is None)
 
 
+def _step_body(line: str) -> str:
+    return re.sub(r"\s+", " ", _STEP_OPENER.sub("", line)).strip().lower()
+
+
+def trim_repeated_steps(prose: str) -> tuple[str, int]:
+    """Cut a plan at its first step that repeats an earlier one word for word.
+
+    Greedy decoding loops: once a step has been written twice the same step is the
+    likeliest continuation, and the plan runs to the token cap reprinting it with a
+    new number (docs/deviations.md D9). Everything before the first repeat is the
+    plan; the rest is the loop. Because decoding is greedy, this is exactly what a
+    stop-on-repeat rule at generation time would have produced, so it is applied
+    here rather than by regenerating. Returns the kept prose and the number of
+    marker-led lines dropped (0 = untouched). Unmarked prose is never cut.
+    """
+    if not prose:
+        return prose, 0
+    lines = prose.splitlines()
+    seen = set()
+    for i, ln in enumerate(lines):
+        if not _STEP_OPENER.match(ln.strip()):
+            continue
+        body = _step_body(ln.strip())
+        if not body:
+            continue
+        if body in seen:
+            dropped = sum(1 for x in lines[i:] if _STEP_OPENER.match(x.strip()))
+            return "\n".join(lines[:i]).rstrip(), dropped
+        seen.add(body)
+    return prose, 0
+
+
 def conditional_steps(steps: list[str]) -> int:
     """How many steps carry an if/unless/otherwise/should-…-fail branch."""
     return sum(1 for st in steps if _CONDITIONAL.search(st))

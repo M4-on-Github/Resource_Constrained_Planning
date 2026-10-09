@@ -212,8 +212,10 @@ sbatch jobs/extract_job.sh results/gen_SURPLUS_blind.jsonl
 
 Each planning row records `n_tokens`, `truncated` (hit the 2048 cap),
 `ledger_hash` and `run_id`; each job appends one environment record (packages, GPU,
-container sha256, weights hash) to `<out>.env.jsonl`, and extraction to
-`<out_dir>/env.jsonl`. The four-arm report concatenates the four blind
+container sha256, weights hash, git commit) to `<out>.env.jsonl`, and extraction to
+`<out_dir>/env.jsonl`. Extraction cuts a greedy loop at its first verbatim-repeated
+step before scoring (`looped_steps_dropped`, reported per arm as `looped`;
+docs/deviations.md D9); the generation file keeps the full prose. The four-arm report concatenates the four blind
 extractions; `rcp.compare` is run once per arm for blind vs stated.
 
 **The image root is resolved, not passed.** There is one corpus, `data/manifest.csv`

@@ -96,9 +96,35 @@ one environment record per job (`*.env.jsonl` / `env.jsonl`: packages, GPU,
 container sha256, weights hash, `run_id`). Output files are per arm and condition,
 `results/gen_<ARM>_<cond>.jsonl`, because `--resume` keys on `scenario_id/arm`.
 
-## D8. Smoke run — planned, not yet run
+## D8. Smoke run (SLURM 50412, 2026-10-09)
 
-~10 images, one arm, blind, before the full run, to check guard compliance
-(`conditional_steps`) and the truncation rate at 2048. Its outputs are discarded
-and it changes nothing unless it finds a fault, in which case the fault and the
-fix are logged here as D9 before the full run is submitted.
+10 images, `SUFFICIENT`, blind, before the full run, to check guard compliance
+(`conditional_steps`) and the truncation rate at 2048. Its outputs are discarded.
+Guard: 7 of 10 plans ran 400–770 tokens with a median of 1 conditional step
+(exploratory: ~8). Truncation: 3 of 10 hit 2048, every one a loop — see D9.
+
+## D9. Greedy loops cut at the first repeated step (found by D8)
+
+*Found:* AGR-00017, -00041, -00045 reprint an earlier step verbatim (renumbered)
+until the token cap — greedy decoding's self-reinforcing repeat. Not new: the same
+rule finds 10 blind and 15 stated exploratory plans looping, all inside D3's 1024-cap
+truncations, so a share of D3's "truncated" was loops, not long plans, and raising
+the cap could not fix them. *Considered and rejected:* a no-repeat-n-gram ban at
+decoding. Clean plans legitimately repeat token runs of 12–22 (exploratory up to
+~60), while the loops repeat only ~30 because the step number changes, so no n
+separates them and the ban would alter clean plans. *Changed:*
+`extract_det.trim_repeated_steps` cuts a plan at its first marker-led step whose
+text (number, case and spacing ignored) repeats an earlier step; both the
+deterministic pass and the extractor see the cut plan. Under greedy decoding this
+is exactly what a stop-on-repeat rule during generation would produce, so nothing
+is regenerated and the planner's output is unchanged. On D8 it cut the three loops
+(to 7, 19 and 4 steps) and no other plan; in the exploratory plans it fires only on
+cap-length plans. Recorded per row as `looped_steps_dropped`, reported per arm as
+`looped` beside `truncated` (§9.2). Decided after seeing D8, before any four-arm
+generation exists.
+
+*Provenance of the study run (2026-10-09).* Planning jobs 50413–50427 (odd) started
+from commit a399b95, whose planning path D9 does not touch; extraction jobs
+50414–50428 (even) start after them and run the D9 commit. Their environment
+records predate the `git_commit` field (SLURM snapshots job scripts at
+submission), so this paragraph is the record of which commit each stage ran.
