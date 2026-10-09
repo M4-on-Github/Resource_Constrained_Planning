@@ -1,0 +1,35 @@
+# D10 dtype check: SURPLUS/blind images, v0.10 prompt, float16 vs bfloat16.
+# 20 of the 36 whose v0.10 (float16) plan looped, 10 of the 71 clean
+# (no loop, not truncated); random.Random(20261009).sample, looped first.
+# looped under float16:
+AGR-00103
+AGR-00204
+AGR-00224
+CAP-00006
+CAP-00009
+CAP-00019
+CAP-00140
+CAP-00161
+CAP-00212
+ON_-00070
+ON_-00169
+ON_-00185
+SUN-00064
+SUN-00127
+SUN-00138
+SUN-00162
+SUN-00220
+SUN-00223
+SUN-00231
+SUN-00233
+# clean under float16:
+AGR-00039
+AGR-00086
+AGR-00165
+AGR-00170
+ON_-00171
+ON_-00210
+SUN-00048
+SUN-00091
+SUN-00094
+SUN-00200

@@ -34,7 +34,8 @@ from .generator import manifest, manifest_images
 from .render import CONDITIONS, domain_digest, planner_prompt
 from .schema import Scenario
 
-#: §7.1's planner. Vision-language, 8B, runs in one RTX6000Ada at bf16.
+#: §7.1's planner. Vision-language, 8B, fits one RTX6000Ada. The checkpoint is bf16;
+#: v0.10 ran it in float16 (see `run`), and `--dtype` selects (D10 dtype check).
 DEFAULT_MODEL_DIR = "/data/$USER/qwen3vl-8b"
 
 #: A salvage plan in numbered steps. Generous enough that a long plan is not
@@ -119,7 +120,8 @@ def done_keys(path: pathlib.Path, digest: str | None = None) -> set[str]:
 
 
 def run(scenarios: list[Scenario], root: pathlib.Path, model_dir: str,
-        max_tokens: int = DEFAULT_MAX_TOKENS, condition: str = "blind"):
+        max_tokens: int = DEFAULT_MAX_TOKENS, condition: str = "blind",
+        dtype: str = "float16"):
     """Yield `(scenario, prose, n_tokens)` one cell at a time. Cluster-only.
 
     **Transformers, not vLLM.** The planner runs in `castor_qwen.sif`, which is the
@@ -127,8 +129,10 @@ def run(scenarios: list[Scenario], root: pathlib.Path, model_dir: str,
     cluster, and it carries no vLLM -- `castor_judge.sif` has vLLM but its 0.8.5
     registry has no `qwen3_vl`, so neither container can do both. The call shape
     below is copied from `QWEN-Maritime/CASTOR/run_inference.py` rather than
-    invented, including `dtype=torch.float16`, because that is the version-matched
-    spelling on the installed transformers there.
+    invented, including the `dtype=` keyword, because that is the version-matched
+    spelling on the installed transformers there. Its float16 came with it and is
+    the default so v0.10 reproduces; the checkpoint's own dtype is bfloat16, and
+    float16 is a suspect for the greedy loops (D10 dtype check), so `dtype` selects.
 
     **This is a generator so the caller can write as it goes.** vLLM returned the
     whole batch at once and losing it to a walltime kill cost nothing, because a
@@ -150,7 +154,7 @@ def run(scenarios: list[Scenario], root: pathlib.Path, model_dir: str,
     print(f"  [transformers] loading {resolved}", flush=True)
     processor = AutoProcessor.from_pretrained(resolved)
     model = Qwen3VLForConditionalGeneration.from_pretrained(
-        resolved, dtype=torch.float16, device_map="cuda")
+        resolved, dtype=getattr(torch, dtype), device_map="cuda")
     model.eval()
 
     images = manifest_images()
@@ -202,8 +206,14 @@ def main(argv: list[str] | None = None) -> int:
                          "state. Recorded in domain_digest so the two cannot pool")
     ap.add_argument("--limit", type=int, default=None,
                     help="first N cells, image-major (keeps arms complete)")
+    ap.add_argument("--ids-file", default=None,
+                    help="only these image ids, one per line (the v0.11 guard test, "
+                         "cal/v011_guard/ids.txt); default: every image")
     ap.add_argument("--resume", action="store_true",
                     help="append, skipping scenario keys already in --out")
+    ap.add_argument("--dtype", choices=["float16", "bfloat16"], default="float16",
+                    help="weights and activations. float16 is what v0.10 ran (copied from "
+                         "QWEN-Maritime); the checkpoint is bfloat16 (D10 dtype check)")
     ap.add_argument("--dry-run", action="store_true",
                     help="write the prompts and exit; no model, no GPU")
     args = ap.parse_args(argv)
@@ -214,6 +224,15 @@ def main(argv: list[str] | None = None) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
 
     cells = corpus(args.limit, arms)
+    if args.ids_file:
+        keep = {ln.strip() for ln in pathlib.Path(args.ids_file).read_text(
+            encoding="utf-8").splitlines() if ln.strip() and not ln.startswith("#")}
+        unknown = keep - {sc.id for sc in cells}
+        if unknown:
+            print(f"ERROR: {len(unknown)} ids in {args.ids_file} are not in the corpus, "
+                  f"first: {sorted(unknown)[:3]}", file=sys.stderr)
+            return 1
+        cells = [sc for sc in cells if sc.id in keep]
     images = manifest_images()
     missing = [sc.id for sc in cells if not image_path(sc, root, images).exists()]
     if missing:
@@ -254,7 +273,7 @@ def main(argv: list[str] | None = None) -> int:
     # One environment record per job, appended so a resumed file keeps every
     # job's record; each row names the job that wrote it.
     env = envinfo.record(args.model_dir, stage="plan", condition=args.condition,
-                         arms=list(arms), max_tokens=args.max_tokens,
+                         arms=list(arms), max_tokens=args.max_tokens, dtype=args.dtype,
                          domain_digest=digest, corpus_sha256=frozen.recorded_sha())
     envinfo.append(out.with_suffix(".env.jsonl"), env)
     print(f"  environment  : {out.with_suffix('.env.jsonl')}  ({env['run_id']})")
@@ -263,7 +282,7 @@ def main(argv: list[str] | None = None) -> int:
     n = empty = truncated = 0
     with out.open(mode, encoding="utf-8", newline="\n") as fh:
         for sc, prose, n_tokens in run(cells, root, args.model_dir, args.max_tokens,
-                                       args.condition):
+                                       args.condition, args.dtype):
             hit_cap = n_tokens >= args.max_tokens
             fh.write(json.dumps({
                 "scenario_id": sc.id,
@@ -276,6 +295,7 @@ def main(argv: list[str] | None = None) -> int:
                 "model_dir": args.model_dir,
                 "n_tokens": n_tokens,
                 "max_tokens": args.max_tokens,
+                "dtype": args.dtype,
                 "truncated": hit_cap,
                 "run_id": env["run_id"],
             }, sort_keys=True) + "\n")
