@@ -128,3 +128,10 @@ from commit a399b95, whose planning path D9 does not touch; extraction jobs
 50414–50428 (even) start after them and run the D9 commit. Their environment
 records predate the `git_commit` field (SLURM snapshots job scripts at
 submission), so this paragraph is the record of which commit each stage ran.
+
+*Job 50417 (`SUFFICIENT`, blind) crashed* at cell 44 of 110 (CAP-00006) with a
+CUDA device-side assert inside `generate`; the 43 rows before it were flushed and
+kept. Resumed as job 50430 (`--resume`, same commit, env record appended with its
+own `run_id`); it produced CAP-00006 normally (412 tokens), and the stated job had
+already done so, so the fault was transient, not the input. Its extraction is
+50431 (50418 cancelled, never ran). Rows from the two jobs are told apart by `run_id`.

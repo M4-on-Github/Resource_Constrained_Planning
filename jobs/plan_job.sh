@@ -127,7 +127,8 @@ echo " Node      : $(hostname)"
 echo " Started   : $(date)"
 echo "==========================================="
 
-nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader || true
+# uuid and bus id name the physical card, so a GPU fault can be tied to one
+nvidia-smi --query-gpu=name,memory.total,driver_version,uuid,pci.bus_id --format=csv,noheader || true
 
 apptainer exec \
     --containall \
