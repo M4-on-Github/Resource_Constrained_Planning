@@ -332,6 +332,28 @@ Nothing is extracted or validated until step 3 is done. If the criteria fail,
 the run is kept as a registered failed attempt and is never analysed. v0.10
 stands, with D11.
 
+*Test 2 (revision 2, read from jobs 50538 and 50542, pleiades-0-23, commit
+`8ccb922`, 60 / 60 cells): FAIL.* Header 100 % (state correct 70 %, reported
+only); plans with a branch 86.7 % (v0.10 73.3 %, test 1 76.7 %); branches per
+plan 4.87 (5.53; test 1 2.68); looped 13.3 % (31.7 %); truncated 5.0 % (35.0 %).
+Report-only: hedge with no "if" 25.0 % (33.3 %); asks/escalate 78.3 % (45.0 %),
+so no drop; over 15 steps 0 % (35.0 %). The step cap held and cut loops and
+truncation sharply, but the branches are still there. They are contingencies,
+not casualty-type hedges. The most common wordings in the 292 branch steps are
+"if needed" (41), "if refloat fails" or "still fails" (26) and "if the vessel
+is still not refloated" (16). Often a backup asset is attached ("Deploy TUG-017
+and TUG-045 as backup tugs to assist if primary tugs lose traction").
+Step 1 was done out of order. The test read the two files as soon as their
+jobs completed (110 rows each, no errors in the logs), while 50539
+(`SURPLUS`/stated) and 50545 (`INFEASIBLE`/stated) were still running. The
+files' sha256 at the time of the read was `13635a1c…` (`gen_SURPLUS_blind.jsonl`)
+and `5fa8ffe2…` (`gen_SCARCE_blind.jsonl`). The full run is frozen as
+`v011_gen` when the last job ends, and its record must show these hashes.
+**Decision, as fixed above:** the v0.11 run is a registered failed attempt and
+is not extracted or analysed. Prompt work stops. v0.10 is the study, and
+contingency branches are handled in extraction (D11): an asset named only in a
+conditional, backup or "if needed" step is not committed.
+
 ## Provenance: run registry and no-overwrite guards (2026-10-09)
 
 `results/` is gitignored, so until now the 880 v0.10 plans and every report
