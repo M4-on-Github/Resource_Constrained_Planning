@@ -11,6 +11,10 @@ the prompt on the result (plan.md §6.4's reason for going off-corpus).
 Reading the test out of a full run (D10, revision 2): add `--ids-file
 cal/v011_guard/ids.txt` and pass the full SURPLUS and SCARCE blind files as `--new`.
 
+v0.12 (D12): a "Contingencies:" section after the plan is set aside first, so
+every column except "contingencies" (the share that wrote one) measures the plan
+section only, as extraction scores it.
+
 `--baseline` is restricted to the scenario keys in `--new`, so the two columns are
 the same cells under the v0.10 and v0.11 prompts.
 """
@@ -64,9 +68,12 @@ def measure(rows: list[dict]) -> dict:
         return {"n": 0}
     header = committed = correct = branched = looped = truncated = 0
     branches, tokens, ambiguous, hedged, steps, requests = [], [], 0, 0, [], 0
+    sectioned = 0
     for r in rows:
         declared, plan = extract_det.split_header(r["prose"])
         has_label = plan != r["prose"]
+        plan, cont = extract_det.split_contingencies(plan)
+        sectioned += cont is not None
         committed += declared not in (None, "ambiguous")
         ambiguous += declared == "ambiguous"
         header += has_label and declared not in (None, "ambiguous")
@@ -90,7 +97,8 @@ def measure(rows: list[dict]) -> dict:
             "median_steps": statistics.median(steps),
             "over_cap": sum(k > MAX_STEPS for k in steps) / n,
             "looped": looped / n, "truncated": truncated / n,
-            "median_tokens": statistics.median(tokens)}
+            "median_tokens": statistics.median(tokens),
+            "sectioned": sectioned / n}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -110,7 +118,8 @@ def main(argv: list[str] | None = None) -> int:
     base = [r for r in load(args.baseline) if (r["scenario_id"], r["arm"]) in keys]
     arms = sorted({r["arm"] for r in new})
 
-    cols = [("header ok", "header"), ("committed", "committed"),
+    cols = [("header ok", "header"), ("contingencies", "sectioned"),
+            ("committed", "committed"),
             ("ambiguous", "ambiguous"), ("state correct", "correct"),
             ("w/ branch", "branched"), ("branches/plan", "mean_branches"),
             ("hedge, no if", "hedged"), ("asks/escalate", "requests"),
@@ -119,7 +128,7 @@ def main(argv: list[str] | None = None) -> int:
             ("median tokens", "median_tokens")]
     print(f"{'':12} {'prompt':8} {'n':>4}  " + "  ".join(f"{c:>13}" for c, _ in cols))
     for arm in arms + ["ALL"]:
-        for label, rows in (("v0.10", base), ("v0.11", new)):
+        for label, rows in (("baseline", base), ("new", new)):
             sel = [r for r in rows if arm == "ALL" or r["arm"] == arm]
             if not sel:
                 continue
@@ -142,9 +151,9 @@ def main(argv: list[str] | None = None) -> int:
     ]
     if b:
         checks += [
-            ("loops no worse than v0.10", m["looped"] <= b["looped"],
+            ("loops no worse than baseline", m["looped"] <= b["looped"],
              f"{m['looped']:.1%} vs {b['looped']:.1%}"),
-            ("truncation no worse than v0.10", m["truncated"] <= b["truncated"],
+            ("truncation no worse than baseline", m["truncated"] <= b["truncated"],
              f"{m['truncated']:.1%} vs {b['truncated']:.1%}"),
         ]
     print("\nacceptance (D10):")

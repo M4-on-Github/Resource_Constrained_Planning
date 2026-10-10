@@ -541,3 +541,45 @@ def test_a_step_that_mentions_the_salvage_plan_is_not_a_label():
 def test_a_loose_label_needs_a_header_so_v010_plans_are_untouched():
     prose = "### Salvage Plan\n1. Make fast TUG-006 aft."
     assert extract_det.split_header(prose) == (None, prose)
+
+
+# --------------------------------------------------------------------------- #
+# D12: the v0.12 "Contingencies:" section is set aside; only the plan is scored
+# --------------------------------------------------------------------------- #
+
+SECTIONED = HEADED + ("\nContingencies:\n"
+                      "1. If the tow parts, bring in TUG-009.\n"
+                      "2. Lighter with BRG-004 if the first pull fails.")
+
+
+def test_the_contingencies_are_split_off_the_plan():
+    _, plan = extract_det.split_header(SECTIONED)
+    plan, cont = extract_det.split_contingencies(plan)
+    assert plan == "1. Make fast TUG-006 aft.\n2. Refloat on the rising tide."
+    assert cont.startswith("1. If the tow parts")
+
+
+def test_an_asset_only_in_the_contingencies_is_not_named_by_the_plan(scenario):
+    a, b = scenario.ledger_ids[:2]
+    _, plan = extract_det.split_header(SECTIONED.replace("TUG-006", a).replace("TUG-009", b))
+    plan, cont = extract_det.split_contingencies(plan)
+    assert extract_det.scan_ledger_ids(plan, scenario) == (a,)
+    assert extract_det.scan_ledger_ids(cont, scenario)[0] == b
+
+
+@pytest.mark.parametrize("label", [
+    "Contingencies:", "**Contingencies:**", "### Contingency plan", "Contingency Plans:",
+    "16. Contingencies:", "Contingencies: none.",
+])
+def test_contingency_label_forms(label):
+    plan, cont = extract_det.split_contingencies("1. Tow.\n" + label + "\n1. Lighter.")
+    assert plan == "1. Tow." and cont is not None
+
+
+def test_a_step_that_mentions_contingencies_is_not_a_label():
+    plan = "1. Tow with TUG-006.\n2. Brief the crew on contingencies before the pull."
+    assert extract_det.split_contingencies(plan) == (plan, None)
+
+
+def test_a_plan_without_the_section_passes_through_whole():
+    assert extract_det.split_contingencies("1. Tow.") == ("1. Tow.", None)

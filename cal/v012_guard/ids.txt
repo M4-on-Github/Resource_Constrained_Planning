@@ -1,0 +1,34 @@
+# v0.12 guard test (docs/deviations.md D12): 30 of the 80 images NOT in
+# cal/v011_guard/ids.txt, stratified by casualty state 11/9/5/5, drawn with
+# random.Random(20261010).sample over each state's unused ids in manifest
+# order (aground, sunken, capsized, on_fire). Fixed before any v0.12 generation.
+AGR-00090
+AGR-00056
+AGR-00137
+AGR-00166
+AGR-00018
+AGR-00157
+AGR-00063
+AGR-00086
+AGR-00097
+AGR-00196
+AGR-00206
+SUN-00062
+SUN-00220
+SUN-00027
+SUN-00221
+SUN-00143
+SUN-00167
+SUN-00014
+SUN-00186
+SUN-00091
+CAP-00116
+CAP-00146
+CAP-00176
+CAP-00076
+CAP-00084
+ON_-00142
+ON_-00115
+ON_-00198
+ON_-00012
+ON_-00169

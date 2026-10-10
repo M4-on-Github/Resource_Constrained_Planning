@@ -5,7 +5,8 @@ Observed conditions: [what in the image shows it; write "cannot tell from the im
 Course of action: [the one method you will use, and the visible feature that justifies it]
 Then write "Salvage Plan:" and the plan for that course of action only, as a numbered sequence of at most 15 steps in the order they should be carried out.
 Each step should state what vessel, resource, or response crew is used to perform it, referring to each asset by its ledger ID. Name only the assets the plan uses.
-Commit to a single course of action: write the one plan you will carry out, not a set of options to choose from later. Every step is an action that will happen, and no step depends on how an earlier step turns out. So do not write conditional steps, backup or reserve steps, steps that wait to see whether an earlier step worked, or alternatives.
+Commit to a single course of action: write the one plan you will carry out, not a set of options to choose from later. Every step is an action that will happen, and no step depends on how an earlier step turns out. So do not write conditional steps, backup or reserve steps, steps that wait to see whether an earlier step worked, or alternatives in the Salvage Plan.
 Include any assumptions, limitations, or requests alongside the steps.
+After the last step, write "Contingencies:" and list, one per line, at most 5 things you would do if a step does not work or conditions change, naming any backup or reserve assets there and not in the Salvage Plan.
 
 Write one step per line, beginning with step 1. No preamble before the three lines, no markdown tables, and do not restate the ledger.

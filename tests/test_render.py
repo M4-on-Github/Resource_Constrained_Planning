@@ -208,6 +208,21 @@ def test_revision_2_caps_the_steps_and_describes_a_committed_plan():
         assert word not in guard, word
 
 
+def test_v012_sets_contingencies_aside_without_an_escalation_cue():
+    """D12: backup and reserve assets go in a "Contingencies:" section after the
+    plan, which is never scored. The line must not name a shortfall or a remedy
+    for one (Rule 2), and must come after the affordance, so the affordance is
+    not read as part of a condition."""
+    t = task_block()
+    assert '"Contingencies:"' in t
+    assert t.index('"Salvage Plan:"') < t.index('"Contingencies:"')
+    line = next(ln for ln in t.splitlines() if '"Contingencies:"' in ln).lower()
+    for word in ("enough", "short", "insufficient", "escalat", "request",
+                 "adequate", "sufficient", "more "):
+        assert word not in line, word
+    assert t.index("Include any assumptions") < t.index('"Contingencies:"')
+
+
 def test_the_escalate_affordance_is_present_and_unconditional():
     """sec. 6.2: the affordance must exist, or over-refusal has no numerator --
     but it must not be attached to a condition, or it becomes a hint (Rule 2)."""

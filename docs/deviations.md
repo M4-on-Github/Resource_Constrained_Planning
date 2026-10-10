@@ -356,6 +356,63 @@ is not extracted or analysed. Prompt work stops. v0.10 is the study, and
 contingency branches are handled in extraction (D11): an asset named only in a
 conditional, backup or "if needed" step is not committed.
 
+## D12. v0.12: contingencies in their own section, not banned (§6.2) — proposed, under test
+
+*Why there is a third revision although D10 said prompt work stops after revision
+2 (decided 2026-10-10, at the PI's request, before any v0.12 generation).* This
+reopens D10's stop rule, and that is recorded here as a deviation from it.
+Revisions 1 and 2 showed two things. The planner follows a section format exactly:
+the header held in 60 / 60 plans both times. And it will not drop contingencies,
+whatever the wording (test 2: 86.7 % of plans branch, mostly "if needed" and "if
+refloat fails"). Contingency planning is also ordinary salvage practice, so the
+prompt stops fighting it. Contingencies get their own section after the plan, and
+only the plan is scored. Then a backup asset is set aside by the format, which a
+parser reads exactly, instead of by an LLM judgment (D11).
+
+*Changed:*
+- `prompts/planner_task.txt`: the guard line ends "…or alternatives in the
+  Salvage Plan". A new last line follows the affordance line: "After the last
+  step, write "Contingencies:" and list, one per line, at most 5 things you would
+  do if a step does not work or conditions change, naming any backup or reserve
+  assets there and not in the Salvage Plan." It names no shortfall and no remedy
+  for one, and it comes after the affordance so the affordance is not read as
+  part of a condition (`tests/test_render.py`). Domain digest (blind)
+  `d82e636c…`.
+- `extract_det.split_contingencies` cuts the plan at a "Contingencies:" label
+  that opens a line. `rcp.extract` scores only the text before it, and records
+  the section (`contingencies`) and the ledger IDs named only there
+  (`contingency_only_assets`) per row, never scored. On the 1,820 existing plans
+  (v0.10, v0.11, test 1) the label never occurs, so their extraction is
+  unchanged.
+- `tools/guard_check.py` measures branches on the plan section only and reports
+  the share of plans with the section ("contingencies").
+- An "if" step left inside the Salvage Plan still counts as a branch. ESCALATE is
+  read from the plan section, so a request written only under "Contingencies:" is
+  a contingency, as D2's rule already says ("if the refloat fails, request more
+  tugs" → false).
+
+*Test, fixed before any v0.12 generation.* The test uses 30 fresh images:
+`cal/v012_guard/ids.txt`, drawn from the 80 not in `cal/v011_guard/ids.txt`,
+stratified 11 / 9 / 5 / 5, seed 20261010. The earlier 30 images have now been
+looked at twice. As before, the cells are {`SURPLUS`, `SCARCE`} × blind, greedy,
+2048 tokens, float16, one job, written to `results/v012_guard/gen_blind.jsonl`.
+`guard_check.py --ids-file cal/v012_guard/ids.txt` is run twice: once against the
+same cells under v0.10 (`results/gen_*_blind.jsonl`), and once against v0.11
+(`results/v011/gen_*_blind.jsonl`, registered failed run, read for prose only).
+The criteria are D10's, unchanged and measured on the plan section: header
+≥ 95 %; plans with a branch ≤ 30 %; branches per plan ≤ 1.0; loops and truncation
+no worse than v0.10 on these cells. Reported only: state correct; contingency
+section present; asks/escalate in the plan section (a fall well below v0.10 is a
+reason to look before adopting, as in D10); hedge with no "if"; over 15 steps.
+
+*What follows.*
+- **If it passes**, the 8 v0.12 jobs run in full to `results/v012/`, extraction
+  uses the extractor D11 settles on, and the analysis plan is unchanged, with D10's
+  four V5 additions (a)–(d). v0.12 becomes the main run, and v0.10 the pilot.
+  v0.10, re-scored under D11, is still reported beside it.
+- **If it fails**, there is no further revision. The test output is registered as
+  a failed attempt, and v0.10 with D11 is the study.
+
 ## Provenance: run registry and no-overwrite guards (2026-10-09)
 
 `results/` is gitignored, so until now the 880 v0.10 plans and every report

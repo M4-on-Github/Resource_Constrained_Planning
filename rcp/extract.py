@@ -220,12 +220,16 @@ def main(argv: list[str] | None = None) -> int:
         # v0.11's commitment header is read off and only the plan below it is
         # scored (D10); a v0.10 plan has no header and passes through whole.
         declared, prose = extract_det.split_header(r["prose"])
+        # v0.12's "Contingencies:" section is set aside and never scored (D12): an
+        # asset named only there is held back for a failure, not committed.
+        prose, contingencies = extract_det.split_contingencies(prose)
         # A greedy loop is cut at its first repeated step before anything reads
         # the plan (D9); both the deterministic pass and the model see the cut.
         prose, looped = extract_det.trim_repeated_steps(prose)
         det = extract_det.deterministic_pass(prose, sc)
         items.append({"row": r, "scenario": sc, "prose": prose, "looped": looped,
                       "declared_casualty": declared,
+                      "contingencies": contingencies,
                       "assets_named": det["assets_named"],
                       "goal": states()[sc.casualty_state]["goal"]})
 
@@ -268,6 +272,14 @@ def main(argv: list[str] | None = None) -> int:
                                  "looped_steps_dropped": it["looped"],
                                  # the header's "Casualty type:" (None = no header)
                                  "declared_casualty": it["declared_casualty"],
+                                 # v0.12's set-aside section (None = no label), and
+                                 # the ledger IDs named only there: recorded, never
+                                 # scored (D12)
+                                 "contingencies": it["contingencies"],
+                                 "contingency_only_assets": [
+                                     a for a in extract_det.scan_ledger_ids(
+                                         it["contingencies"] or "", it["scenario"])
+                                     if a not in it["assets_named"]],
                                  "ledger_hash": it["row"].get("ledger_hash"),
                                  "run_id": it["row"].get("run_id")},
                                 sort_keys=True) + "\n")

@@ -254,6 +254,32 @@ def split_header(prose: str) -> tuple[str | None, str]:
     return declared, plan
 
 
+#: v0.12's contingency section (D12): a "Contingencies:" label alone on its line, or
+#: with its first item after the colon. Numbered or emphasised forms are tolerated
+#: ("**Contingencies:**", "### Contingency plan", "16. Contingencies:"). It must
+#: open a line, so a step that mentions "contingencies" is never taken for it.
+_CONTINGENCY_LABEL = re.compile(
+    r"^[\s*#_]*(?:\d+[.)][\s*#_]*)?contingenc(?:y|ies)(?: plans?| steps?)?[\s*_]*"
+    r"(?::|$)[\s*_]*", re.IGNORECASE | re.MULTILINE)
+
+
+def split_contingencies(plan: str) -> tuple[str, str | None]:
+    """Separate the committed plan from the contingencies written after it.
+
+    Returns `(plan, contingencies)`, contingencies None when there is no label.
+    Only the plan is scored (D12): an asset that appears only under
+    "Contingencies:" is held back for a failure, not committed. Call it on the
+    text `split_header` returns; a plan with no such label is returned whole, so
+    v0.10 and v0.11 plans extract exactly as before.
+    """
+    if not plan:
+        return plan, None
+    c = _CONTINGENCY_LABEL.search(plan)
+    if not c:
+        return plan, None
+    return plan[:c.start()].rstrip(), plan[c.end():].strip()
+
+
 def conditional_steps(steps: list[str]) -> int:
     """How many steps carry an if/unless/otherwise/should-…-fail branch."""
     return sum(1 for st in steps if _CONDITIONAL.search(st))
