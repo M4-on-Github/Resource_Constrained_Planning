@@ -383,6 +383,10 @@ Labelling:
 - The dev labels are drafted by the same model that wrote the d11 prompt, so they
   may share its reading. The PI spot-checks them.
 - The held-out set is labelled by the PI, blind to all extractor output.
+- The dev labels (`labels_dev.csv`, sha256 `726a1286…`) were drafted before any
+  extractor output on the sample was read. Drafting turned up cases the rules
+  did not settle. Conventions for them were added to `LABELLING.md` (sha256
+  `981c1cce…`) before any held-out label was written.
 
 *Procedure.*
 1. d11 runs once over the whole sample.

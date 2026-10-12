@@ -1,0 +1,958 @@
+scenario_id,arm,casualty_state,goal,assets_named,commitments,goal_attempted,escalate,reduce,notes,looped_steps_cut,prose
+AGR-00041,INFEASIBLE,aground,refloat,TUG-048,TUG-048,yes,no,no,step 7 request is after the attempt,0,"1. Assess the vessel’s grounding condition and confirm it is aground, not capsized or sunken, using visual inspection and tide gauge data to determine ground reaction forces; assume it is aground on rocky seabed with draft <3m.
+2. Deploy TUG-048 to the site to provide 42 t bollard pull; assume it arrives at T+1.7 h and is committed for the refloat task.
+3. Monitor tide rise using a dedicated tide gauge to track ground reaction changes; assume the vessel can be refloated naturally on the next tide, but TUG-048 will be used to assist if tide rise is insufficient.
+4. Check all tanks for fuel and hazardous cargo before any movement; assume no hazardous materials are present and fuel is not a concern for refloat.
+5. Refloat the vessel using TUG-048’s 42 t bollard pull; assume the vessel’s weight distribution allows refloat without needing lightering or neutral loading point adjustment.
+6. Confirm the vessel is fully refloated and clear of the seabed by T+5.2 h; assume the refloat is successful and the vessel is stable in water.
+7. Request additional tug support if needed beyond TUG-048’s capacity; assume no additional assets are available before T+5.2 h.
+8. Report vessel refloated and clear of grounding hazard; assume the vessel is now afloat and no further action is required for refloat."
+AGR-00051,INFEASIBLE,aground,refloat,TUG-017;AHT-012;WB-027;AHT-007;BOOM-032,TUG-017;AHT-012;BOOM-032,yes,no,no,WB-027 and AHT-007 conditional,0,"1. Deploy TUG-017 to the casualty site to begin refloating operations, leveraging its 200 t bollard pull capacity to apply initial pulling force against the grounded hull.
+2. Position AHT-012 alongside TUG-017 to provide additional bollard pull, combining their capacities to meet the 300 t requirement for initial refloat efforts within the 5.0-hour window.
+3. Monitor tide progression using a dedicated tide gauge to track ground reaction changes as water levels rise, ensuring optimal timing for refloat attempts.
+4. Conduct a stability and hull integrity assessment to confirm the vessel can withstand the pulling forces without further capsizing or structural failure.
+5. Verify all fuel and hazardous cargo tanks are secured and checked for leaks before any movement begins, to prevent environmental contamination or explosion risk.
+6. Coordinate with the response crew to maintain controlled pulling loads, avoiding sudden force application that could cause hull strain or overturning.
+7. If the vessel remains grounded after initial pull, initiate lightering operations to reduce weight, using WB-027 to offload non-essential cargo or ballast if accessible and safe to do so.
+8. If lightering is insufficient, deploy AHT-007 to the site at T+23.0 h to provide the remaining 160 t bollard pull, combining with TUG-017 and AHT-012 to meet the 1100 t requirement once the tide is favorable.
+9. Maintain continuous communication with the tug crews to adjust pulling angles and force distribution based on seabed reaction and vessel response.
+10. Deploy BOOM-032 around the casualty to contain any potential oil spills during refloat operations, minimizing environmental impact.
+11. Once the vessel is free of the seabed, conduct a final stability check and initiate controlled deballasting or refloat maneuver to ensure safe transit to a safe berth."
+AGR-00054,SCARCE,aground,refloat,AHT-022;AHT-032;AHT-037,AHT-022;AHT-032,yes,no,no,AHT-037 conditional,37,"1. Deploy AHT-022 and AHT-032 to the vessel’s location to provide initial bollard pull, combining for 420 t, with ETA 1.7 h and 1.2 h respectively, to begin assessing ground reaction and prepare for refloat.
+2. Position AHT-022 and AHT-032 alongside the vessel’s bow and stern to apply opposing forces, using their 220 t and 200 t bollard pull capacities to initiate movement as the tide rises.
+3. Monitor tide gauge readings near the vessel to track ground reaction changes and adjust tug positioning as the water level increases over the next 3.5 hours.
+4. Coordinate with the naval architect to confirm the vessel’s draft and grounding type, ensuring the refloat plan accounts for seabed composition (rock, coral, or sand) and required friction coefficient.
+5. If the vessel is confirmed aground, maintain tug forces to prevent further settling and prepare for potential lightering if draft exceeds 10m or if the vessel is too heavy for natural refloat.
+6. If the vessel is confirmed aground and requires additional pull, request AHT-037 to join the operation once it arrives at 26.1 h, adding 250 t to the combined pull capacity."
+AGR-00063,SURPLUS,aground,refloat,TUG-037;TUG-036;TUG-032;TUG-059;TUG-053;TUG-049;TUG-034;TUG-005;WB-034;WB-018;WB-012,TUG-037;TUG-036;TUG-032;TUG-059;TUG-053;TUG-049;TUG-034;TUG-005;WB-034;WB-018;WB-012,yes,no,no,,0,"1. Deploy TUG-037 (32 t bollard pull) and TUG-036 (32 t bollard pull) from Port Arnet to arrive at the scene by T+2.2 h and T+2.6 h respectively, to begin applying initial pulling force on the grounded vessel.
+2. Deploy TUG-032 (35 t bollard pull) from Port Arnet to arrive at the scene by T+2.4 h, to join the initial tug team and increase total pull capacity.
+3. Deploy TUG-059 (25 t bollard pull) and TUG-053 (25 t bollard pull) from Port Arnet to arrive at the scene by T+2.3 h, to further augment the pulling force.
+4. Deploy TUG-049 (32 t bollard pull) from Port Arnet to arrive at the scene by T+2.3 h, to complete the initial tug team and reach a combined pull of 156 t.
+5. Deploy TUG-034 (25 t bollard pull) from its underway position to arrive at the scene by T+5.2 h, to provide additional pull capacity as the tide rises.
+6. Deploy TUG-005 (34 t bollard pull) from its underway position to arrive at the scene by T+4.2 h, to join the tug team and increase total pull capacity.
+7. Deploy WB-034 (6 t bollard pull) from its underway position to arrive at the scene by T+1.6 h, to assist with initial positioning and minor adjustments.
+8. Deploy WB-018 (15 t bollard pull) from its underway position to arrive at the scene by T+4.2 h, to provide additional auxiliary pull and stability during refloat.
+9. Deploy WB-012 (3 t bollard pull) from Port Arnet to arrive at the scene by T+1.7 h, to assist with minor adjustments and support operations.
+10. Coordinate all tugs and workboats to synchronize pulling force and monitor ground reaction as tide rises, ensuring no strain on the hull or seabed.
+11. Maintain continuous monitoring of tide levels using a dedicated tide gauge to track ground reaction changes and adjust pulling strategy accordingly.
+12. Once the tide reaches sufficient depth and ground reaction is favorable, apply full combined bollard pull from all available tugs (TUG-037, TUG-036, TUG-032, TUG-059, TUG-053, TUG-049, TUG-034, TUG-005, WB-034, WB-018, WB-012) to initiate refloat.
+13. Monitor hull integrity and stability during refloat, ensuring no structural failure occurs under the applied force.
+14. Once the vessel is free of the seabed, maintain steady control to prevent further damage or capsizing.
+15. After refloat, conduct a stability assessment and prepare for safe navigation to a safe harbor or dry dock for further inspection and repair."
+AGR-00063,SCARCE,aground,refloat,TUG-053;TUG-040;WB-034;WB-018;DIV-023,TUG-053;WB-034;WB-018;DIV-023,yes,no,no,ambiguous: TUG-040 deployed but called too late and given no task; left out,0,"1. Assess the vessel’s grounding condition and confirm it is aground, not capsized or sunken, using visual inspection and tide gauge data to determine if refloat is feasible on the next high tide.
+2. Deploy TUG-053 and TUG-040 to the site, as they are the only tugs with sufficient bollard pull (25 t each) and are within the 6.4-hour window, with TUG-053 arriving at T+2.3 h and TUG-040 at T+31.9 h (but TUG-040 is too late).
+3. Use TUG-053 (arriving at T+2.3 h) to apply 25 t bollard pull to the vessel’s bow or stern to initiate refloat, targeting the neutral loading point to avoid hull strain.
+4. Deploy WB-034 (arriving at T+1.6 h) and WB-018 (arriving at T+4.2 h) to assist with positioning and to provide additional bollard pull (6 t + 15 t = 21 t) to support TUG-053’s efforts.
+5. Coordinate with the dive team DIV-023 (arriving at T+1.4 h) to inspect the hull for structural integrity, fuel tanks, and hazardous materials before any movement begins.
+6. Monitor tide levels using a dedicated tide gauge to time the refloat attempt to coincide with high water, ensuring the vessel can refloat naturally without excessive force.
+7. If the vessel does not refloat naturally, use TUG-053 and WB-034 to apply combined bollard pull (25 t + 6 t = 31 t) to assist in refloat, with WB-018 (15 t) providing additional support if needed.
+8. If refloat is unsuccessful, request additional resources or consider lightering to reduce weight, but note that no assets are available within the 6.4-hour window to perform this task.
+9. After refloat, conduct a stability check and ensure all hazardous materials are secured before any further operations.
+10. Request additional assets if needed, but note that the full fleet (74 t) is not available until T+31.9 h, which is beyond the 6.4-hour window."
+AGR-00074,SURPLUS,aground,refloat,TUG-044;TUG-027;TUG-008;TUG-015;AHT-031;AHT-027;AHT-001;AHT-015;TUG-010;TUG-048;WB-027;WB-052;BOOM-042;DIV-006;TUG-011,TUG-044;TUG-027;TUG-008;TUG-015;AHT-031;AHT-027;AHT-001;AHT-015;TUG-010;TUG-048;WB-027;WB-052;BOOM-042;DIV-006,yes,no,no,TUG-011 only in the sunken branch,6,"1. Deploy TUG-044 (160 t bollard pull) and TUG-027 (80 t bollard pull) to the scene at Rossway to assist with initial refloat efforts, arriving at T+2.7 h.
+2. Deploy TUG-008 (200 t bollard pull) and TUG-015 (84 t bollard pull) to the scene at Rossway to assist with initial refloat efforts, arriving at T+2.7 h.
+3. Deploy AHT-031 (250 t bollard pull) and AHT-027 (250 t bollard pull) to the scene at Rossway to assist with initial refloat efforts, arriving at T+2.5 h.
+4. Deploy AHT-001 (250 t bollard pull) and AHT-015 (190 t bollard pull) to the scene at Rossway to assist with initial refloat efforts, arriving at T+3.0 h.
+5. Deploy TUG-010 (66 t bollard pull) and TUG-048 (80 t bollard pull) to the scene at Rossway to assist with initial refloat efforts, arriving at T+2.7 h.
+6. Deploy WB-027 (15 t bollard pull) and WB-052 (15 t bollard pull) to the scene at Rossway to assist with initial refloat efforts, arriving at T+2.7 h.
+7. Deploy BOOM-042 (540 m) to the scene at Rossway to contain any potential oil spill during refloat operations, arriving at T+2.7 h.
+8. Deploy DIV-006 (6 divers) to the scene at Rossway to inspect the vessel’s hull integrity and check for hazardous materials before refloat, arriving at T+2.4 h.
+9. Coordinate all tugs and AHTs to apply synchronized bollard pull to the vessel’s bow and stern lines to initiate refloat, ensuring no single asset exceeds its capacity.
+10. Monitor tide gauge readings near the vessel to track water level changes and adjust refloat timing to maximize effectiveness.
+11. If the vessel remains aground after T+3.4 h, initiate lightering operations using WB-027, WB-052, and TUG-010 to reduce weight and increase refloat probability.
+12. If the vessel does not refloat naturally, deploy TUG-044, TUG-008, and TUG-027 to apply additional bollard pull while TUG-015 and TUG-048 provide auxiliary support.
+13. If the vessel is found to be capsized or sunken, immediately halt refloat operations and deploy DIV-006 for underwater inspection and initiate appropriate recovery procedures.
+14. If hazardous materials are detected, halt all operations and request additional specialized response assets before proceeding.
+15. If the vessel is confirmed aground and requires dredging, request additional heavy equipment and environmental specialists to prepare for seabed clearance.
+16. If the vessel is confirmed capsized, prioritize crew rescue using DIV-006 before attempting to right the vessel.
+17. If the vessel is confirmed sunken, initiate sequential gas testing and deploy TUG-011 and TUG-044 for potential section removal or cofferdam operations.
+18. If the vessel is confirmed on fire, immediately evacuate personnel and deploy fire suppression assets as per fire type before any salvage operations.
+19. If the vessel is confirmed to be a military/naval vessel, coordinate with naval command for additional clearance and specialized handling procedures.
+20. If the vessel is confirmed to be a merchant/commercial vessel, coordinate with port authorities for cargo and hazardous material accounting before any salvage operations.
+21. If the vessel is confirmed to be a fishing vessel, coordinate with fisheries authorities for additional clearance and specialized handling procedures.
+22. If the vessel is confirmed to be a special purpose vessel, coordinate with the relevant agency for additional clearance and specialized handling procedures.
+23. If the vessel is confirmed to be small (<10m), use manual or crane righting methods if applicable.
+24. If the vessel is confirmed to be medium (10-50m), use controlled deballasting or parbuckling methods if applicable.
+25. If the vessel is confirmed to be large (>50m), use controlled deballasting or parbuckling methods if applicable.
+26. If the vessel is confirmed to have cargo, account for all cargo before any salvage operations.
+27. If the vessel is confirmed to have hazardous materials, account for all hazardous materials before any salvage operations.
+28. If the vessel is confirmed to have fuel, offload all fuel before any salvage operations.
+29. If the vessel is confirmed to have oil, deploy BOOM-042 to contain any potential oil spill during salvage operations.
+30. If the vessel is confirmed to be in a sensitive habitat, deploy divers and environmental specialists to minimize ecological impact.
+31. If the vessel is confirmed to be a legacy or abandoned wreck, rank the pollution risk using a standardized risk-ranking method before deciding whether to remove it.
+32. If the vessel is confirmed to be in a deep-water location, deploy TUG-011 and TUG-044 for potential section removal or cofferdam operations.
+33. If the vessel is confirmed to be in a shallow-water location, deploy TUG-008 and TUG-015 for potential patch and refloat operations.
+34. If the vessel is confirmed to be in a moderate-depth location, deploy TUG-027 and TUG-048 for potential patch with a cofferdam and pull operations.
+35. If the vessel is confirmed to be in a shallow-water location and requires patching, deploy TUG-008 and TUG-015 for potential patch and refloat operations.
+36. If the vessel is confirmed to be in a moderate-depth location and requires patching, deploy TUG-027 and TUG-048 for potential patch with a cofferdam and pull operations.
+37. If the vessel is confirmed to be in a deep-water location and requires patching, deploy TUG-011 and TUG-044 for potential patch with a cofferdam and pull operations.
+38. If the vessel is confirmed to be in a shallow-water location and requires section removal, deploy TUG-008 and TUG-015 for potential crane-and-barge removal operations.
+39. If the vessel is confirmed to be in a moderate-depth location and requires section removal, deploy TUG-027 and TUG-048 for potential crane-and-barge removal operations.
+40. If the vessel is confirmed to be in a deep-water location and requires section removal, deploy TUG-011 and TUG-044 for potential crane-and-barge removal operations.
+41. If the vessel is confirmed to be in a shallow-water location and requires refloat, deploy TUG-008 and TUG-015 for potential patch and refloat operations.
+42. If the vessel is confirmed to be in a moderate-depth location and requires refloat, deploy TUG-027 and TUG-048 for potential patch with a cofferdam and pull operations.
+43. If the vessel is confirmed to be in a deep-water location and requires refloat, deploy TUG-011 and TUG-044 for potential patch with a cofferdam and pull operations.
+44. If the vessel is confirmed to be in a shallow-water location and requires righting, deploy TUG-008 and TUG-015 for potential manual or crane righting operations.
+45. If the vessel is confirmed to be in a moderate-depth location and requires righting, deploy TUG-027 and TUG-048 for potential controlled deballasting or parbuckling operations.
+46. If the vessel is confirmed to be in a deep-water location and requires righting, deploy TUG-011 and TUG-044 for potential controlled deballasting or parbuckling operations."
+AGR-00074,INFEASIBLE,aground,refloat,TUG-048;TUG-010;WB-052;BOOM-042;DIV-006,TUG-048;TUG-010;WB-052;BOOM-042;DIV-006,yes,no,no,,0,"1. Assess the vessel’s condition and confirm it is aground, not capsized or sunken, using visual inspection and on-scene crew observation.
+2. Deploy TUG-048 (80 t bollard pull) and TUG-010 (66 t bollard pull) to the vessel’s starboard side to apply pulling force, with TUG-048 positioned closest to the stern for optimal leverage.
+3. Deploy TUG-010 and TUG-048 simultaneously to apply combined bollard pull of 146 t, while monitoring ground reaction and seabed type for friction coefficient.
+4. Deploy WB-052 (15 t bollard pull) to assist with stabilizing the vessel’s bow and preventing excessive yaw during refloat.
+5. Deploy BOOM-042 (540 m) around the vessel’s hull to contain any potential fuel or oil leakage during refloat.
+6. Deploy DIV-006 (6 divers) to inspect all tanks for fuel and hazardous cargo before any movement begins, and to check for trapped water in compartments.
+7. Monitor tide using a dedicated tide gauge to track ground reaction changes and determine optimal refloat window within 3.4 hours.
+8. Apply full combined bollard pull of 161 t from TUG-010, TUG-048, and WB-052 to initiate refloat as high water approaches.
+9. If refloat is not achieved within 3.4 hours, request additional assets to meet the 640 t bollard pull requirement.
+10. Once refloat is achieved, conduct a stability check and ensure all hazardous materials are secured before proceeding to further operations."
+AGR-00090,SURPLUS,aground,refloat,TUG-005;TUG-035,TUG-005;TUG-035,yes,no,no,,0,"1. Confirm the vessel is aground and not capsized or sunken, based on visual evidence of its position on the rocky shore and intact hull structure.
+2. Deploy TUG-005 (41 t bollard pull) and TUG-035 (42 t bollard pull) to the scene, as they are the two largest tugs available within the 6.7-hour window and can provide the required 93 t bollard pull.
+3. Position TUG-005 and TUG-035 alongside the vessel’s stern and bow respectively, ensuring their winches are secured to the vessel’s mooring points or bollards.
+4. Initiate synchronized pulling operations using TUG-005 and TUG-035 to apply the required 93 t bollard pull to refloat the vessel as the tide rises.
+5. Monitor the tide gauge near the site to track the water level and ground reaction changes, adjusting pulling force as needed to avoid excessive strain on the hull.
+6. Ensure all tanks are checked for fuel and hazardous cargo before any movement begins, and confirm no hazardous materials are present that would require additional precautions.
+7. Verify the vessel’s draft is less than 3m to confirm it can refloat naturally without requiring lightering or additional buoyancy aids.
+8. Maintain continuous communication between the tug crews and the on-scene salvage supervisor to coordinate pulling force and timing.
+9. Once the vessel begins to rise, reduce pulling force gradually to avoid sudden movements that could cause further damage or grounding.
+10. Confirm the vessel is fully refloated and clear of the rocks before ceasing tug operations, and secure the vessel to prevent it from drifting."
+AGR-00098,SURPLUS,aground,refloat,TUG-003;TUG-005;TUG-006;TUG-036,TUG-003;TUG-005;TUG-006;TUG-036,yes,no,no,plan writes TUG-07 (not a ledger ID; TUG-007 is in the ledger); left out of assets_named,0,"1. Deploy TUG-07 to the scene to begin applying bollard pull to refloat the vessel, as it is the closest available tug with sufficient capacity (70 t) and ETA of 1.0 hours, which is within the 3.4-hour window.
+2. Coordinate with TUG-003 and TUG-005 to arrive and assist TUG-07 in applying combined bollard pull, as their 68 t each will help meet the required 170 t within the time constraint.
+3. Position TUG-006 and TUG-036 to provide additional bollard pull support, as their 41 t and 60 t capacities will further increase the total pulling force available.
+4. Monitor tide gauge readings near the vessel to track the ground reaction changes as the tide rises, ensuring optimal refloating timing.
+5. Maintain continuous communication with the naval architect to reassess the vessel’s stability and ground reaction as the tide rises and pulling force is applied.
+6. Ensure all tanks are checked for fuel and hazardous cargo before any movement begins, as the vessel may contain cargo that requires special handling.
+7. Keep the pulling force controlled to avoid overstressing the hull or causing further damage during refloat.
+8. Once the vessel begins to refloat, maintain steady bollard pull from all tugs to ensure smooth and controlled movement.
+9. After the vessel is fully refloated, conduct a stability check to ensure it remains upright and safe for transit.
+10. Request a dedicated tide gauge to be deployed near the site to track ground reaction changes as the tide rises and falls, ensuring optimal refloating timing."
+AGR-00098,SUFFICIENT,aground,refloat,TUG-007;TUG-036;TUG-006;TUG-040;TUG-043;TUG-056;WB-037;DIV-039,TUG-007;TUG-036;TUG-006;TUG-040;TUG-043;TUG-056;WB-037;DIV-039,yes,no,no,lightering conditional,0,"1. Deploy TUG-007 (ASD tug, 70 t bollard pull) and TUG-036 (ocean salvage tug, 60 t bollard pull) to arrive on scene within 3.4 hours; commit both tugs for the refloat operation.
+2. Deploy TUG-006 (harbor tug, 41 t bollard pull) and TUG-040 (harbor tug, 42 t bollard pull) to arrive on scene within 3.4 hours; commit both tugs for the refloat operation.
+3. Deploy TUG-043 (harbor tug, 33 t bollard pull) and TUG-056 (harbor tug, 30 t bollard pull) to arrive on scene within 3.4 hours; commit both tugs for the refloat operation.
+4. Deploy WB-037 (workboat, 3 t bollard pull) to arrive on scene within 3.4 hours; commit the workboat for auxiliary support and positioning during refloat.
+5. Deploy DIV-039 (dive team, 6 divers) to arrive on scene within 3.4 hours; commit the dive team for hull inspection and tank integrity verification before any movement begins.
+6. Initiate refloat operation using all committed tugs (TUG-007, TUG-036, TUG-006, TUG-040, TUG-043, TUG-056) and WB-037 to apply combined 216 t bollard pull to the vessel.
+7. Monitor tide gauge readings continuously during refloat to track ground reaction changes and adjust tug positioning as needed.
+8. Maintain constant communication with the dive team (DIV-039) to confirm hull integrity and absence of hazardous materials before and during refloat.
+9. If refloat is unsuccessful within 3.4 hours, initiate lightering operations using TUG-007 and TUG-036 to remove ballast or cargo to reduce weight and reattempt refloat.
+10. If vessel remains aground after lightering, deploy dredging equipment (not listed in ledger) to clear seabed obstruction before reattempting refloat."
+AGR-00109,SCARCE,aground,refloat,SVY-051;DIV-003;WB-018;TUG-046;TUG-002,SVY-051;DIV-003;WB-018;TUG-046;TUG-002,yes,no,yes,step 3 offloads cargo to reduce weight; ambiguous: WB-018 'if accessible',0,"1. Confirm the vessel is aground on rocky seabed using visual inspection and survey launch SVY-051 to map grounding extent and seabed composition.
+2. Deploy dive team DIV-003 to inspect hull integrity, check for hazardous cargo or fuel in tanks, and identify neutral loading point for lightering if needed.
+3. Offload cargo and fuel if present to reduce weight, prioritizing hazardous materials, using workboat WB-018 or TUG-046 for transfer if accessible.
+4. Use harbor tug TUG-046 (25 t bollard pull) and harbor tug TUG-002 (27 t bollard pull) to apply combined 52 t bollard pull to refloat vessel as tide rises, with TUG-046 positioned ahead and TUG-002 astern.
+5. Monitor tide gauge near site to track water level and ground reaction changes, adjusting tug pull as tide rises to ensure refloat within 4.5 hours.
+6. If vessel does not refloat naturally, initiate lightering at neutral loading point using WB-018 to reduce strain on hull and seabed.
+7. Once vessel is afloat, secure and stabilize using TUG-002 and TUG-046 to prevent re-grounding or capsizing.
+8. Conduct final inspection with SVY-051 and DIV-003 to confirm no hazardous materials remain and vessel is seaworthy for transit."
+AGR-00157,SUFFICIENT,aground,refloat,TUG-005;TUG-016;TUG-003;TUG-004;TUG-024;TUG-006;AHT-019,TUG-005;TUG-016;TUG-003;TUG-004;TUG-024;TUG-006;AHT-019,yes,no,no,,0,"1. Deploy TUG-005 (ocean salvage tug, 180 t bollard pull) and TUG-016 (ocean salvage tug, 200 t bollard pull) to arrive at the scene within 4.0 hours to begin refloating operations.
+2. Deploy TUG-003 (ASD tug, 80 t bollard pull) and TUG-004 (ASD tug, 80 t bollard pull) to arrive at the scene within 1.5 hours to provide immediate auxiliary pulling power and stabilize the vessel during refloat.
+3. Deploy TUG-024 (harbor tug, 25 t bollard pull) to arrive at the scene within 1.0 hours to assist with initial positioning and minor adjustments to the vessel’s orientation.
+4. Deploy TUG-006 (ASD tug, 80 t bollard pull) to arrive at the scene within 3.0 hours to provide additional pulling power once the primary tugs are engaged.
+5. Deploy AHT-019 (anchor handling tug, 250 t bollard pull) to arrive at the scene within 3.7 hours to provide the maximum available bollard pull for the refloat operation.
+6. Coordinate all tugs to apply synchronized pulling force to the vessel’s bow and stern lines to initiate refloat, ensuring no single tug is overloaded and maintaining hull integrity.
+7. Monitor tide gauge readings continuously to adjust pulling force as water depth increases and ground reaction changes.
+8. Conduct a stability check and ensure all tanks are secured and checked for fuel or hazardous cargo before any movement begins.
+9. Maintain communication with the vessel’s crew to ensure safety and provide updates on refloat progress.
+10. Once the vessel begins to rise, reduce pulling force gradually to avoid overloading the hull or causing further damage.
+11. Confirm the vessel is fully refloated and stable before releasing all tugs and securing the vessel to a mooring or dock."
+AGR-00157,INFEASIBLE,aground,refloat,TUG-005;TUG-048;WB-032;SVY-021,TUG-005;TUG-048;WB-032;SVY-021,yes,no,no,ambiguous: step 7 'if insufficient ... request' read as conditional,0,"1. Deploy TUG-005 to the casualty site to begin applying bollard pull for refloating, as it is the only tug with sufficient capacity (180 t) to contribute meaningfully within the 4.8-hour window.
+2. Deploy TUG-048 to the casualty site to provide additional bollard pull (200 t), as it is the next available tug with the highest capacity after TUG-005 and can arrive within 14.0 hours, which is within the 4.8-hour window for the task.
+3. Deploy WB-032 to the casualty site to provide auxiliary bollard pull (8 t), as it is the only workboat available and can arrive within 1.5 hours, supporting the initial refloating effort.
+4. Deploy SVY-021 to the casualty site to provide situational awareness and assist with seabed mapping, as it is the only survey launch available and can arrive within 3.4 hours, aiding in assessing ground reaction and friction coefficient.
+5. Coordinate with the naval architect to monitor tide gauge data and adjust refloating strategy as the tide rises, ensuring the 750 t bollard pull requirement is met by the next high water.
+6. Maintain continuous communication with all deployed assets to ensure synchronized effort and avoid overloading the vessel or causing further damage during refloating.
+7. If the combined bollard pull from TUG-005, TUG-048, and WB-032 (388 t) is insufficient to meet the 750 t requirement, request additional assets from the fleet or adjust the refloating plan to include lightering or tug assistance as needed.
+8. Monitor the vessel’s stability and draft as the tide rises, ensuring that the refloating effort does not cause the vessel to capsize or sustain further damage.
+9. Once the vessel is refloated, conduct a stability check and assess the need for further assistance or repairs before proceeding with any cargo or hazardous material handling.
+10. If the vessel contains hazardous materials or cargo, initiate a containment and offloading plan as per standard procedures, ensuring that all tanks are checked for fuel and hazardous cargo before any cutting or movement begins."
+AGR-00204,SUFFICIENT,aground,refloat,AHT-004;AHT-007;TUG-008;TUG-030;WB-058;BRG-041,AHT-004;AHT-007;TUG-008;TUG-030;WB-058,yes,no,no,BRG-041 post-goal and conditional,0,"1. Deploy AHT-004 and AHT-007 to provide 220 t bollard pull to begin applying force to refloat the vessel JOHN B. CADDSELL, which is aground on a rocky/gravelly shore, with the goal of initiating movement before high tide.
+2. Position TUG-008 and TUG-030 to provide additional 151 t bollard pull, working in tandem with AHT-004 and AHT-007 to apply coordinated pulling force on the vessel’s bow and stern lines to prevent twisting and to maximize refloat efficiency.
+3. Use WB-058 to assist with securing and tensioning the main refloat lines, providing 10 t of auxiliary pull to stabilize the vessel during the initial refloat phase and prevent slippage.
+4. Monitor tide gauge readings near the vessel to track water level rise and adjust pulling force and timing to ensure refloat occurs during high water, as the naval architect’s assessment requires 330 t bollard pull within 4.3 hours.
+5. Once high tide is reached and water level is sufficient, increase pulling force to full capacity using all available tugs (AHT-004, AHT-007, TUG-008, TUG-030) to achieve the required 330 t bollard pull for refloat.
+6. If the vessel begins to move, maintain controlled pulling force to avoid excessive strain on the hull and ensure the vessel clears the grounding without further damage.
+7. After refloat is achieved, assess the vessel’s stability and integrity, and if necessary, deploy BRG-041 to assist with lightering if the vessel is too heavy for safe navigation or if the grounding caused structural stress requiring weight reduction.
+8. Conduct a full inspection of all tanks and cargo compartments to confirm no hazardous materials are present before any further movement or cutting is initiated.
+9. Once refloat is complete and vessel is afloat, secure it to a mooring or barge to prevent drifting, and prepare for transport to a dry dock for further assessment and repair.
+10. Request additional resources if needed beyond the 11.1-hour ETA to ensure the vessel is safely secured and stabilized for long-term handling."
+AGR-00204,SCARCE,aground,refloat,TUG-008;TUG-030;BRG-041;WB-004,TUG-008;TUG-030;WB-004,yes,no,no,"ambiguous: BRG-041 positioned 'as needed', left out",0,"1. Deploy TUG-008 and TUG-030 to the vessel site to begin applying bollard pull for refloating, with TUG-008 providing 77 t and TUG-030 providing 74 t, totaling 151 t of initial pulling force.
+2. Position BRG-041 to provide additional deck cargo barge support for weight management and stability during refloating operations, with its 1700 t capacity available for lightering or ballast adjustment as needed.
+3. Coordinate with the on-scene salvage team to monitor tide gauge readings and adjust pulling strategy as the tide rises to optimize refloating conditions within the 4.3-hour window.
+4. Use WB-004 to assist with securing the vessel’s stern and applying additional lateral force to prevent yaw or rotation during the refloating process, leveraging its 15 t bollard pull.
+5. Maintain continuous communication with the naval architect to reassess ground reaction and friction coefficients as the vessel is pulled, ensuring the pulling force does not exceed the 330 t requirement or risk further grounding.
+6. If the vessel remains aground beyond the 4.3-hour window, initiate lightering operations using BRG-041 to reduce weight and increase buoyancy, targeting areas away from the neutral loading point to avoid hull strain.
+7. Once the vessel begins to refloat, maintain steady bollard pull from TUG-008 and TUG-030 while monitoring draft and trim to ensure safe clearance from the seabed.
+8. After refloating, conduct a stability check and assess for any trapped water or cargo shifts before allowing the vessel to proceed to a safe anchorage or dry dock.
+9. Request additional assets if the 330 t requirement is not met by T+4.3 h, but note that no further assets are available before T+11.1 h."
+AGR-00224,SUFFICIENT,aground,refloat,TUG-003;TUG-022;TUG-027;TUG-059,TUG-003;TUG-022;TUG-027;TUG-059,yes,no,no,,0,"1. Deploy TUG-003, TUG-022, TUG-027, and TUG-059 to the scene to provide combined bollard pull for refloating the vessel; these tugs are available within 5.9 hours and their capacities sum to 196 t, which exceeds the 160 t required.
+2. Position TUG-003, TUG-022, TUG-027, and TUG-059 around the vessel’s bow and stern to apply coordinated pulling force to refloat it as the tide rises.
+3. Monitor tide gauge readings near the grounding site to track the changing ground reaction as water level increases.
+4. Ensure all fuel tanks are checked for fuel before any movement begins to prevent fire risk during refloating.
+5. Verify that no hazardous cargo is present before initiating any refloating operations.
+6. Maintain constant communication between the tugs and the vessel’s bridge to adjust pulling force as the tide rises and the vessel responds.
+7. Apply full bollard pull from TUG-003, TUG-022, TUG-027, and TUG-059 simultaneously to initiate refloating once the tide reaches sufficient depth to reduce ground reaction.
+8. Once the vessel begins to rise, reduce pulling force gradually to avoid overloading the hull or causing further damage.
+9. Confirm the vessel is fully refloated and stable before releasing the tugs.
+10. Request a naval architect’s re-assessment of hull integrity and stability after refloating to ensure safe navigation."
+CAP-00006,SURPLUS,capsized,right,RCB-044;RCB-036;WIN-007;WIN-010;WIN-012;WIN-026;WIN-028;WIN-038;WIN-044;DIV-043;SVY-034;BOOM-060;WIN-015,RCB-044;RCB-036;WIN-007;WIN-010;WIN-012;WIN-026;WIN-028;WIN-038;WIN-044;DIV-043;SVY-034,yes,no,no,BOOM-060 conditional and after the goal step; WIN-015 aground branch only,28,"1. Deploy RCB-044 and RCB-036 to the scene to provide crane barge support for righting the vessel, as both are en route within 4.8 hours and have sufficient rated righting moment capacity.
+2. Assign WIN-007, WIN-010, WIN-012, WIN-026, WIN-028, WIN-038, and WIN-044 to provide shore pulling winch support, as all are en route within 4.8 hours and their combined righting moment exceeds the required 11100 t.m.
+3. Deploy DIV-043 to conduct a hull integrity and hazardous material survey before any righting operations commence, to ensure safety during the refloat process.
+4. Deploy SVY-034 to conduct a seabed and grounding reaction assessment to determine the friction coefficient and potential need for lightering or dredging, if applicable.
+5. Initiate controlled righting using RCB-044 and RCB-036, applying the combined righting moment of 16000 t.m to the vessel’s neutral loading point, while WIN-007, WIN-010, WIN-012, WIN-026, WIN-028, WIN-038, and WIN-044 provide synchronized pulling force to stabilize the vessel during the righting process.
+6. Monitor the tide using a dedicated tide gauge to track ground reaction changes as the tide rises, ensuring the righting operation is timed to minimize strain on the hull.
+7. After righting, confirm the vessel’s stability and metacentric height before allowing any further movement or refloat operations.
+8. If the vessel contains hazardous materials or fuel, deploy BOOM-060 to contain any potential spills during the righting and refloat process.
+9. Once the vessel is upright, conduct a full cargo and hazardous material accounting before any further movement or refloat operations.
+10. If the vessel is found to be aground, deploy WIN-015 to assist with lightering if necessary, as it is en route within 4.8 hours and has sufficient capacity to reduce weight for refloat.
+11. If the vessel is found to be sunken, deploy DIV-043 to conduct a sequential gas testing of the submerged space before any diver entry or hot work begins.
+12. If the vessel is found to be on fire, deploy fire suppression assets as needed, but note that no fire suppression assets are listed in the ledger and this scenario is not visually supported by the image.
+13. If the vessel is found to be capsized, prioritize crew rescue using DIV-043 before attempting to right the vessel, as the image shows no visible crew and the vessel appears to be in a stable, upright position.
+14. After righting, monitor the vessel’s draft and ensure it is within safe limits for refloat, using the tide gauge data to adjust the righting force as needed.
+15. Once the vessel is upright and stable, deploy WIN-007, WIN-010, WIN-012, WIN-026, WIN-028, WIN-038, and WIN-044 to provide synchronized pulling force to refloat the vessel, ensuring the pulling force is controlled to avoid overturning the vessel further."
+CAP-00006,SUFFICIENT,capsized,right,RCB-044;WIN-007;WIN-026;WIN-012;WIN-038;WIN-044;WIN-043;DIV-043;SVY-034,RCB-044;WIN-007;WIN-026;WIN-012;WIN-038;WIN-044;WIN-043;DIV-043;SVY-034,yes,no,no,"fuel offload is for safety, not reduce",0,"1. Deploy RCB-044 crane barge to provide primary righting moment, targeting the vessel’s neutral loading point to avoid strain, with a maximum capacity of 8000 t.m righting moment.
+2. Coordinate WIN-007 shore pulling winch set (800 t.m) and WIN-026 shore pulling winch set (800 t.m) to provide supplemental righting moment, ensuring synchronized load application to prevent hull overturning.
+3. Engage WIN-012 shore pulling winch set (800 t.m) and WIN-038 shore pulling winch set (800 t.m) to reinforce the righting effort, maintaining controlled lifting loads to avoid further capsizing.
+4. Activate WIN-044 shore pulling winch set (800 t.m) and WIN-043 shore pulling winch set (800 t.m) to complete the righting moment capacity, achieving a combined 11100 t.m within 4.8 hours.
+5. Deploy DIV-043 dive team to inspect all tanks for fuel and hazardous cargo before any cutting or movement begins, ensuring safety during the righting operation.
+6. Use SVY-034 survey launch to monitor the vessel’s stability and ground reaction as the tide rises, adjusting winch loads to maintain controlled refloating.
+7. Request immediate tide gauge deployment near the site to track ground reaction changes and optimize righting timing.
+8. Confirm all hazardous materials are secured and fuel is offloaded prior to any structural movement, using DIV-043 dive team for verification.
+9. Maintain continuous communication with RCB-044 crane barge and all shore winch sets to ensure synchronized operation and prevent overloading any single point.
+10. Monitor the vessel’s response to righting forces and adjust winch loads as needed to achieve stable refloating without exceeding the 11100 t.m requirement."
+CAP-00006,SCARCE,capsized,right,DIV-043;WIN-012;WIN-017;WIN-026;WIN-028;WIN-030;WIN-044;WIN-043;WIN-015;WIN-038;WIN-053;WIN-022;WIN-034;BOOM-060;PBJ-008;SVY-034,DIV-043;WIN-012;WIN-017;WIN-026;WIN-028;WIN-030;WIN-044;WIN-043;WIN-015;WIN-038;WIN-053;WIN-022;WIN-034;BOOM-060;PBJ-008,yes,no,no,"SVY-034 aground branch only; ambiguous: PBJ-008 'once upright' but applies the final righting moment, counted",8,"1. Deploy DIV-043 dive team to inspect the vessel’s hull integrity and check for trapped water or hazardous materials before any righting operations commence.
+2. Activate WIN-012 shore pulling winch set to begin applying controlled righting moment, targeting the neutral loading point to minimize hull strain.
+3. Activate WIN-017 shore pulling winch set to supplement WIN-012, combining their 800 t.m + 340 t.m = 1140 t.m righting moment for incremental hull rotation.
+4. Activate WIN-026 shore pulling winch set to add 800 t.m righting moment, bringing total committed moment to 1140 t.m + 800 t.m = 1940 t.m.
+5. Activate WIN-028 shore pulling winch set to add 800 t.m righting moment, bringing total committed moment to 1940 t.m + 800 t.m = 2740 t.m.
+6. Activate WIN-030 shore pulling winch set to add 360 t.m righting moment, bringing total committed moment to 2740 t.m + 360 t.m = 3100 t.m.
+7. Activate WIN-044 shore pulling winch set to add 800 t.m righting moment, bringing total committed moment to 3100 t.m + 800 t.m = 3900 t.m.
+8. Activate WIN-043 shore pulling winch set to add 800 t.m righting moment, bringing total committed moment to 3900 t.m + 800 t.m = 4700 t.m.
+9. Activate WIN-015 shore pulling winch set to add 480 t.m righting moment, bringing total committed moment to 4700 t.m + 480 t.m = 5180 t.m.
+10. Activate WIN-038 shore pulling winch set to add 800 t.m righting moment, bringing total committed moment to 5180 t.m + 800 t.m = 5980 t.m.
+11. Activate WIN-053 shore pulling winch set to add 40 t.m righting moment, bringing total committed moment to 5980 t.m + 40 t.m = 6020 t.m.
+12. Activate WIN-022 shore pulling winch set to add 40 t.m righting moment, bringing total committed moment to 6020 t.m + 40 t.m = 6060 t.m.
+13. Activate WIN-034 survey launch to monitor tide gauge and ground reaction changes, ensuring refloat timing aligns with tidal cycles.
+14. Activate BOOM-060 oil containment boom to contain any potential oil release during righting operations, preventing environmental contamination.
+15. Once vessel is upright, activate PBJ-008 parbuckling strand jack set to secure and stabilize the vessel, applying final 2600 t.m righting moment to ensure full recovery.
+16. After stabilization, conduct full cargo and hazardous material accounting using DIV-043 dive team to ensure safe refloat or tow operations.
+17. If vessel contains fuel, offload before any further movement using shore winches or barge systems to prevent fire risk.
+18. If vessel contains hazardous materials, isolate and secure them using DIV-043 dive team before any movement or refloat.
+19. If vessel is found to be aground, confirm refloat is possible without dredging by monitoring tide gauge data from SVY-034.
+20. If vessel is found to be capsized, confirm stability criteria are met before proceeding with righting using DIV-043 dive team and PBJ-008.
+21. If vessel is found to be sunken, conduct sequential gas testing using DIV-043 dive team before any hot work or cutting begins.
+22. If vessel is found to be on fire, activate fire suppression systems before any righting operations, using WIN-012 and WIN-017 for cooling and containment.
+23. If vessel is found to be fully inverted, use controlled deballasting or parbuckling method with PBJ-008 to avoid overturning further.
+24. If vessel is found to be lying on its side, use shore winches WIN-012, WIN-017, WIN-026, WIN-028, WIN-030, WIN-044, WIN-043, WIN-038, WIN-053, WIN-022, WIN-034 to apply controlled righting moment.
+25. If vessel is found to be aground on rock or coral, request additional dredging resources not listed in ledger.
+26. If vessel is found to be aground on mud or sand, continue righting operations using current winch sets without additional resources.
+27. If vessel is found to be capsized with trapped water, clear water using DIV-043 dive team before righting.
+28. If vessel is found to be sunken with explosive gas, evacuate area and activate gas detection systems before any hot work.
+29. If vessel is found to be on fire with water-soluble fuel, use alcohol-resistant foam from WIN-012 and WIN-017 for suppression.
+30. If vessel is found to be on fire with superheated space, cool area using fireboat monitors before any ventilation.
+31. If vessel is found to be sunken with oil release, deploy BOOM-060 to contain oil and use SVY-034 to locate submerged oil.
+32. If vessel is found to be abandoned, rank pollution risk using standardized method before deciding on removal.
+33. If vessel is found to be damaged beyond recovery, request additional resources not listed in ledger for partial recovery or disposal.
+34. If vessel is found to be too large for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+35. If vessel is found to be too deep for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+36. If vessel is found to be too damaged for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+37. If vessel is found to be too heavy for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+38. If vessel is found to be too unstable for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+39. If vessel is found to be too hazardous for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+40. If vessel is found to be too complex for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+41. If vessel is found to be too sensitive for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+42. If vessel is found to be too remote for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+43. If vessel is found to be too far for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+44. If vessel is found to be too expensive for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+45. If vessel is found to be too risky for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+46. If vessel is found to be too slow for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+47. If vessel is found to be too fast for current winch sets, request additional winch sets not listed in ledger for combined righting moment.
+48. If vessel is found to be too small for current winch sets, request additional winch sets not listed in ledger for combined righting moment."
+CAP-00019,SURPLUS,capsized,right,RCB-041;RCB-031;DIV-009;BRG-008;WIN-015;WIN-006;WIN-009;WIN-017;WIN-024;WIN-027;WIN-030;WIN-046;WIN-047;WIN-060;WIN-051;WIN-039;WIN-040;WIN-038;WIN-029;WIN-007,RCB-041;RCB-031,yes,no,no,DIV-009 and BRG-008 conditional; every WIN only 'if still grounded' or 'if needed' after righting,19,"1. Deploy the RCB-041 crane barge (ETA 2.9 h) and RCB-031 crane barge (ETA 3.7 h) to the casualty site to provide the required 9200 t.m righting moment within the 6.6-hour window.
+2. Coordinate the RCB-041 and RCB-031 crane barges to combine their 8000 t.m righting moment each, totaling 16000 t.m, which exceeds the 9200 t.m requirement.
+3. Position the RCB-041 crane barge to apply righting moment at the vessel’s neutral loading point to minimize hull strain during refloating.
+4. Position the RCB-031 crane barge to provide supplemental righting moment, targeting areas away from the neutral point to balance ground reaction forces.
+5. Activate the RCB-041 and RCB-031 crane barges simultaneously to apply the 16000 t.m righting moment to the capsized vessel.
+6. Monitor the vessel’s response to the applied righting moment using a dedicated tide gauge to track ground reaction changes as the tide rises.
+7. Once the vessel begins to right, maintain controlled lifting loads to avoid further overturning.
+8. After the vessel is righted, assess hull integrity and stability against minimum righting-arm and metacentric-height criteria before proceeding with refloating.
+9. If the vessel contains hazardous materials, deploy the DIV-009 dive team (ETA 1.7 h) to inspect and secure any exposed tanks before any movement begins.
+10. If the vessel contains fuel, offload it using the BRG-008 deck cargo barge (ETA 2.3 h) before any further movement or cutting.
+11. Once the vessel is stable and free of hazardous materials, use the WIN-015 shore pulling winch set (ETA 6.1 h) to assist in refloating if needed.
+12. If the vessel is not fully refloated, use the WIN-006 shore pulling winch set (ETA 5.5 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+13. If the vessel is still grounded, use the WIN-009 shore pulling winch set (ETA 3.9 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+14. If the vessel is still grounded, use the WIN-017 shore pulling winch set (ETA 5.0 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+15. If the vessel is still grounded, use the WIN-024 shore pulling winch set (ETA 4.9 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+16. If the vessel is still grounded, use the WIN-027 shore pulling winch set (ETA 3.9 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+17. If the vessel is still grounded, use the WIN-030 shore pulling winch set (ETA 3.9 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+18. If the vessel is still grounded, use the WIN-046 shore pulling winch set (ETA 5.9 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+19. If the vessel is still grounded, use the WIN-047 shore pulling winch set (ETA 5.1 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+20. If the vessel is still grounded, use the WIN-060 shore pulling winch set (ETA 7.5 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+21. If the vessel is still grounded, use the WIN-051 shore pulling winch set (ETA 37.9 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+22. If the vessel is still grounded, use the WIN-039 shore pulling winch set (ETA 5.1 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+23. If the vessel is still grounded, use the WIN-040 shore pulling winch set (ETA 4.3 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+24. If the vessel is still grounded, use the WIN-038 shore pulling winch set (ETA 7.7 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+25. If the vessel is still grounded, use the WIN-029 shore pulling winch set (ETA 9.3 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+26. If the vessel is still grounded, use the WIN-007 shore pulling winch set (ETA 4.4 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+27. If the vessel is still grounded, use the WIN-006 shore pulling winch set (ETA 5.5 h) to provide additional pulling force, targeting areas to reduce strain on the hull.
+28. If the vessel is still grounded, use the WIN-015 shore pulling winch set (ETA 6.1 h) to provide additional pulling force, targeting areas to reduce strain on the hull."
+CAP-00019,SUFFICIENT,capsized,right,RCB-031;BRG-008;DIV-009;PBJ-020,RCB-031;BRG-008;DIV-009;PBJ-020,yes,no,no,PBJ-020 'if required' in step 5 but secondary support in step 9,0,"1. Deploy the RCB-031 crane barge to the casualty site to provide the primary righting moment, as its 8000 t.m capacity exceeds the required 9200 t.m and it is the only asset with sufficient capacity to meet the deadline.
+2. Coordinate the RCB-031 crane barge to begin righting operations immediately upon arrival at the site, ensuring the vessel’s stability is reassessed before initiating any movement.
+3. Deploy the BRG-008 deck cargo barge to assist in stabilizing the vessel during the righting process by providing additional buoyancy or counterweight as needed.
+4. Assign the DIV-009 dive team to inspect the vessel’s hull integrity and internal compartments for trapped water or hazardous materials prior to righting, ensuring safety during the operation.
+5. Position the PBJ-020 parbuckling strand jack set to provide supplemental righting moment if required, though its 4100 t.m capacity is less than the RCB-031’s, it may be used to fine-tune the righting process.
+6. Monitor the tide using a dedicated tide gauge to track ground reaction changes, ensuring the righting operation is timed to coincide with optimal tidal conditions for refloating.
+7. Ensure all tanks are checked for fuel and hazardous cargo before any movement begins, to prevent additional risks during the righting process.
+8. Maintain continuous communication between the RCB-031 crane barge and the DIV-009 dive team to coordinate the righting sequence and adjust for any unexpected hull behavior.
+9. Apply controlled lifting loads to avoid overturning the vessel further, using the RCB-031 as the primary lifting asset and the PBJ-020 as a secondary support.
+10. Once the vessel is righted, assess its stability and draft to determine if refloating is possible naturally or if additional lightering or tug assistance is required."
+CAP-00019,SCARCE,capsized,right,SPN-052;WIN-006;WIN-009;WIN-024;WIN-040;WIN-047;BRG-008;DIV-009;DWP-048,SPN-052;WIN-006;WIN-009;WIN-024;WIN-040;WIN-047;BRG-008;DIV-009,yes,no,yes,BRG-008 offloads cargo to reduce weight; DWP-048 after righting,0,"1. Deploy the sponson / buoyancy caisson set SPN-052 to apply 1700 t.m righting moment to the capsized vessel, initiating the righting process.
+2. Deploy the shore pulling winch set WIN-006 to apply 800 t.m righting moment, synchronized with SPN-052 to maximize combined righting moment.
+3. Deploy the shore pulling winch set WIN-009 to apply 800 t.m righting moment, synchronized with SPN-052 and WIN-006 to maintain hull stability during righting.
+4. Deploy the shore pulling winch set WIN-024 to apply 800 t.m righting moment, synchronized with SPN-052, WIN-006, and WIN-009 to achieve the required 9200 t.m righting moment.
+5. Deploy the shore pulling winch set WIN-040 to apply 720 t.m righting moment, synchronized with SPN-052, WIN-006, WIN-009, and WIN-024 to complete the 9200 t.m righting moment requirement.
+6. Deploy the shore pulling winch set WIN-047 to apply 650 t.m righting moment, synchronized with SPN-052, WIN-006, WIN-009, WIN-024, and WIN-040 to ensure full righting moment is achieved.
+7. Deploy the deck cargo barge BRG-008 to offload cargo and reduce weight, targeting areas away from the neutral loading point to minimize strain on the hull during righting.
+8. Deploy the dive team DIV-009 to inspect the vessel for trapped water and hazardous materials before and during righting, ensuring safety and stability.
+9. Monitor the tide gauge near the site to track ground reaction changes as the tide rises and falls, adjusting righting force application as needed.
+10. Once the vessel is righted, deploy the submersible pump DWP-048 to remove any remaining water from the vessel and ensure stability."
+CAP-00116,SUFFICIENT,capsized,right,RCB-029;RCB-045;RCB-057;WIN-029;WIN-055;DIV-041;BRG-020,RCB-029;RCB-045;RCB-057;WIN-029;WIN-055;DIV-041,yes,no,no,BRG-020 potential lightering if required,0,"1. Deploy RCB-029 crane barge to the scene, arriving at T+2.6 h, to provide initial righting moment support.
+2. Deploy RCB-045 crane barge to the scene, arriving at T+8.1 h, to augment righting moment capacity.
+3. Deploy RCB-057 crane barge to the scene, arriving at T+13.9 h, to provide additional righting moment capacity.
+4. Deploy WIN-029 shore pulling winch set to the scene, arriving at T+10.5 h, to provide supplemental righting moment via pulling force.
+5. Deploy WIN-055 shore pulling winch set to the scene, arriving at T+9.0 h, to provide supplemental righting moment via pulling force.
+6. Deploy DIV-041 dive team to the scene, arriving at T+2.5 h, to inspect hull integrity and trapped water conditions before righting.
+7. Deploy BRG-020 deck cargo barge to the scene, arriving at T+10.5 h, to prepare for potential lightering if required.
+8. Coordinate RCB-029, RCB-045, and RCB-057 crane barges to apply controlled righting moment simultaneously, targeting the neutral loading point identified by the naval architect.
+9. Coordinate WIN-029 and WIN-055 shore pulling winch sets to apply controlled pulling force to assist in righting the vessel.
+10. Monitor tide gauge readings continuously to adjust righting moment application as ground reaction changes with tidal rise.
+11. Execute parbuckling maneuver using RCB-029, RCB-045, and RCB-057 crane barges in coordination with WIN-029 and WIN-055 winch sets to achieve 91800 t.m righting moment within 12.5 hours.
+12. Once vessel is upright, conduct stability check and assess for hazardous materials or fuel before any further movement or offloading."
+CAP-00116,INFEASIBLE,capsized,right,RCB-020;RCB-057;BRG-020;DIV-041;WIN-029;WIN-055;SPN-002,RCB-020;RCB-057;BRG-020;DIV-041;WIN-029;WIN-055,yes,no,no,"SPN-002 'if required'; ambiguous: BRG-020 'assist with weight management and potential lightering', counted",0,"1. Deploy RCB-020 to the casualty site to provide initial righting moment capability, arriving at T+8.6 h.
+2. Deploy RCB-057 to the casualty site to provide additional righting moment capability, arriving at T+13.9 h.
+3. Deploy BRG-020 to the casualty site to assist with weight management and potential lightering, arriving at T+10.5 h.
+4. Deploy DIV-041 to conduct hull integrity and hazardous material surveys prior to any righting operations, arriving at T+2.5 h.
+5. Deploy WIN-029 and WIN-055 to the casualty site to provide shore pulling capability, arriving at T+10.5 h and T+9.0 h respectively.
+6. Coordinate with RCB-020 and RCB-057 to apply combined righting moment of 22980 t.m within 12.5 hours, prioritizing controlled deballasting or parbuckling methods.
+7. Monitor tide gauge readings near the casualty site to track ground reaction changes as the tide rises and falls during the righting operation.
+8. Conduct stability check against minimum righting-arm and metacentric-height criteria using data from DIV-041 before initiating righting.
+9. Clear trapped water from the hull prior to righting using pumps or sponson deployment from SPN-002, if required.
+10. Execute righting maneuver using RCB-020 and RCB-057 in tandem, with WIN-029 and WIN-055 providing supplemental pulling force if needed.
+11. Maintain continuous monitoring of hull stress points and ground reaction during righting to avoid overturning.
+12. Once righted, assess hull integrity and cargo status using DIV-041 to determine next steps for refloating or further recovery.
+13. If refloating is required, deploy BRG-020 for lightering and coordinate with WIN-029 and WIN-055 for tug assistance.
+14. If refloating is not feasible, prepare for section removal using RCB-020 and RCB-057, with SPN-002 providing buoyancy support if needed.
+15. Conduct environmental risk assessment using DIV-041 data to determine pollution mitigation measures for any released oil or hazardous materials.
+16. Document all operations and asset usage for post-salvage analysis and reporting."
+CAP-00140,SCARCE,capsized,right,RCB-026;RCB-014;RCB-010;BRG-028;DIV-028;SVY-057,RCB-026;RCB-014;RCB-010;BRG-028;DIV-028;SVY-057,yes,no,yes,BRG-028 lightens to reduce the righting moment,0,"1. Deploy RCB-026 crane barge to the scene, as it is the closest asset (ETA 1.0 h) and has a righting moment of 8000 t.m, to begin providing initial righting force while other assets transit.
+2. Deploy RCB-014 crane barge to the scene, as it is available and has the highest righting moment (59700 t.m) among assets with ETA under 8.6 h (ETA 5.1 h), to provide the bulk of the required righting moment.
+3. Deploy RCB-010 crane barge to the scene, as it is available and has a righting moment of 9500 t.m (ETA 4.2 h), to supplement the righting force from RCB-026 and RCB-014.
+4. Deploy BRG-028 deck cargo barge to the scene, as it is available (ETA 5.1 h) and can be used to lighten the vessel’s weight by removing cargo, thereby reducing the righting moment required to right the vessel.
+5. Deploy DIV-028 dive team to the scene, as it is available (ETA 2.0 h), to inspect the vessel’s hull for trapped water, structural integrity, and hazardous materials before any righting operations commence.
+6. Deploy SVY-057 survey launch to the scene, as it is available (ETA 0.7 h), to conduct a preliminary survey of the vessel’s position, stability, and seabed conditions to inform righting operations.
+7. Once all assets are on scene and ready, initiate controlled parbuckling using RCB-014 and RCB-010 crane barges to apply the required 259600 t.m righting moment, with RCB-026 providing additional support if needed.
+8. Coordinate with the dive team to monitor the vessel’s response during righting and to ensure no hazardous materials are released during the operation.
+9. After the vessel is righted, conduct a stability check and assess the vessel’s condition to determine if further refloating or recovery operations are required."
+CAP-00140,INFEASIBLE,capsized,right,RCB-026;RCB-014;BRG-028;DIV-028;SVY-057,RCB-026;RCB-014;BRG-028;DIV-028;SVY-057,yes,no,no,"ambiguous: step 8 'if draft >10m ... request additional resources or delay' read as conditional; BRG-028 'weight management and lightering if needed', counted",0,"1. Deploy RCB-026 crane barge to the scene to begin righting the capsized vessel, as it will arrive in 1.0 hour and has the highest righting moment capacity (8000 t.m) among assets arriving within the 8.6-hour window.
+2. Deploy RCB-014 crane barge to the scene to provide additional righting moment, as it will arrive in 5.1 hours and has a capacity of 59700 t.m, enabling the combined effort to meet the required 259600 t.m within the time constraint.
+3. Deploy BRG-028 deck cargo barge to the scene to assist with weight management and lightering if needed, as it will arrive in 5.1 hours and can handle 2000 t of cargo, helping to reduce strain on the hull during righting.
+4. Deploy DIV-028 dive team to inspect the vessel’s hull integrity and check for hazardous materials or trapped water before any righting operations commence, as it will arrive in 2.0 hours and is essential for safety assessment.
+5. Deploy SVY-057 survey launch to conduct a seabed survey and assess ground reaction forces, as it will arrive in 0.7 hours and can provide critical data on seabed type and friction coefficient for righting calculations.
+6. Coordinate with RCB-026 and RCB-014 to apply controlled righting forces using their combined righting moment capacity (8000 + 59700 = 67700 t.m) to initiate the parbuckling or crane-assisted righting process, ensuring loads are kept controlled to avoid further capsizing.
+7. Monitor the vessel’s stability and metacentric height during righting using data from SVY-057 and DIV-028, adjusting righting forces as needed to meet the 259600 t.m requirement within 8.6 hours.
+8. If the vessel’s draft exceeds 10m or the seabed is hard, request additional resources or delay righting until the vessel can be lightened or tugs are available, but proceed with current assets as they are the only ones available within the time window.
+9. Once the vessel is righted, deploy BRG-028 to offload any remaining cargo or hazardous materials, ensuring the vessel is stabilized before any further movement.
+10. After righting, conduct a final inspection using DIV-028 to confirm the vessel’s structural integrity and ensure no hazardous materials remain before any refloating or towing operations commence."
+CAP-00176,SUFFICIENT,capsized,right,RCB-052;RCB-012;RCB-051;SPN-022;RCB-005;RCB-004;DIV-013;DWP-043;SVY-014;WIN-035;WIN-055;PBJ-016;SPN-009;RCB-047;WIN-033,RCB-052;RCB-012;RCB-051;RCB-005;SPN-009;DIV-013;DWP-043;SVY-014,yes,no,no,"SPN-022 backup; WIN-035 and WIN-055 if needed; ambiguous: RCB-004, PBJ-016, RCB-047, WIN-033 late and 'may be used for extended operations', left out",36,"1. Deploy RCB-052 crane barge (rated 20600 t.m righting moment, ETA 6.2 h) to the scene to begin righting operations, as it is the first available asset with sufficient capacity and will arrive within the 15.2-hour window.
+2. Deploy RCB-012 crane barge (rated 35100 t.m righting moment, ETA 13.7 h) to provide additional righting moment capacity, arriving before the 15.2-hour deadline.
+3. Deploy RCB-051 crane barge (rated 18000 t.m righting moment, ETA 13.5 h) to supplement the righting effort, arriving just before the deadline.
+4. Deploy SPN-022 sponson / buoyancy caisson set (rated 15000 t.m righting moment, ETA 29.2 h) to provide buoyancy support, though it arrives after the 15.2-hour window, it may be used for stabilization or as a backup if needed.
+5. Deploy RCB-005 crane barge (rated 22400 t.m righting moment, ETA 14.3 h) to provide additional righting moment capacity, arriving within the 15.2-hour window.
+6. Deploy RCB-004 crane barge (rated 29500 t.m righting moment, ETA 31.2 h) to provide additional righting moment capacity, though it arrives after the 15.2-hour window, it may be used for extended operations.
+7. Deploy DIV-013 dive team (5 divers, ETA 4.9 h) to inspect the hull for structural integrity, trapped water, and hazardous materials before any righting operations commence.
+8. Deploy DWP-043 submersible pump (240 m3/h, ETA 3.8 h) to remove trapped water from the hull to improve stability and reduce weight before righting.
+9. Deploy SVY-014 survey launch (3 crew, ETA 4.7 h) to conduct a detailed survey of the vessel's position, draft, and seabed conditions to inform righting strategy.
+10. Deploy WIN-035 shore pulling winch set (130 t.m righting moment, ETA 7.6 h) to provide additional pulling force if needed for the righting operation.
+11. Deploy WIN-055 shore pulling winch set (40 t.m righting moment, ETA 8.7 h) to provide additional pulling force if needed for the righting operation.
+12. Deploy PBJ-016 parbuckling strand jack set (2000 t.m righting moment, ETA 23.6 h) to assist in the righting process, though it arrives after the 15.2-hour window, it may be used for extended operations.
+13. Deploy SPN-009 sponson / buoyancy caisson set (1700 t.m righting moment, ETA 9.2 h) to provide additional buoyancy support, arriving within the 15.2-hour window.
+14. Deploy RCB-047 crane barge (rated 10300 t.m righting moment, ETA 34.8 h) to provide additional righting moment capacity, though it arrives after the 15.2-hour window, it may be used for extended operations.
+15. Deploy WIN-033 shore pulling winch set (330 t.m righting moment, ETA 32.9 h) to provide additional pulling force if needed for the righting operation, though it arrives after the 15.2-hour window, it may be used for extended operations.
+16. Begin righting the vessel using the combined righting moment of the deployed assets, prioritizing the use of RCB-052, RCB-012, RCB-051, RCB-005, and SPN-009 to achieve the required 79400 t.m righting moment within 15.2 hours.
+17. Monitor the vessel's stability and ground reaction as the tide rises, using the survey data from SVY-014 to adjust the righting strategy as needed.
+18. Ensure all hazardous materials are accounted for and all tanks are checked for fuel and hazardous cargo before any cutting or movement begins.
+19. Ensure all trapped water is cleared before righting the vessel.
+20. Ensure the vessel's draft and seabed conditions are monitored to avoid excessive strain on the hull during righting.
+21. Ensure the vessel's stability is reassessed after righting to ensure it is safe to refloat.
+22. Once the vessel is righted, assess the need for lightering to reduce weight before refloat, if necessary.
+23. Once the vessel is righted, assess the need for tug assistance to refloat, if necessary.
+24. Once the vessel is righted, assess the need for dredging to clear a channel before refloat, if necessary.
+25. Once the vessel is righted, assess the need for additional resources to complete the refloat operation, if necessary."
+CAP-00176,SCARCE,capsized,right,RCB-051;RCB-005;SPN-022;SPN-009;DIV-013;DWP-043;SVY-014;WIN-035;WIN-055,RCB-051;RCB-005;SPN-022;SPN-009;DIV-013;DWP-043;SVY-014;WIN-055,yes,no,no,WIN-035 if needed; ambiguous: goal step is step 10 'combine their righting moments to achieve' the requirement,0,"1. Deploy the crane barge RCB-051 (18000 t.m righting moment) from its current location 66 nm away, ETA 13.5 hours, to provide primary righting moment support.
+2. Deploy the crane barge RCB-005 (22400 t.m righting moment) from Port Ellery, 7 nm, ETA 14.3 hours, to augment righting moment capacity.
+3. Deploy the sponson / buoyancy caisson set SPN-022 (15000 t.m righting moment) from Maddock Pier, 80 nm, ETA 29.2 hours, to provide additional buoyancy and righting moment.
+4. Deploy the sponson / buoyancy caisson set SPN-009 (1700 t.m righting moment) from Port Ellery, 7 nm, ETA 9.2 hours, to provide supplemental buoyancy.
+5. Deploy the dive team DIV-013 (5 divers) from Maddock Pier, 80 nm, ETA 4.9 hours, to conduct hull integrity and hazardous material checks prior to any righting operations.
+6. Deploy the submersible pump DWP-043 (240 m3/h) from Maddock Pier, 80 nm, ETA 3.8 hours, to remove trapped water from the vessel’s interior to improve stability.
+7. Deploy the survey launch SVY-014 (3 crew) from Maddock Pier, 80 nm, ETA 4.7 hours, to monitor the vessel’s position and ground reaction as the tide rises.
+8. Deploy the shore pulling winch set WIN-035 (130 t.m righting moment) from Port Ellery, 7 nm, ETA 7.6 hours, to provide additional righting moment if needed.
+9. Deploy the shore pulling winch set WIN-055 (40 t.m righting moment) from Maddock Pier, 80 nm, ETA 8.7 hours, to provide supplemental righting moment.
+10. Coordinate all deployed assets to combine their righting moments to achieve the required 79400 t.m within 15.2 hours, prioritizing the use of RCB-051, RCB-005, and SPN-022 to meet the target."
+CAP-00182,SURPLUS,capsized,right,RCB-027;RCB-030;DIV-037;RCB-015;RCB-016;BOOM-038;RCB-045,RCB-027;RCB-030;DIV-037,yes,no,no,RCB-015/016 and RCB-045 if needed; BOOM-038 after righting,0,"1. Deploy RCB-027 (ETA 1.3 h) and RCB-030 (ETA 1.0 h) to arrive on scene first, as they are the closest crane barges with sufficient righting moment (60,000 t.m and 19,500 t.m respectively) to begin applying controlled righting force to the capsized vessel.
+2. Position RCB-027 and RCB-030 to apply synchronized righting moment to the vessel’s midsection, targeting the neutral loading point to avoid excessive strain on the hull.
+3. Activate RCB-027 and RCB-030 to apply 315,000 t.m righting moment incrementally over 5.5 hours, with each barge contributing 157,500 t.m to meet the required moment without exceeding their capacity.
+4. Monitor the vessel’s response to righting force using tide gauge data and stability checks to ensure the hull does not overturn further during the operation.
+5. Deploy DIV-037 (ETA 3.7 h) to conduct a hull integrity assessment and check for trapped water before any further righting maneuvers.
+6. If trapped water is found, use RCB-027 and RCB-030 to apply controlled deballasting to clear the water and reduce internal pressure before continuing righting.
+7. Once the vessel is stabilized and righting force is applied, deploy RCB-015 (ETA 2.7 h) and RCB-016 (ETA 2.0 h) to provide additional righting moment if needed to complete the righting process.
+8. After the vessel is uprighted, deploy BOOM-038 (ETA 5.1 h) to contain any potential fuel or hazardous material leakage from the vessel’s tanks.
+9. Conduct a full cargo and hazardous material inventory using RCB-027 and RCB-030 to ensure all materials are accounted for before any further movement or cutting.
+10. If hazardous materials are present, deploy RCB-027 and RCB-030 to offload fuel and cargo before any cutting or movement begins to ensure safety during the refloat process.
+11. Once all hazardous materials are secured, deploy RCB-015 and RCB-016 to assist in refloating the vessel using controlled tug assistance if needed.
+12. Monitor the vessel’s draft and stability during refloat to ensure it does not exceed 10m draft and remains stable throughout the process.
+13. If the vessel requires additional righting moment beyond 315,000 t.m, deploy RCB-045 (ETA 24.7 h) to provide additional righting moment as needed.
+14. Once the vessel is fully uprighted and refloated, deploy RCB-027 and RCB-030 to secure the vessel and ensure it remains stable during transit to a safe harbor.
+15. Conduct a final inspection of the vessel using DIV-037 to ensure all systems are operational and no further hazards are present before releasing the vessel for further handling."
+CAP-00195,SURPLUS,capsized,right,RCB-023;RCB-027;RCB-037;RCB-044;RCB-058;RCB-059;SPN-039;SPN-046;RCB-022;RCB-007;RCB-001;RCB-030;RCB-050;RCB-004,RCB-023;RCB-027;RCB-037;RCB-044;RCB-058;RCB-059;SPN-039;SPN-046;RCB-022;RCB-007;RCB-001;RCB-030;RCB-050;RCB-004,yes,no,no,,24,"1. Deploy RCB-023 (crane barge, 38600 t.m righting moment) and RCB-027 (crane barge, 41300 t.m righting moment) to the scene, as both have ETA under 2.1 hours and are available, to begin applying righting moment immediately.
+2. Deploy RCB-037 (crane barge, 60000 t.m righting moment) and RCB-044 (crane barge, 60000 t.m righting moment) to the scene, as both have ETA under 10.6 hours and are available, to provide additional righting moment capacity.
+3. Deploy RCB-058 (crane barge, 60000 t.m righting moment) and RCB-059 (crane barge, 60000 t.m righting moment) to the scene, as both have ETA under 5.4 hours and are available, to further increase righting moment capacity.
+4. Deploy SPN-039 (sponson / buoyancy caisson set, 4600 t.m righting moment) and SPN-046 (sponson / buoyancy caisson set, 13200 t.m righting moment) to the scene, as both have ETA under 14.0 hours and are available, to supplement righting moment with buoyancy aids.
+5. Deploy RCB-022 (crane barge, 60000 t.m righting moment) to the scene, as it has ETA 8.5 hours and is available, to provide additional righting moment capacity.
+6. Deploy RCB-007 (crane barge, 50900 t.m righting moment) to the scene, as it has ETA 5.5 hours and is available, to provide additional righting moment capacity.
+7. Deploy RCB-001 (crane barge, 60000 t.m righting moment) to the scene, as it has ETA 5.6 hours and is available, to provide additional righting moment capacity.
+8. Deploy RCB-030 (crane barge, 24200 t.m righting moment) to the scene, as it has ETA 20.9 hours and is available, to provide additional righting moment capacity.
+9. Deploy RCB-044 (crane barge, 60000 t.m righting moment) to the scene, as it has ETA 7.2 hours and is available, to provide additional righting moment capacity.
+10. Deploy RCB-050 (crane barge, 13200 t.m righting moment) to the scene, as it has ETA 57.4 hours and is available, to provide additional righting moment capacity.
+11. Deploy RCB-004 (crane barge, 60000 t.m righting moment) to the scene, as it has ETA 7.4 hours and is available, to provide additional righting moment capacity.
+12. Deploy RCB-059 (crane barge, 60000 t.m righting moment) to the scene, as it has ETA 7.0 hours and is available, to provide additional righting moment capacity.
+13. Deploy RCB-058 (crane barge, 60000 t.m righting moment) to the scene, as it has ETA 5.4 hours and is available, to provide additional righting moment capacity."
+CAP-00195,INFEASIBLE,capsized,right,RCB-007;DIV-035;BRG-042;PBJ-043,RCB-007;DIV-035;BRG-042;PBJ-043,yes,no,yes,BRG-042 offloads cargo to reduce weight,0,"1. Deploy RCB-007 crane barge to the scene, arriving at T+5.5h, to provide initial righting moment capacity of 50900 t.m.
+2. Position RCB-007 to engage the vessel’s hull at the neutral loading point identified by the naval architect, ensuring weight removal targets areas that reduce ground reaction strain.
+3. Begin controlled deballasting operations using RCB-007’s crane system to shift ballast water from lower compartments to upper compartments, generating the required 189300 t.m righting moment.
+4. Coordinate with DIV-035 dive team, arriving at T+6.5h, to inspect and clear trapped water from critical compartments before proceeding with righting.
+5. Deploy BRG-042 deck cargo barge to the scene, arriving at T+8.9h, to offload cargo from the vessel’s lower decks to reduce weight and assist in achieving the required righting moment.
+6. Use RCB-007’s crane to lift and reposition cargo from BRG-042 onto the vessel’s upper decks, ensuring weight is distributed to maximize righting leverage.
+7. Monitor tide gauge readings near the vessel to track ground reaction changes as the tide rises, adjusting deballasting and cargo shifting to maintain stability.
+8. Once the vessel is stabilized, initiate parbuckling using PBJ-043 strand jack set, arriving at T+33.8h, to gradually right the vessel.
+9. Maintain continuous monitoring of the vessel’s stability and righting moment throughout the parbuckling operation, adjusting the PBJ-043’s load to ensure controlled righting.
+10. After the vessel is upright, conduct a final stability check against minimum righting-arm and metacentric-height criteria before allowing crew to reboard."
+CAP-00227,INFEASIBLE,capsized,right,PBJ-007;PBJ-017;DIV-044;BRG-051;SVY-031,PBJ-007;PBJ-017,yes,no,no,"DIV-044, BRG-051, SVY-031 after righting",0,"1. Deploy the PBJ-007 parbuckling strand jack set from Kestrel Bay to the scene to begin applying righting moment to the capsized vessel, targeting the neutral loading point to avoid excessive strain on the hull.
+2. Position the PBJ-007 strand jack set to engage the vessel’s hull at the calculated righting moment application points, ensuring load distribution avoids structural failure.
+3. Initiate controlled righting using the PBJ-007 strand jack set, monitoring hull stress and seabed reaction to prevent further damage or grounding.
+4. Once the vessel begins to right, deploy the PBJ-017 parbuckling strand jack set from Corran Harbour to supplement the righting moment, combining with PBJ-007 to achieve the required 88500 t.m within the 15.2-hour window.
+5. Coordinate the PBJ-007 and PBJ-017 strand jack sets to maintain synchronized force application, ensuring the vessel rights progressively without overturning.
+6. Monitor the vessel’s stability and metacentric height during righting, ensuring the righting moment exceeds the minimum righting-arm criteria before full uprighting.
+7. Once the vessel is uprighted, assess the hull for trapped water and structural integrity, then deploy the DIV-044 dive team to inspect for fuel or hazardous cargo before any further movement.
+8. If hazardous materials are confirmed, offload fuel and cargo using the BRG-051 deck cargo barge to reduce weight and prepare for refloating.
+9. After hazardous material removal, use the PBJ-007 and PBJ-017 strand jack sets to apply controlled refloating force, ensuring the vessel clears the seabed without grounding.
+10. Deploy the SVY-031 survey launch to monitor the vessel’s draft and seabed reaction during refloating, ensuring safe passage and preventing re-grounding.
+11. Once the vessel is afloat, use the SVY-031 survey launch to confirm the vessel’s stability and draft, then deploy tugs to guide it to a safe anchorage or port.
+12. Conduct a final inspection of the vessel’s hull and cargo, ensuring all hazardous materials are secured and the vessel is stable before releasing it for further operations."
+ON_-00070,SUFFICIENT,on_fire,extinguish,FB-001;FB-005;PMP-007;PMP-028;DWP-026;FT-038;BRG-014;MON-014;PMP-055;FT-051;FT-026;PMP-047;PMP-014;PMP-001;FB-050,FB-001;FB-005;PMP-007;PMP-028;DWP-026;FT-038;BRG-014;MON-014;PMP-055;PMP-047;PMP-014;PMP-001,yes,no,no,"FT-051, FT-026, FB-050 if required; ambiguous: MON-014 'if needed, and to support long-term suppression', counted; BRG-014 offload for fire risk, not reduce",30,"1. Deploy FB-001 and FB-005 fire boats to deliver water at 3900 m3/h within 1.1 hours to establish initial fire suppression and boundary cooling around the vessel’s burning sections.
+2. Activate PMP-007 and PMP-028 portable fire pumps to supplement water delivery at 71 m3/h and 170 m3/h respectively, arriving at 0.8 and 1.4 hours, to support localized suppression and maintain pressure on the fire front.
+3. Commit DWP-026 submersible pump to deliver 250 m3/h water at 1.5 hours to augment the water delivery capacity and assist in cooling the vessel’s hull and machinery spaces.
+4. Position FT-038 FiFi2 class tug at Fenwick Docks to provide 7200 m3/h water delivery at 3.5 hours, to be used as the primary water delivery asset once the initial suppression phase is stabilized.
+5. Deploy BRG-014 deck cargo barge to offload any remaining cargo or hazardous materials from the vessel’s deck, starting at 2.4 hours, to reduce weight and potential fire risk.
+6. Monitor the vessel’s stability and structural integrity using visual and remote sensors, and reassess the hull for fire damage and potential sinking or capsizing risk after fire suppression is initiated.
+7. Coordinate with the naval architect to confirm the vessel’s draft and grounding status, and prepare for potential refloating or salvage operations if the fire is contained and the vessel remains afloat.
+8. Deploy MON-014 shore monitor at 17.4 hours to provide additional water delivery capacity if needed, and to support long-term fire suppression and cooling.
+9. Deploy PMP-055 portable fire pump at 4.7 hours to provide 300 m3/h water delivery to support the suppression effort and maintain water pressure.
+10. Deploy FT-051 FiFi1 class tug at 32.1 hours to provide 2400 m3/h water delivery if additional tug capacity is required for refloating or salvage operations.
+11. Deploy FT-026 FiFi1 class tug at 32.3 hours to provide 2400 m3/h water delivery if additional tug capacity is required for refloating or salvage operations.
+12. Deploy PMP-047 portable fire pump at 16.6 hours to provide 53 m3/h water delivery to support the suppression effort and maintain water pressure.
+13. Deploy PMP-014 portable fire pump at 0.9 hours to provide 20 m3/h water delivery to support the suppression effort and maintain water pressure.
+14. Deploy PMP-001 portable fire pump at 1.2 hours to provide 20 m3/h water delivery to support the suppression effort and maintain water pressure.
+15. Deploy FB-050 fire boat at 13.4 hours to provide 960 m3/h water delivery if additional fire suppression capacity is required.
+16. Deploy DWP-026 submersible pump to assist in cooling the vessel’s hull and machinery spaces, and to support the suppression effort.
+17. Deploy FT-038 FiFi2 class tug to assist in refloating the vessel if it becomes aground or capsized after the fire is contained.
+18. Deploy FT-051 FiFi1 class tug to assist in refloating the vessel if it becomes aground or capsized after the fire is contained.
+19. Deploy FT-026 FiFi1 class tug to assist in refloating the vessel if it becomes aground or capsized after the fire is contained.
+20. Deploy MON-014 shore monitor to assist in refloating the vessel if it becomes aground or capsized after the fire is contained.
+21. Deploy PMP-055 portable fire pump to assist in refloating the vessel if it becomes aground or capsized after the fire is contained.
+22. Deploy PMP-047 portable fire pump to assist in refloating the vessel if it becomes aground or capsized after the fire is contained.
+23. Deploy PMP-014 portable fire pump to assist in refloating the vessel if it becomes aground or capsized after the fire is contained.
+24. Deploy PMP-001 portable fire pump to assist in refloating the vessel if it becomes aground or capsized after the fire is contained.
+25. Deploy FB-050 fire boat to assist in refloating the vessel if it becomes aground or capsized after the fire is contained.
+26. Deploy DWP-026 submersible pump to assist in refloating the vessel if it becomes aground or capsized after the fire is contained."
+ON_-00070,SCARCE,on_fire,extinguish,FB-001;FB-005;BRG-014;DWP-026;PMP-055;PMP-028;PMP-007;PMP-014;PMP-001;PMP-047,FB-001;FB-005;BRG-014;DWP-026;PMP-055;PMP-028;PMP-007;PMP-014;PMP-001;PMP-047,yes,no,no,"ambiguous: step 1 'request immediate deployment of all available assets' read as committing the ledger, not escalate",0,"1. Deploy FB-001 and FB-005 fire boats to deliver water to the vessel’s fire zone, as they are on scene within 1.1 hours and have combined water delivery capacity of 3900 m3/h, which exceeds the immediate 4.0-hour requirement of 8300 m3/h; request immediate deployment of all available assets to meet the full demand.
+2. Commit BRG-014 deck cargo barge to assist with water delivery by positioning it to support the fire boats’ operations, using its deck space to stage additional pumps or water transfer equipment as needed.
+3. Deploy DWP-026 submersible pump to augment water delivery from Fenwick Docks, arriving in 1.5 hours, adding 250 m3/h to the total delivery capacity.
+4. Deploy PMP-055 portable fire pump from Kestrel Bay, arriving in 4.7 hours, to provide 300 m3/h of additional water delivery capacity once on scene.
+5. Deploy PMP-028 portable fire pump from Fenwick Docks, arriving in 1.4 hours, to add 170 m3/h to the water delivery capacity.
+6. Deploy PMP-007 portable fire pump from Fenwick Docks, arriving in 0.8 hours, to add 51 m3/h to the water delivery capacity.
+7. Deploy PMP-014 portable fire pump from Fenwick Docks, arriving in 0.9 hours, to add 20 m3/h to the water delivery capacity.
+8. Deploy PMP-001 portable fire pump from Fenwick Docks, arriving in 1.2 hours, to add 20 m3/h to the water delivery capacity.
+9. Deploy PMP-047 portable fire pump from Skerry Quay, arriving in 16.6 hours, to provide 53 m3/h of water delivery capacity once on scene.
+10. Coordinate all deployed assets to maintain continuous water delivery at or above 8300 m3/h for the full 4.0-hour window, prioritizing the most efficient routing and positioning of pumps and fire boats to minimize response time and maximize delivery.
+11. Assign response crew to monitor and adjust pump flow rates and fire boat positioning to ensure even coverage of the fire zone and prevent localized fuel tank overflows.
+12. Request immediate deployment of additional assets if any pump or fire boat fails to meet its ETA or if delivery capacity falls below 8300 m3/h during the 4.0-hour window.
+13. Maintain constant communication with all deployed assets to ensure synchronized operation and real-time adjustment to fire behavior or equipment performance.
+14. After 4.0 hours, reassess the vessel’s stability and structural integrity, and initiate a hull integrity assessment to determine if the fire has been contained and if further salvage or recovery operations can be safely initiated.
+15. Request a naval architect’s assessment of the vessel’s stability and structural integrity post-fire suppression to determine if the vessel is safe for refloating or requires further stabilization before any movement.
+16. If the vessel is confirmed stable, initiate a refloating plan using tug assistance and lightering if necessary, based on the vessel’s draft and grounding condition.
+17. If the vessel is confirmed to be capsized or sunken, initiate a recovery plan using crane-and-barge removal or controlled deballasting, depending on the depth and structural integrity.
+18. If hazardous materials are suspected, initiate a hazardous material containment and offloading plan before any further movement or recovery operations.
+19. If fuel tanks are confirmed to be compromised, initiate a fuel containment and offloading plan before any cutting or movement begins.
+20. If the vessel is confirmed to be aground, initiate a refloating plan using tug assistance and lightering if necessary, based on the vessel’s draft and grounding condition."
+ON_-00135,SURPLUS,on_fire,extinguish,MON-014;MON-015;MON-059;MON-060;PMP-021;PMP-026;PMP-030;PMP-039;PMP-041;PMP-011;PMP-024;SVY-049;PMP-004;DWP-014,MON-014;MON-015;MON-059;MON-060;PMP-021;PMP-026;PMP-030;PMP-039;PMP-041;PMP-011;PMP-024;SVY-049,yes,no,no,"PMP-004 only if fire spreads; DWP-014 after containment, if needed",0,"1. Deploy MON-014, MON-015, MON-059, MON-060, PMP-021, PMP-026, PMP-030, PMP-039, and PMP-041 to deliver water to the burning vessel, prioritizing assets with ETA ≤ 1.5 hours to meet the 650 m3/h requirement within 1.9 hours.
+2. Activate PMP-011 and PMP-024 to supplement water delivery once they arrive on scene, ensuring total delivery capacity exceeds 650 m3/h.
+3. Coordinate SVY-049 to conduct a visual and structural assessment of the burning vessel’s hull integrity and fire spread to guide suppression efforts.
+4. Initiate foam suppression using PMP-011 and PMP-026 for cargo deck fire, ensuring alcohol-resistant foam is deployed if water-soluble fuel is confirmed.
+5. Deploy MON-014 and MON-059 to provide continuous water delivery while monitoring for backdraft risk and maintaining boundary cooling with fireboat monitors.
+6. Assign PMP-004 and PMP-030 to support suppression if fire spreads to machinery spaces, using gas flooding if applicable.
+7. Monitor fire progress and vessel stability hourly, reassessing hull integrity and fire damage after suppression to prevent sinking or capsizing.
+8. Once fire is contained, deploy DWP-014 to assist with water delivery if needed, while preparing for post-fire assessment of hazardous materials and cargo.
+9. Request additional assets if water delivery capacity falls below 650 m3/h after 1.9 hours, prioritizing assets with ETA ≤ 2.0 hours.
+10. Maintain continuous water delivery until fire is extinguished and vessel stability is confirmed, using all available assets to meet the 650 m3/h requirement."
+ON_-00135,SUFFICIENT,on_fire,extinguish,DWP-014;MON-015;MON-059;PMP-021;SVY-049,DWP-014;MON-015;MON-059;PMP-021;SVY-049,yes,no,no,,0,"1. Deploy DWP-014 submersible pump and MON-015 shore monitor to deliver water to the fire zone on the burning vessel, prioritizing suppression of the fire reaching fuel tanks; both assets are available and will arrive within 1.3 and 1.5 hours respectively, meeting the 1.9-hour deadline.
+2. Commit MON-059 shore monitor to augment water delivery, arriving at 1.6 hours, to ensure total combined delivery exceeds 650 m3/h within the 1.9-hour window.
+3. Deploy PMP-021 portable fire pump from Dunmore Sound to provide additional water delivery capacity, arriving at 6.3 hours, to support sustained suppression and ensure full fleet capacity is available for extended operations.
+4. Assign SVY-049 survey launch to monitor fire spread and assess hull integrity, arriving at 0.5 hours, to provide real-time situational awareness for fire suppression and stability reassessment.
+5. Coordinate all pumps to maintain continuous water delivery at or above 650 m3/h for the full 1.9 hours, with DWP-014, MON-015, and MON-059 forming the primary suppression team.
+6. After fire suppression, reassess vessel stability and structural integrity using SVY-049 survey launch and available crew to determine next steps for refloating or salvage.
+7. If vessel remains unstable or damaged, initiate refloating or salvage operations using available assets, prioritizing safety and environmental protection, with full fleet capacity available at 18.6 hours for extended operations."
+ON_-00135,SCARCE,on_fire,extinguish,DWP-014;PMP-039;PMP-004;SVY-049;PMP-041,DWP-014;PMP-039;PMP-004;SVY-049,yes,no,no,PMP-041 backup; step 8 request is conditional and garbled,0,"1. Deploy DWP-014 submersible pump from Holm Harbour to deliver 230 m3/h water to the fire zone, commencing at T+1.3 h to meet the 1.9 h deadline.
+2. Deploy PMP-039 portable fire pump from Holm Harbour to deliver 180 m3/h water to the fire zone, commencing at T+1.5 h to meet the 1.9 h deadline.
+3. Deploy PMP-004 portable fire pump from Holm Harbour to deliver 140 m3/h water to the fire zone, commencing at T+1.5 h to meet the 1.9 h deadline.
+4. Deploy SVY-049 survey launch to conduct a visual and situational assessment of the vessel’s structural integrity and fire spread, arriving at T+0.5 h to support fire suppression coordination.
+5. Maintain continuous water delivery from DWP-014, PMP-039, and PMP-004 until T+1.9 h to ensure 650 m3/h is delivered as required by the naval architect’s assessment.
+6. After T+1.9 h, initiate a post-fire stability assessment of the vessel using SVY-049 survey launch crew to evaluate risk of capsizing or sinking due to fire damage.
+7. If the vessel is confirmed to be on fire, deploy PMP-041 portable fire pump from Holm Harbour at T+1.3 h to provide additional 25 m3/h water delivery as a backup, though it will not be fully utilized before T+1.9 h.
+8. Request immediate deployment of additional assets if water delivery exceeds 650 m3/h requirement, but no further assets are available before T+6.3 h.
+9. Assume the vessel is a large commercial cargo vessel with draft >10m and contains hazardous materials, requiring all fire suppression to be conducted with full hazard awareness and no hot work until fire is extinguished.
+10. Assume the vessel is aground or capsized based on visual evidence, but fire suppression is the immediate priority; stability and refloat actions will be deferred until fire is out and structural integrity is confirmed."
+ON_-00135,INFEASIBLE,on_fire,extinguish,DWP-014;PMP-004;PMP-041;SVY-049;PMP-025;PMP-024,DWP-014;PMP-004;PMP-041;SVY-049,yes,no,no,PMP-025 and PMP-024 standby after extinguishing,0,"1. Deploy DWP-014 submersible pump from Holm Harbour to deliver 230 m3/h water to the fire zone, commencing at T+1.3 h to meet the 1.9 h deadline for 650 m3/h water delivery.
+2. Deploy PMP-004 portable fire pump from Holm Harbour to deliver 140 m3/h water to the fire zone, commencing at T+1.5 h to supplement DWP-014.
+3. Deploy PMP-041 portable fire pump from Holm Harbour to deliver 25 m3/h water to the fire zone, commencing at T+1.3 h to further augment water delivery capacity.
+4. Coordinate SVY-049 survey launch to provide situational awareness and assist in directing water streams to critical fire zones, arriving at T+0.5 h.
+5. Maintain continuous water delivery from DWP-014, PMP-004, and PMP-041 until T+1.9 h to ensure 650 m3/h is delivered as required by the naval architect’s assessment.
+6. After T+1.9 h, initiate post-fire stability assessment of the vessel using SVY-049 survey launch crew to evaluate hull integrity and risk of capsizing or sinking.
+7. If fire is extinguished, deploy PMP-025 portable fire pump from Dunmore Sound (ETA T+6.3 h) to standby for potential secondary fire suppression or cooling, though not required for immediate action.
+8. If fire is extinguished, deploy PMP-024 portable fire pump from Dunmore Sound (ETA T+6.2 h) to standby for potential secondary fire suppression or cooling, though not required for immediate action.
+9. Request additional resources if water delivery capacity falls below 650 m3/h before T+1.9 h, though current assets are sufficient for the deadline.
+10. Assume the vessel is on fire based on visible smoke and damage; no other casualty state is considered due to visual evidence.
+11. Assume the vessel contains hazardous materials and fuel, requiring all water delivery to be directed to suppress fire before any hull intervention.
+12. Assume the vessel is large (>50m) and deep-draft (>10m), requiring significant water delivery to control fire and prevent explosion risk.
+13. Assume the vessel is not aground or capsized, as it is visibly afloat and emitting smoke, and no grounding or inversion is evident.
+14. Assume the vessel is not sunken, as it is clearly visible above water and not resting on the seabed.
+15. Assume the vessel is a commercial/merchant vessel based on its structure and lack of military or specialized equipment visible.
+16. Assume the vessel contains cargo, as it is a commercial vessel and visible structure suggests cargo holds.
+17. Assume the vessel may contain hazardous materials, as it is on fire and commercial vessels often carry such materials.
+18. Assume the vessel’s draft is >10m, as it is large and emitting smoke, suggesting it is not shallow-draft.
+19. Assume the vessel’s size and draft require significant resources, which are met by the current deployment.
+20. Assume the vessel’s location is not in a sensitive habitat, as no environmental data is provided, and no special recovery methods are required beyond fire suppression.
+21. Assume the vessel’s fire is in a machinery space or cargo deck, requiring foam suppression, though water delivery is the primary method for now.
+22. Assume the vessel’s fire may be water-soluble, requiring alcohol-resistant foam if needed after fire suppression, though not required for immediate action.
+23. Assume the vessel’s fire may be smoldering, requiring cooling before ventilation, though not required for immediate action.
+24. Assume the vessel’s fire may risk backdraft, requiring cooling before opening hatches, though not required for immediate action.
+25. Assume the vessel’s fire may require fuel offloading before hull intervention, though not required for immediate action.
+26. Assume the vessel’s fire may require cargo accounting before hull intervention, though not required for immediate action.
+27. Assume the vessel’s fire may require oil containment, though not required for immediate action.
+28. Assume the vessel’s fire may require side-scan or electro-acoustic sonar for submerged oil, though not required for immediate action.
+29. Assume the vessel’s fire may require diver-directed recovery, though not required for immediate action.
+30. Assume the vessel’s fire may require legacy or abandoned wreck risk ranking, though not required for immediate action.
+31. Assume the vessel’s fire may require patch and refloat, though not required for immediate action.
+32. Assume the vessel’s fire may require patch with a cofferdam, though not required for immediate action.
+33. Assume the vessel’s fire may require crane-and-barge removal, though not required for immediate action.
+34. Assume the vessel’s fire may require lightering, though not required for immediate action.
+35. Assume the vessel’s fire may require tug assistance, though not required for immediate action.
+36. Assume the vessel’s fire may require dredging, though not required for immediate action.
+37. Assume the vessel’s fire may require neutral loading point targeting, though not required for immediate action.
+38. Assume the vessel’s fire may require tide gauge monitoring, though not required for immediate action.
+39. Assume the vessel’s fire may require stability check, though not required for immediate action.
+40. Assume the vessel’s fire may require trapped water clearance, though not required for immediate action.
+41. Assume the vessel’s fire may require righting method, though not required for immediate action.
+42. Assume the vessel’s fire may require refloating method, though not required for immediate action.
+43. Assume the vessel’s fire may require lifting loads control, though not required for immediate action.
+44. Assume the vessel’s fire may require crew rescue, though not required for immediate action.
+45. Assume the vessel’s fire may require hand-over-hand technique, though not required for immediate action.
+46. Assume the vessel’s fire may require minimum righting-arm and metacentric-height criteria, though not required for immediate action.
+47. Assume the vessel’s fire may require sequential gas testing, though not required for immediate action.
+48. Assume the vessel’s fire may require oxygen testing, though not required for immediate action.
+49. Assume the vessel’s fire may require toxic gas testing, though not required for immediate action.
+50. Assume the vessel’s fire may require diver entry, though not required for immediate action.
+51. Assume the vessel’s fire may require hot work, though not required for immediate action.
+52. Assume the vessel’s fire may require fixed suppression system activation, though not required for immediate action.
+53. Assume the vessel’s fire may require fireboat monitors, though not required for immediate action.
+54. Assume the vessel’s fire may require external boundary cooling, though not required for immediate action.
+55. Assume the vessel’s fire may require fire suppression method scaling, though not required for immediate action.
+56. Assume the vessel’s fire may require refloating method scaling, though not required for immediate action.
+57. Assume the vessel’s fire may require recovery method scaling, though not required for immediate action.
+58. Assume the vessel’s fire may require resource scaling, though not required for immediate action.
+59. Assume the vessel’s fire may require asset commitment, though not required for immediate action.
+60. Assume the vessel’s fire may require asset ETA tracking, though not required for immediate action.
+61. Assume the vessel’s fire may require asset status tracking, though not required for immediate action.
+62. Assume the vessel’s fire may require asset location tracking, though not required for immediate action.
+63. Assume the vessel’s fire may require asset capability tracking, though not required for immediate action.
+64. Assume the vessel’s fire may require asset availability tracking, though not required for immediate action.
+65. Assume the vessel’s fire may require asset deployment tracking, though not required for immediate action.
+66. Assume the vessel’s fire may require asset coordination tracking, though not required for immediate action.
+67. Assume the vessel’s fire may require asset performance tracking, though not required for immediate action.
+68. Assume the vessel’s fire may require asset safety tracking, though not required for immediate action.
+69. Assume the vessel’s fire may require asset environmental tracking, though not required for immediate action.
+70. Assume the vessel’s fire may require asset cost tracking, though not required for immediate action.
+71. Assume the vessel’s fire may require asset time tracking, though not required for immediate action.
+72. Assume the vessel’s fire may require asset distance tracking, though not required for immediate action.
+73. Assume the vessel’s fire may require asset speed tracking, though not required for immediate action.
+74. Assume the vessel’s fire may require asset direction tracking, though not required for immediate action.
+75. Assume the vessel’s fire may require asset communication tracking, though not required for immediate action.
+76. Assume the vessel’s fire may require asset data tracking, though not required for immediate action.
+77. Assume the vessel’s fire may require asset feedback tracking, though not required for immediate action.
+78. Assume the vessel’s fire may require asset adjustment tracking, though not required for immediate action.
+79. Assume the vessel’s fire may require asset optimization tracking, though not required for immediate action.
+80. Assume the vessel’s fire may require asset efficiency tracking, though not required for immediate action.
+81. Assume the vessel’s fire may require asset effectiveness"
+ON_-00155,SURPLUS,on_fire,extinguish,FB-051;FB-054;FB-059;DWP-003;PMP-007;MON-035;PMP-036;FT-014;FT-029;FT-031;FT-042;FT-047;FT-055;FT-025;FT-034;FT-011;BRG-005,FB-051;FB-054;FB-059;DWP-003;PMP-007;MON-035;PMP-036;FT-014;FT-029;FT-031;FT-042;FT-047;FT-055;FT-025;FT-034;FT-011;BRG-005,yes,no,no,,0,"1. Deploy FB-051 fire boat to the scene using its 1500 m3/h water delivery capability, arriving at T+1.3 h to begin external boundary cooling and fire suppression support.
+2. Deploy FB-054 fire boat to the scene using its 1100 m3/h water delivery capability, arriving at T+2.7 h to augment water delivery and support fire suppression.
+3. Deploy FB-059 fire boat to the scene using its 1300 m3/h water delivery capability, arriving at T+1.3 h to provide additional water delivery and support fire suppression.
+4. Deploy DWP-003 submersible pump to the scene using its 250 m3/h water delivery capability, arriving at T+1.6 h to supplement water delivery from surface assets.
+5. Deploy PMP-007 portable fire pump to the scene using its 230 m3/h water delivery capability, arriving at T+1.2 h to provide localized suppression and support.
+6. Deploy MON-035 shore monitor to the scene using its 340 m3/h water delivery capability, arriving at T+2.4 h to provide additional water delivery and support.
+7. Deploy PMP-036 portable fire pump to the scene using its 20 m3/h water delivery capability, arriving at T+4.6 h to provide supplemental localized suppression.
+8. Deploy FT-014 FiFi1 class tug to the scene using its 2400 m3/h water delivery capability, arriving at T+0.5 h to provide water delivery and potential stabilization support.
+9. Deploy FT-029 FiFi1 class tug to the scene using its 2400 m3/h water delivery capability, arriving at T+0.7 h to provide water delivery and potential stabilization support.
+10. Deploy FT-031 FiFi1 class tug to the scene using its 2400 m3/h water delivery capability, arriving at T+2.4 h to provide water delivery and potential stabilization support.
+11. Deploy FT-042 FiFi2 class tug to the scene using its 7200 m3/h water delivery capability, arriving at T+1.0 h to provide high-capacity water delivery and potential stabilization support.
+12. Deploy FT-047 FiFi2 class tug to the scene using its 7200 m3/h water delivery capability, arriving at T+1.2 h to provide high-capacity water delivery and potential stabilization support.
+13. Deploy FT-055 FiFi1 class tug to the scene using its 2400 m3/h water delivery capability, arriving at T+1.0 h to provide water delivery and potential stabilization support.
+14. Deploy FT-025 FiFi2 class tug to the scene using its 7200 m3/h water delivery capability, arriving at T+4.6 h to provide high-capacity water delivery and potential stabilization support.
+15. Deploy FT-034 FiFi2 class tug to the scene using its 7200 m3/h water delivery capability, arriving at T+3.7 h to provide high-capacity water delivery and potential stabilization support.
+16. Deploy FT-011 FiFi2 class tug to the scene using its 7200 m3/h water delivery capability, arriving at T+17.9 h to provide high-capacity water delivery and potential stabilization support.
+17. Deploy BRG-005 deck cargo barge to the scene using its 1600 t capacity, arriving at T+1.9 h to provide logistical support and potential water delivery if adapted for pumping.
+18. Coordinate all deployed assets to maintain continuous water delivery at or above 14300 m3/h for the full 4.9-hour window, prioritizing assets with earliest ETA and highest delivery capacity.
+19. Monitor fire behavior and adjust suppression tactics as needed, ensuring all personnel are clear of affected spaces before activating any fixed suppression systems.
+20. Reassess hull integrity and stability once fire is under control, as fire damage may have compromised structural integrity and exposed the vessel to sinking or capsizing."
+ON_-00155,SUFFICIENT,on_fire,extinguish,FB-054;FB-008;FT-029;FT-042;FT-055;FB-059;MON-035;DWP-003;PMP-036;BRG-005;FT-031;PMP-011;FT-011,FB-054;FB-008;FT-029;FT-042;FT-055;FB-059;MON-035;DWP-003;PMP-036;BRG-005;FT-031;PMP-011;FT-011,yes,no,no,,50,"1. Deploy FB-054 fire boat to the scene to begin external boundary cooling and initial fire suppression, arriving at T+2.7 h.
+2. Deploy FB-008 fire boat to the scene to augment water delivery and cooling, arriving at T+6.3 h.
+3. Deploy FT-029 FiFi1 class tug to the scene to provide stability and assist with fire suppression coordination, arriving at T+0.7 h.
+4. Deploy FT-042 FiFi2 class tug to the scene to provide additional water delivery and stability, arriving at T+1.0 h.
+5. Deploy FT-055 FiFi1 class tug to the scene to provide additional water delivery and stability, arriving at T+1.0 h.
+6. Deploy FB-059 fire boat to the scene to augment water delivery and cooling, arriving at T+1.3 h.
+7. Deploy MON-035 shore monitor to the scene to provide additional water delivery and support, arriving at T+2.4 h.
+8. Deploy DWP-003 submersible pump to the scene to provide additional water delivery and support, arriving at T+1.6 h.
+9. Deploy PMP-036 portable fire pump to the scene to provide additional water delivery and support, arriving at T+4.6 h.
+10. Deploy BRG-005 deck cargo barge to the scene to provide additional water delivery and support, arriving at T+1.9 h.
+11. Deploy FT-031 FiFi1 class tug to the scene to provide additional water delivery and stability, arriving at T+2.4 h.
+12. Deploy PMP-011 portable fire pump to the scene to provide additional water delivery and support, arriving at T+13.5 h.
+13. Deploy FT-011 FiFi2 class tug to the scene to provide additional water delivery and stability, arriving at T+17.9 h."
+ON_-00155,SCARCE,on_fire,extinguish,FB-054;FB-059;DWP-003;FT-055;BRG-005;FB-008;FT-031;PMP-011,FB-054;FB-059;DWP-003;FT-055;BRG-005;FB-008;FT-031;PMP-011,yes,no,no,BRG-005 logistics counted; containment part conditional,23,"1. Deploy FB-054 fire boat to the scene, arriving at T+2.7 h, to begin external boundary cooling and initial water delivery at 1100 m3/h.
+2. Deploy FB-059 fire boat to the scene, arriving at T+1.3 h, to augment water delivery at 1300 m3/h, targeting the fire source on the vessel’s superstructure.
+3. Deploy DWP-003 submersible pump to the scene, arriving at T+1.6 h, to deliver 250 m3/h of water to support suppression efforts, positioned to pump from Marrow Inlet.
+4. Deploy FT-055 FiFi1 class tug to the scene, arriving at T+1.0 h, to provide stability and positioning support for fire suppression assets and to monitor vessel integrity.
+5. Deploy BRG-005 deck cargo barge to the scene, arriving at T+1.9 h, to assist with logistics and potential fuel or hazardous material containment if required.
+6. Deploy FB-008 fire boat to the scene, arriving at T+6.3 h, to provide additional water delivery capacity of 1900 m3/h, though it will arrive after the critical 4.9 h window.
+7. Deploy FT-031 FiFi1 class tug to the scene, arriving at T+2.4 h, to assist with vessel stabilization and to prepare for potential refloat or salvage operations if fire is contained.
+8. Deploy PMP-011 portable fire pump to the scene, arriving at T+13.5 h, to provide supplemental water delivery of 110 m3/h, though it will arrive well after the critical window.
+9. Coordinate all assets to maintain a combined water delivery rate of at least 7200 m3/h within the first 4.9 hours, prioritizing FB-054, FB-059, and DWP-003 as primary suppression assets.
+10. Monitor vessel stability and hull integrity continuously, with FT-055 and FT-031 tugs providing real-time assessment and support for any structural changes.
+11. Initiate fire suppression using foam and water delivery from FB-054, FB-059, and DWP-003, focusing on the visible fire source and adjacent machinery spaces.
+12. If fire spreads to fuel tanks, activate gas flooding or alcohol-resistant foam as needed, with FB-054 and FB-059 providing the primary water delivery for suppression.
+13. Once fire is contained, reassess vessel stability and draft, with FT-055 and FT-031 tugs ready to assist with refloat or salvage operations if required.
+14. If vessel is aground or capsized, initiate refloat or righting operations using FT-031 and FT-055 tugs, with FB-054 and FB-059 providing water for stability and cooling.
+15. If vessel is sunken, initiate recovery operations using FB-054, FB-059, and DWP-003 for water delivery and containment, with FT-031 and FT-055 tugs for lifting and positioning.
+16. If hazardous materials are present, initiate containment and offloading procedures using BRG-005 and FT-031/FT-055 tugs, with FB-054 and FB-059 providing water for suppression and cooling.
+17. If vessel is on fire, maintain suppression efforts until fire is extinguished, with FB-054, FB-059, and DWP-003 providing continuous water delivery.
+18. Once fire is extinguished, reassess vessel integrity and initiate refloat or salvage operations as needed, with FT-031 and FT-055 tugs providing stability and positioning support.
+19. If vessel is aground, initiate refloat operations using FT-031 and FT-055 tugs, with FB-054 and FB-059 providing water for stability and cooling.
+20. If vessel is capsized, initiate righting operations using FT-031 and FT-055 tugs, with FB-054 and FB-059 providing water for stability and cooling."
+ON_-00155,INFEASIBLE,on_fire,extinguish,FB-059;DWP-003;FT-031;BRG-005;FB-008,FB-059;DWP-003;FT-031;BRG-005,yes,no,no,"FB-008 prepared for potential deployment, then only after containment; BRG-005 logistics counted",0,"1. Deploy FB-059 fire boat to Marrow Inlet to begin water delivery for fire suppression, arriving at T+1.3 h.
+2. Deploy DWP-003 submersible pump to Marrow Inlet to augment water delivery, arriving at T+1.6 h.
+3. Deploy FT-031 FiFi1 class tug to Marrow Inlet to provide additional water delivery capacity, arriving at T+2.4 h.
+4. Deploy BRG-005 deck cargo barge to Marrow Inlet to support logistics and potentially assist with water delivery if needed, arriving at T+1.9 h.
+5. Coordinate FB-008 fire boat to Linden Roads to prepare for potential deployment if water delivery demand exceeds current capacity, arriving at T+6.3 h.
+6. Maintain continuous water delivery from FB-059, DWP-003, and FT-031 to meet the 3700 m3/h requirement within the 4.9-hour window.
+7. Monitor fire behavior and hull integrity continuously, reassessing stability and potential for sinking or capsizing after fire suppression begins.
+8. Ensure all personnel are evacuated from the vessel before activating any fixed suppression systems or initiating any structural interventions.
+9. If fire is contained and hull stability is confirmed, initiate a full fleet deployment by activating FB-008 at T+6.3 h to achieve 5710 m3/h water delivery capacity.
+10. After fire suppression, conduct a stability assessment and initiate refloating or salvage operations as appropriate, using tug assistance and lightering if necessary."
+ON_-00198,SURPLUS,on_fire,extinguish,FB-048;MON-013;MON-033;MON-048;MON-058;PMP-007;PMP-010;PMP-051;MON-005;MON-025;PMP-003;DWP-044;BRG-033;PMP-004;PMP-043,FB-048;MON-013;MON-033;MON-048;MON-058;PMP-007;PMP-010;PMP-051;MON-005;MON-025;PMP-003;DWP-044;PMP-004;PMP-043,yes,no,no,BRG-033 potential offloading after containment,0,"1. Deploy FB-048 fire boat to Brackwater to arrive at T+4.3h, providing 540 m3/h water delivery for fire suppression.
+2. Deploy MON-013 shore monitor to Elden Bay to arrive at T+1.9h, providing 600 m3/h water delivery for fire suppression.
+3. Deploy MON-033 shore monitor to Elden Bay to arrive at T+1.9h, providing 600 m3/h water delivery for fire suppression.
+4. Deploy MON-048 shore monitor to Elden Bay to arrive at T+1.8h, providing 560 m3/h water delivery for fire suppression.
+5. Deploy MON-058 shore monitor to Elden Bay to arrive at T+1.7h, providing 330 m3/h water delivery for fire suppression.
+6. Deploy PMP-007 portable fire pump to Elden Bay to arrive at T+1.7h, providing 120 m3/h water delivery for fire suppression.
+7. Deploy PMP-010 portable fire pump to Elden Bay to arrive at T+2.0h, providing 250 m3/h water delivery for fire suppression.
+8. Deploy PMP-051 portable fire pump to Elden Bay to arrive at T+1.7h, providing 120 m3/h water delivery for fire suppression.
+9. Deploy MON-005 shore monitor to Elden Bay to arrive at T+1.9h, providing 500 m3/h water delivery for fire suppression.
+10. Deploy MON-025 shore monitor to Elden Bay to arrive at T+2.1h, providing 570 m3/h water delivery for fire suppression.
+11. Deploy PMP-003 portable fire pump to Elden Bay to arrive at T+2.0h, providing 170 m3/h water delivery for fire suppression.
+12. Deploy DWP-044 submersible pump to Elden Bay to arrive at T+1.8h, providing 280 m3/h water delivery for fire suppression.
+13. Deploy BRG-033 deck cargo barge to Elden Bay to arrive at T+1.9h, providing 1600 t capacity for potential fuel or hazardous material offloading after fire is contained.
+14. Deploy PMP-004 portable fire pump to Brackwater to arrive at T+3.3h, providing 63 m3/h water delivery for fire suppression.
+15. Deploy PMP-043 portable fire pump to Brackwater to arrive at T+3.5h, providing 74 m3/h water delivery for fire suppression.
+16. Coordinate all deployed assets to maintain continuous water delivery at or above 1400 m3/h from T+2.5h onward to suppress fire and prevent fuel tank ignition.
+17. Once fire is contained and stabilized, initiate assessment of hull integrity and stability for potential refloating or further salvage operations.
+18. If hazardous materials are confirmed, commence controlled offloading via BRG-033 deck cargo barge under supervision of hazardous materials response team.
+19. If fuel is confirmed in tanks, initiate controlled fuel offloading before any cutting or movement begins, using BRG-033 deck cargo barge.
+20. Monitor vessel draft and seabed conditions for refloating feasibility, and prepare for tug assistance if draft exceeds 10m or grounding is suspected."
+ON_-00198,SUFFICIENT,on_fire,extinguish,MON-033;MON-056;MON-058;PMP-007;PMP-010;DWP-044;FB-048;BRG-033,MON-033;MON-056;MON-058;PMP-007;PMP-010;DWP-044;FB-048,yes,no,no,BRG-033 potential offloading after containment,28,"1. Deploy MON-033, MON-056, and MON-058 shore monitors to Elden Bay to begin water delivery to the vessel, targeting the fire zone with combined capacity of 1380 m3/h within 1.9 hours.
+2. Deploy PMP-007 and PMP-010 portable fire pumps to Elden Bay to augment water delivery, adding 370 m3/h within 1.7 hours.
+3. Deploy DWP-044 submersible pump to Elden Bay to provide additional water delivery, adding 280 m3/h within 1.8 hours.
+4. Deploy FB-048 fire boat to Brackwater to begin water delivery to the vessel, adding 540 m3/h within 4.3 hours.
+5. Deploy BRG-033 deck cargo barge to underway location to prepare for potential fuel or hazardous material offloading once fire is contained, with capacity to handle 1600 t.
+6. Coordinate all deployed assets to maintain continuous water delivery at 1680 m3/h for the first 2.5 hours to suppress the fire and prevent fuel tank ignition.
+7. After 2.5 hours, reassess hull integrity and stability, and if fire is contained, initiate controlled deballasting or refloat procedures using MON-033, MON-056, MON-058, PMP-007, PMP-010, and DWP-044 to maintain water delivery for stability.
+8. If hull integrity is compromised, initiate controlled refloat using MON-033, MON-056, MON-058, PMP-007, PMP-010, and DWP-044 to maintain water delivery for stability."
+ON_-00198,INFEASIBLE,on_fire,extinguish,MON-056;DWP-044;BRG-033;PMP-004,MON-056;DWP-044;BRG-033;PMP-004,yes,no,no,,0,"1. Deploy MON-056 shore monitor to Elden Bay to begin water delivery at 380 m3/h, targeting the fire zone on the vessel to suppress flames and cool the structure.
+2. Deploy DWP-044 submersible pump to Elden Bay to augment water delivery, adding its 280 m3/h capacity to the total, bringing combined delivery to 660 m3/h.
+3. Deploy BRG-033 deck cargo barge to the scene to provide additional water delivery capacity, using its 1600 t capacity to support fire suppression operations and assist in stabilizing the vessel’s draft.
+4. Deploy PMP-004 portable fire pump to Brackwater to provide additional water delivery, adding its 63 m3/h capacity to the total, bringing combined delivery to 723 m3/h.
+5. Coordinate all deployed assets to maintain a combined water delivery rate of at least 723 m3/h to ensure the fire is suppressed and the vessel’s structural integrity is preserved.
+6. Monitor the vessel’s stability and draft continuously, adjusting water delivery rates as needed to prevent capsizing or sinking due to fire damage or water ingress.
+7. Once the fire is under control, reassess the vessel’s structural integrity and initiate a plan to refloat or secure the vessel, using the combined water delivery capacity to manage buoyancy and prevent further damage."
+ON_-00210,SURPLUS,on_fire,extinguish,FB-015;FB-056;FB-003;FB-006;MON-030;MON-017;PMP-003;PMP-022;PMP-048;DIV-015;DWP-053;BRG-049,FB-015;FB-056;FB-003;FB-006;MON-030;MON-017;PMP-003;PMP-022;PMP-048;DIV-015;DWP-053,yes,no,no,BRG-049 potential offloading after containment,0,"1. Deploy FB-015 fire boat to arrive at scene within 1.0 hour and begin water delivery at 650 m3/h to suppress fire and cool hull.
+2. Deploy FB-056 fire boat to arrive at scene within 1.0 hour and begin water delivery at 790 m3/h to supplement suppression and maintain cooling.
+3. Deploy FB-003 fire boat to arrive at scene within 1.6 hours and begin water delivery at 690 m3/h to support fire suppression and boundary cooling.
+4. Deploy FB-006 fire boat to arrive at scene within 1.5 hours and begin water delivery at 730 m3/h to maintain high water delivery capacity.
+5. Deploy MON-030 shore monitor to arrive at scene within 1.5 hours and begin water delivery at 460 m3/h to augment suppression and provide redundancy.
+6. Deploy MON-017 shore monitor to arrive at scene within 1.8 hours and begin water delivery at 410 m3/h to support sustained water delivery.
+7. Deploy PMP-003 portable fire pump to arrive at scene within 0.9 hours and begin water delivery at 120 m3/h to provide immediate localized suppression.
+8. Deploy PMP-022 portable fire pump to arrive at scene within 1.0 hour and begin water delivery at 120 m3/h to supplement suppression efforts.
+9. Deploy PMP-048 portable fire pump to arrive at scene within 0.9 hours and begin water delivery at 20 m3/h to provide additional localized support.
+10. Deploy DIV-015 dive team to arrive at scene within 1.8 hours to conduct underwater inspection of hull integrity and fuel tank status for fire safety.
+11. Deploy DWP-053 submersible pump to arrive at scene within 1.1 hours to begin water delivery at 260 m3/h to assist in fire suppression and potential fuel containment.
+12. Deploy BRG-049 deck cargo barge to arrive at scene within 0.8 hours to prepare for potential fuel or hazardous material offloading once fire is contained.
+13. Monitor fire progression and adjust water delivery allocation as needed to maintain 1800 m3/h average delivery within 3.9 hours.
+14. Once fire is contained, initiate hull stability assessment using DIV-015 dive team to determine risk of capsizing or sinking.
+15. If hull is stable, begin planning for refloat or recovery using available assets, prioritizing tug assistance and lightering if required.
+16. If hull is unstable or damaged, initiate controlled deballasting or parbuckling using FB-015, FB-056, and MON-030 to maintain stability during recovery.
+17. If fuel or hazardous materials are confirmed, initiate offloading using BRG-049 and DWP-053 under DIV-015 supervision.
+18. If vessel is confirmed sunken or capsized, initiate recovery plan based on depth and damage, using crane-and-barge removal if necessary.
+19. If vessel is aground, assess seabed type and ground reaction using tide gauge data to plan refloat with tug assistance and lightering if required.
+20. After fire suppression and initial assessment, conduct environmental monitoring for oil or hazardous material release using DIV-015 and DWP-053."
+ON_-00210,SCARCE,on_fire,extinguish,PMP-022;PMP-048;MON-022;MON-030;BRG-049;DIV-015;DWP-053;PMP-039;PMP-059,PMP-022;PMP-048;MON-022;MON-030;BRG-049;DIV-015;DWP-053;PMP-039;PMP-059,yes,no,no,"ambiguous: DWP-053 deballasting and BRG-049 fuel offload are for refloat and safety, not less water, so not reduce",0,"1. Deploy PMP-022 and PMP-048 to provide immediate water delivery, targeting the vessel’s fire zone to suppress flames and prevent spread to fuel tanks; commit these assets for the duration of the operation.
+2. Activate MON-022 and MON-030 to augment water delivery capacity, bringing total on-scene delivery to 900 m3/h at T+1.1 h, with MON-030 arriving at T+1.5 h and MON-022 at T+2.0 h.
+3. Coordinate with BRG-049 to begin offloading fuel and hazardous cargo from the vessel’s tanks, using the barge’s 2000 t capacity to safely remove material before any cutting or movement begins; commit BRG-049 for the duration of the operation.
+4. Deploy DIV-015 to conduct a stability and structural integrity assessment of the vessel’s hull, ensuring it can withstand fire suppression and subsequent refloating efforts; commit DIV-015 for the duration of the operation.
+5. Initiate controlled deballasting using DWP-053 to reduce the vessel’s weight and draft, enabling refloating if the vessel is aground or capsized; commit DWP-053 for the duration of the operation.
+6. Deploy PMP-039 and PMP-059 to provide additional water delivery capacity once they arrive at Greyhaven (ETA 13.9 h and 14.0 h), bringing total fleet delivery to 1249 m3/h at T+14.0 h to ensure sustained suppression.
+7. Monitor the vessel’s condition and adjust water delivery rates as needed to maintain suppression while offloading fuel and cargo, ensuring no backdraft risk from superheated, smoldering spaces.
+8. Once fire suppression is complete and fuel/cargo is offloaded, reassess hull stability and initiate refloating using tug assistance if required, prioritizing the vessel’s orientation and draft constraints.
+9. Conduct a final environmental assessment and pollution risk ranking for any released oil, using diver-directed recovery if necessary to minimize ecological impact."
+ON_-00228,INFEASIBLE,on_fire,extinguish,FB-027;FB-028;DWP-051;MON-058;PMP-043;BOOM-024;SVY-036,FB-027;FB-028;DWP-051;MON-058;PMP-043;BOOM-024;SVY-036,yes,no,no,,0,"1. Deploy FB-027 fire boat to the scene to begin external boundary cooling and water delivery, prioritizing the fire source visible on the vessel’s superstructure near the number 6.
+2. Deploy FB-028 fire boat to the scene to augment water delivery capacity, focusing on the stern area where the fire is spreading and smoke is densest.
+3. Deploy DWP-051 submersible pump from Greyhaven to the vessel’s side to provide additional water delivery, targeting the fire zone and assisting in cooling the hull to prevent fuel tank ignition.
+4. Deploy MON-058 shore monitor to the scene to provide supplemental water delivery and assist in maintaining a water curtain around the vessel’s aft section to contain fire spread.
+5. Deploy PMP-043 portable fire pump from Greyhaven to the scene to provide localized water delivery to the fire’s edge and assist in cooling the deck area near the fire’s origin.
+6. Deploy BOOM-024 oil containment boom around the vessel’s perimeter to contain any potential oil spill from ruptured tanks or fuel leaks caused by the fire.
+7. Deploy SVY-036 survey launch to the scene to monitor fire spread, assess hull integrity, and provide real-time feedback on fire behavior and structural stability to the command center.
+8. Coordinate all assets to maintain a combined water delivery rate of at least 7700 m3/h to meet the naval architect’s requirement for fire suppression within 2.6 hours.
+9. Maintain continuous water delivery from all assets until the fire is extinguished and the vessel’s stability is reassessed.
+10. After fire suppression, deploy all assets to monitor for residual heat, potential backdraft, and structural integrity to prevent secondary hazards."
+SUN-00022,SURPLUS,sunken,lift,DIV-001;HLB-043;HLB-039;HLB-041;HLB-042;HLB-034;HLB-022;HLB-051;HLB-050;HLB-037,DIV-001;HLB-043;HLB-039;HLB-041;HLB-042;HLB-034;HLB-022;HLB-051;HLB-050;HLB-037,no,no,no,plan treats her as capsized and only deploys barges to support righting; no lift attempted,39,"1. Assess the vessel ""FORT MERCER"" as capsized based on visual evidence of its inverted hull and crew rescue operations underway; prioritize crew extraction before any structural intervention.
+2. Deploy the dive team DIV-001 to inspect the capsized hull for trapped water, structural integrity, and hazardous materials; ensure all tanks are checked for fuel and hazardous cargo before any movement.
+3. Use the heavy lift crane barge HLB-043 (ETA 2.4 h) to position itself at the casualty site and prepare for controlled deballasting or parbuckling operations to begin righting the vessel.
+4. Deploy the heavy lift crane barge HLB-039 (ETA 4.4 h) to provide additional lift capacity and support the righting operation, targeting the neutral loading point to minimize hull strain.
+5. Deploy the heavy lift crane barge HLB-041 (ETA 21.5 h) to assist in the righting process, focusing on controlled lifting loads to avoid further overturning.
+6. Deploy the heavy lift crane barge HLB-042 (ETA 37.3 h) to provide redundancy and additional lift capacity for the righting operation.
+7. Deploy the heavy lift crane barge HLB-034 (ETA 12.8 h) to support the righting operation with its 5000 t lift capacity.
+8. Deploy the heavy lift crane barge HLB-022 (ETA 19.2 h) to provide additional lift capacity and support the righting operation.
+9. Deploy the heavy lift crane barge HLB-051 (ETA 18.5 h) to assist in the righting process with its 5000 t lift capacity.
+10. Deploy the heavy lift crane barge HLB-050 (ETA 18.1 h) to provide additional lift capacity and support the righting operation.
+11. Deploy the heavy lift crane barge HLB-037 (ETA 19.9 h) to assist in the righting process with its 4300 t lift capacity.
+12. Deploy the heavy lift crane barge HLB-042 (ETA 37.3 h) to provide additional lift capacity and support the righting operation.
+13. Deploy the heavy lift crane barge HLB-041 (ETA 21.5 h) to assist in the righting process with its 5000 t lift capacity.
+14. Deploy the heavy lift crane barge HLB-039 (ETA 4.4 h) to provide additional lift capacity and support the righting operation.
+15. Deploy the heavy lift crane barge HLB-043 (ETA 2.4 h) to provide additional lift capacity and support the righting operation.
+16. Deploy the heavy lift crane barge HLB-034 (ETA 12.8 h) to provide additional lift capacity and support the righting operation."
+SUN-00023,SUFFICIENT,sunken,lift,DIV-045;CRN-034;LB-050;CRN-060;CRN-038;BRG-060;CRN-057;LB-049;CRN-015;CRN-022;LB-040;LB-058,DIV-045;CRN-034;LB-050;CRN-060;CRN-038;BRG-060;CRN-057;LB-049;LB-040;LB-058,yes,no,yes,CRN-015 and CRN-022 backup if needed; BRG-060 offloads to reduce weight before lifting; step 17 request conditional,0,"1. Deploy DIV-045 dive team to assess the vessel’s stability, check for trapped water, and verify presence of hazardous materials or fuel before any lifting operations commence.
+2. Position CRN-034 floating crane (150 t lift capacity) at the scene, arriving in 9.9 hours, to prepare for initial lifting operations.
+3. Deploy LB-050 lift bag set (10 t lift capacity) from Port Calder, arriving in 2.7 hours, to assist in securing and stabilizing the vessel’s hull during early lifting phases.
+4. Use CRN-060 floating crane (240 t lift capacity), arriving in 12.1 hours, to perform the primary lift operation, as it is the only crane with sufficient capacity to meet the 560 t requirement within the 43.2-hour window.
+5. Coordinate with CRN-038 floating crane (170 t lift capacity), arriving in 46.0 hours, to provide auxiliary support for the lift, even though it exceeds the deadline, to ensure redundancy and safety during the critical lift phase.
+6. Deploy BRG-060 deck cargo barge (1500 t capacity), arriving in 36.9 hours, to offload any remaining cargo or fuel from the vessel prior to lifting to reduce weight and risk.
+7. Use CRN-057 floating crane (140 t lift capacity), arriving in 21.6 hours, to assist in securing the vessel’s hull and providing additional lift capacity during the main lift operation.
+8. Deploy LB-049 lift bag set (18 t lift capacity) from Port Haldane, arriving in 11.4 hours, to provide supplemental lifting support and stabilize the vessel during the lift.
+9. Execute the main lift operation using CRN-060 floating crane (240 t) as the primary asset, with CRN-034 (150 t) and CRN-057 (140 t) providing auxiliary lift capacity, to achieve the required 560 t lift capacity within the 43.2-hour window.
+10. Monitor the vessel’s stability and ground reaction throughout the lift, adjusting weight distribution as needed to prevent overturning or further capsizing.
+11. Ensure all hazardous materials and fuel are accounted for and offloaded before any cutting or movement begins, using the dive team’s findings from step 1.
+12. Conduct a final stability check against minimum righting-arm and metacentric-height criteria before initiating the lift, using the dive team’s assessment from step 1.
+13. Coordinate with the naval architect to confirm the vessel’s draft and seabed conditions, ensuring the lift is performed safely without requiring dredging or additional tugs.
+14. Deploy CRN-015 floating crane (120 t) and CRN-022 floating crane (160 t) as backup assets, even though they arrive after the 43.2-hour window, to provide additional lift capacity if needed for post-lift stabilization or recovery.
+15. Use LB-040 lift bag set (19 t) and LB-058 lift bag set (10 t) as supplementary lifting aids, arriving at 45.4 hours, to assist in securing the vessel during the lift and post-lift phases.
+16. Ensure all assets are committed for the duration of the lift operation, with no simultaneous use for other tasks, to maintain safety and efficiency.
+17. Request additional resources if the 560 t lift capacity cannot be achieved within the 43.2-hour window, despite the current fleet’s combined capacity of 678 t.
+18. Monitor the weather window closely, as the 43.2-hour deadline is critical, and adjust the lift plan accordingly if weather conditions deteriorate.
+19. Conduct a final safety briefing with all involved assets and response crews before initiating the lift, ensuring all personnel are aware of the plan and their roles.
+20. Execute the lift operation with full coordination between CRN-060, CRN-034, CRN-057, and the lift bag sets to ensure the vessel is successfully refloated within the 43.2-hour window."
+SUN-00048,SURPLUS,sunken,lift,DIV-006;SVY-029;CRN-034;LB-051;LB-054;BRG-005;CRN-016;CRN-055;CRN-049,DIV-006;SVY-029;CRN-034;LB-051;LB-054;BRG-005;CRN-016;CRN-055;CRN-049,yes,no,no,"BRG-005 offload is of material identified by the survey, not reduce",0,"1. Deploy DIV-006 dive team to conduct a preliminary underwater survey of the wreck to assess structural integrity, presence of hazardous materials, and identify potential access points for lifting operations, using SVY-029 survey launch for transit support.
+2. Position CRN-034 floating crane at the site to provide the primary 130 t lift capacity within the 38.8 hour window, with ETA 36.5 h, to begin initial stabilization and lifting operations.
+3. Deploy LB-051 lift bag set (11 t capacity) from Linden Roads to assist with securing and stabilizing the wreck’s upper sections, with ETA 2.6 h.
+4. Deploy LB-054 lift bag set (60 t capacity) from Port Calder to support incremental lifting of the wreck’s mid-section, with ETA 13.1 h.
+5. Deploy BRG-005 deck cargo barge to the site to serve as a temporary staging platform for lifting equipment and to offload any recoverable cargo or hazardous materials identified during the dive survey.
+6. Use CRN-016 floating crane (130 t lift capacity) with ETA 4.3 h to assist with lifting operations, focusing on the most structurally sound sections of the wreck to prevent further collapse.
+7. Deploy CRN-055 floating crane (140 t lift capacity) from Linden Roads with ETA 4.9 h to provide additional lift capacity for the main lifting phase, targeting the vessel’s bow section.
+8. Use CRN-049 floating crane (140 t lift capacity) with ETA 11.8 h to assist with the final lifting phase, focusing on the stern section to balance the load and prevent capsizing.
+9. Coordinate all lifting operations to ensure the combined lift capacity of 1024 t is utilized efficiently within the 38.8 hour window, with continuous monitoring by the dive team and survey launch.
+10. Execute the lifting sequence in stages, starting with the most stable sections and progressing to the most compromised areas, ensuring all hazardous materials are secured before any movement begins."
+SUN-00048,SCARCE,sunken,lift,DIV-006;BRG-005;LB-054;CRN-040;SVY-029;LB-051,DIV-006;BRG-005;LB-054;CRN-040;SVY-029;LB-051,yes,no,no,"LB-051 continues the lift in step 8; lifting in sections is technique, not reduce",0,"1. Deploy DIV-006 dive team to conduct a preliminary underwater survey of the wreck to assess structural integrity, presence of hazardous materials, and the exact location of the neutral loading point, with the goal of identifying safe access points and potential weak areas for lifting.
+2. Position BRG-005 deck cargo barge to the wreck site to serve as a staging platform and to offload any remaining cargo or fuel if identified during the dive survey, reducing the vessel’s weight and stabilizing the wreck for lifting operations.
+3. Deploy LB-054 lift bag set from Port Calder to the wreck site to provide the primary lifting capacity for the initial phase of the salvage, targeting the most structurally sound section of the hull identified by the dive team.
+4. Deploy CRN-040 floating crane from its current location to the wreck site to provide secondary lifting support and to assist in securing and stabilizing the lift bag set during the lifting operation.
+5. Use the combined lift capacity of LB-054 (60 t) and CRN-040 (100 t) to initiate the controlled lifting of the identified section of the wreck, ensuring that the lift is performed at a slow, steady rate to avoid structural failure or overturning.
+6. Monitor the lift operation with SVY-029 survey launch to provide real-time data on the vessel’s movement and stability, adjusting the lifting rate and position as needed to maintain control.
+7. Once the initial section is lifted and secured, deploy LB-051 lift bag set to assist in stabilizing the remaining portion of the wreck and to provide additional lift capacity if needed for the next phase of the salvage.
+8. Use the combined lift capacity of LB-051 (11 t) and LB-054 (60 t) to continue the controlled lifting of the remaining sections of the wreck, ensuring that the lift is performed at a slow, steady rate to avoid structural failure or overturning.
+9. Once the wreck is fully lifted and secured, deploy BRG-005 deck cargo barge to transport the salvaged sections to a designated recovery site for further processing and disposal.
+10. Conduct a final inspection of the wreck site with DIV-006 dive team to ensure that all hazardous materials have been accounted for and that the site is safe for future operations."
+SUN-00048,INFEASIBLE,sunken,lift,DIV-006;SVY-029;BRG-005;CRN-040;CRN-047,DIV-006;SVY-029;BRG-005;CRN-040;CRN-047,yes,no,yes,"BRG-005 lightering to reduce weight; ambiguous: step 10 says the fleet cannot meet the requirement, but after the attempt, so not escalate",0,"1. Deploy DIV-006 dive team to conduct a preliminary underwater survey of the wreck to assess structural integrity, presence of hazardous materials, and the exact position and orientation of the vessel relative to the seabed, with a focus on identifying any trapped water or fuel pockets.
+2. Use SVY-029 survey launch to deploy side-scan sonar to map the wreck’s full extent and surrounding seabed, confirming the vessel is aground and not sunken or capsized, and to identify any submerged oil or debris that may require containment.
+3. Confirm the vessel’s draft and ground reaction by deploying SVY-029 to measure water depth at key points around the wreck and to monitor tidal changes using a portable tide gauge, ensuring the vessel is not in a hard grounding that would require dredging.
+4. Begin lightering operations by offloading any visible cargo or fuel from the vessel using BRG-005 deck cargo barge, which is available at 6.9 hours, to reduce weight and improve refloatability, targeting areas away from the neutral loading point to avoid strain on the hull.
+5. Deploy CRN-040 floating crane to begin controlled lifting operations, using its 100 t lift capacity to remove small, non-critical sections of the wreck to test the ground reaction and friction coefficient of the seabed, while monitoring for any signs of instability or hazardous material release.
+6. Once the ground reaction is confirmed stable and the vessel’s draft is reduced, deploy CRN-047 floating crane to provide additional lift capacity, combining with CRN-040 to achieve the required 200 t lift capacity by 45.1 hours, to initiate the main refloat operation.
+7. Coordinate with BRG-005 to continue lightering operations as needed during the refloat, ensuring the vessel’s weight is reduced to a level that can be safely managed by the combined lift capacity of CRN-040 and CRN-047.
+8. Execute the refloat by applying controlled lifting loads using CRN-040 and CRN-047 in tandem, ensuring the pulling force is distributed to avoid overturning the vessel further, and monitor the vessel’s response to the tide and lifting forces.
+9. Once the vessel is refloated, use BRG-005 to transport any remaining cargo or debris from the wreck to a secure location, and conduct a final inspection by DIV-006 to ensure no hazardous materials remain and the vessel is stable for further handling.
+10. Request additional resources if the 200 t lift capacity is insufficient to complete the refloat within the 38.8-hour window, as the current fleet cannot meet the 340 t requirement, and the weather window may close before full capacity is available."
+SUN-00062,SCARCE,sunken,lift,DIV-033;SVY-060;LB-047;LB-053;CRN-047;BRG-058;CRN-056;LB-015;LB-040;CRN-059;CRN-015,DIV-033;SVY-060;LB-047;LB-053;CRN-047;BRG-058;CRN-056;LB-015;LB-040;CRN-059;CRN-015,yes,no,no,"ambiguous: goal attempt is step 3 buoyancy on the hull and steps 6-9 combined lift; BRG-058 offload is for safety, not reduce",0,"1. Deploy DIV-033 dive team to inspect the submerged vessel for hazardous materials, trapped water, and structural integrity, prioritizing safety before any further action.
+2. Use SVY-060 survey launch to conduct side-scan sonar mapping of the submerged vessel and surrounding seabed to assess grounding depth, debris field, and potential oil contamination.
+3. Deploy LB-047 and LB-053 lift bag sets from Corran Harbour to begin controlled buoyancy application on the submerged vessel’s hull to assess lift potential and avoid overturning.
+4. Deploy CRN-047 floating crane from Varne Roads to initiate controlled deballasting or parbuckling operations if the vessel is capsized or lying on its side, targeting the neutral loading point to minimize strain.
+5. Deploy BRG-058 deck cargo barge from Corran Harbour to offload any visible cargo or fuel from the submerged vessel before any cutting or movement begins.
+6. Deploy CRN-056 floating crane from underway to provide the required 1100 t lift capacity within the 67.3-hour window, coordinating with CRN-047 to combine lift capacity for the final refloat or recovery operation.
+7. Deploy LB-015 and LB-040 lift bag sets from Port Calder to assist in controlled buoyancy and stabilization during the refloat or recovery phase, ensuring synchronized lift to prevent vessel overturning.
+8. Deploy CRN-059 floating crane from Port Calder to provide additional lift capacity and support for the final recovery phase, ensuring the vessel is refloated or recovered intact.
+9. Deploy CRN-015 floating crane from Port Calder to assist in any final adjustments or stabilization during the recovery operation, ensuring the vessel is safely secured to the barge or crane.
+10. Deploy SVY-060 survey launch to monitor the refloat or recovery operation, ensuring the vessel remains stable and does not pose a risk to surrounding assets or the environment."
+SUN-00064,INFEASIBLE,sunken,lift,DIV-001;CRN-038;BRG-043;BOOM-052,DIV-001;CRN-038,yes,no,yes,step 3 offloads to reduce weight; BRG-043 and BOOM-052 only in branches; requests only in aground branches,22,"1. Deploy DIV-001 dive team to inspect the vessel’s hull integrity, check for trapped water, and assess the presence of hazardous materials or fuel, with priority given to confirming the vessel is not on fire or leaking hazardous substances.
+2. Use CRN-038 floating crane (300 t lift capacity, ETA 8.5 h) to begin controlled lifting operations, targeting the vessel’s neutral loading point to minimize strain on the hull during refloat.
+3. Coordinate with CRN-038 to offload any visible cargo or fuel from the vessel’s upper deck to reduce weight and improve buoyancy, ensuring all hazardous materials are secured before movement.
+4. Monitor tide levels using a dedicated tide gauge to track ground reaction changes as the tide rises, ensuring the vessel can be refloated naturally if aground or that lifting forces are adjusted accordingly.
+5. If the vessel is aground, use CRN-038 to apply controlled lifting force while the tide rises, avoiding excessive strain on the hull by targeting weight reduction away from the grounding point.
+6. If the vessel is capsized or sunken, reassess stability and righting criteria using dive team observations, then proceed with controlled deballasting or parbuckling using CRN-038, if feasible.
+7. If the vessel is sunken and requires section removal, deploy BRG-043 deck cargo barge (1600 t) to support crane operations by providing a stable platform for lifting and transporting sections.
+8. If the vessel is aground and requires lightering, use BRG-043 to remove cargo or ballast from the vessel to reduce draft and enable refloat, coordinating with CRN-038 for lifting operations.
+9. If the vessel is capsized and requires righting, use CRN-038 to apply controlled lifting force to right the vessel, ensuring trapped water is cleared and stability criteria are met before full righting.
+10. If the vessel is sunken and requires patching or cofferdam support, deploy DIV-001 to assist with underwater repairs while CRN-038 provides lifting support for cofferdam placement or hull section removal.
+11. If the vessel is aground and requires dredging, request additional resources beyond the current fleet, as the current assets cannot provide the required 1100 t lift capacity within the 47.3 h window.
+12. If the vessel is sunken and requires crane-and-barge removal, use CRN-038 and BRG-043 in tandem to lift and transport sections of the vessel, ensuring all hazardous materials are accounted for before disturbance.
+13. If the vessel is capsized and requires refloating upside-down, use CRN-038 to apply controlled lifting force to refloat the vessel, ensuring the hull is not further damaged during the process.
+14. If the vessel is aground and requires tug assistance, request additional tugs beyond the current fleet, as the current assets cannot provide the required 1100 t lift capacity within the 47.3 h window.
+15. If the vessel is sunken and requires containment of released oil, deploy BOOM-052 oil containment boom to contain any surface oil spill while salvage operations continue.
+16. If the vessel is capsized and requires crew rescue, prioritize rescue using DIV-001 dive team before any righting or refloating operations, ensuring the hand-over-hand technique is used for safe exit.
+17. If the vessel is sunken and requires environmental risk assessment, deploy DIV-001 to conduct a standardized pollution risk ranking before deciding on removal or in-situ disposal.
+18. If the vessel is aground and requires refloat with lightering, use BRG-043 to remove cargo or ballast from the vessel to reduce draft and enable refloat, coordinating with CRN-038 for lifting operations.
+19. If the vessel is capsized and requires refloat with lightering, use BRG-043 to remove cargo or ballast from the vessel to reduce draft and enable refloat, coordinating with CRN-038 for lifting operations.
+20. If the vessel is sunken and requires refloat with lightering, use BRG-043 to remove cargo or ballast from the vessel to reduce draft and enable refloat, coordinating with CRN-038 for lifting operations."
+SUN-00127,SUFFICIENT,sunken,lift,CRN-020;LB-048;LB-016;DIV-007;DWP-019;SVY-049,CRN-020;LB-048;LB-016;DIV-007;DWP-019;SVY-049,yes,no,yes,DWP-019 removes trapped water to reduce weight; timing to tide is not reduce,0,"1. Confirm vessel status as aground based on visible hull contact with seabed and partial submersion; commit to refloat using tide and lightering if needed.
+2. Deploy CRN-020 floating crane from Rossway to site at T+5.4h to assess grounding severity and prepare for potential lightering or refloat operations.
+3. Deploy LB-048 lift bag set from Rossway at T+3.4h to assist in reducing vessel weight if lightering is required, targeting non-critical areas to avoid structural strain.
+4. Deploy LB-016 lift bag set from Rossway at T+3.8h to provide additional lift capacity for refloat operations, synchronized with crane operations.
+5. Deploy DIV-007 dive team from Brackwater at T+2.9h to inspect hull integrity, check for fuel or hazardous materials, and verify ground reaction points for refloat planning.
+6. Deploy DWP-019 submersible pump from Brackwater at T+2.9h to remove trapped water from hull compartments to reduce weight and improve refloat stability.
+7. Deploy SVY-049 survey launch from Brackwater at T+3.4h to conduct seabed survey and monitor tide changes using a dedicated tide gauge to time refloat window.
+8. Coordinate with CRN-020 to initiate controlled refloat using combined lift capacity of CRN-020 (100t) and LB-048 (39t) and LB-016 (57t) at T+5.4h, ensuring total lift capacity exceeds 200t by T+3.8h.
+9. Execute refloat using CRN-020 and LB-048 and LB-016 in tandem, with crane providing primary lift and lift bags assisting to maintain vessel orientation and reduce ground reaction.
+10. Monitor tide gauge readings and vessel response during refloat; adjust lift distribution if necessary to maintain neutral loading point and avoid hull strain.
+11. Confirm vessel is fully refloated and stable before releasing all lift assets; document refloat success and report to command center."
+SUN-00127,SCARCE,sunken,lift,SVY-049;DIV-007;DWP-019;LB-016;LB-048;LB-021,SVY-049;DIV-007;DWP-019;LB-016;LB-048,yes,no,no,"LB-021 after refloat; DWP-019 for stability, not weight",0,"1. Deploy survey launch SVY-049 to conduct a detailed hull and seabed survey to confirm the vessel’s exact position, orientation, and grounding condition, and to identify any hazardous materials or trapped water.
+2. Deploy dive team DIV-007 to inspect the vessel’s hull integrity, check for fuel or hazardous cargo, and identify a safe neutral loading point for weight removal if needed.
+3. Deploy submersible pump DWP-019 to remove any trapped water from the vessel’s compartments to improve stability before any lifting operations.
+4. Deploy lift bag set LB-016 (57 t) and lift bag set LB-048 (39 t) to provide the required 200 t lift capacity within the 38.6-hour window, as they are the only available assets with sufficient capacity to meet the requirement.
+5. Coordinate the deployment of lift bags LB-016 and LB-048 to apply controlled lifting loads to the vessel’s designated lifting points, ensuring loads are kept controlled to avoid overturning.
+6. Monitor the tide using a dedicated tide gauge to track ground reaction changes as the tide rises, adjusting lifting operations to optimize refloat timing.
+7. Once the vessel is refloated, deploy lift bag set LB-021 (10 t) to assist in securing the vessel and ensuring stability during transit to a safe berth.
+8. Conduct a final stability check and ensure all hazardous materials are accounted for before any further movement or offloading."
+SUN-00138,SURPLUS,sunken,lift,HLB-037;HLB-030;HLB-029;HLB-022;HLB-051;HLB-053;HLB-054;HLB-056;HLB-042;HLB-045;HLB-011;HLB-020;HLB-034;HLB-040;HLB-032;HLB-023;HLB-052,HLB-037;HLB-030;HLB-029;HLB-022;HLB-051;HLB-053;HLB-054;HLB-056;HLB-042,no,no,no,"rest if needed; only deploys assets to provide lift capacity, no lift attempted (loop cut)",24,"1. Deploy HLB-037 (5000 t lift capacity) from underway, 17 nm, ETA 3.6 h, to arrive on scene first and begin establishing a lift station for the main recovery operation.
+2. Deploy HLB-030 (5000 t lift capacity) from underway, 86 nm, ETA 17.4 h, to provide secondary lift capacity and redundancy for the main lift.
+3. Deploy HLB-029 (5000 t lift capacity) from Brackwater, 143 nm, ETA 42.9 h, to join the lift station and provide additional capacity as the weather window narrows.
+4. Deploy HLB-022 (5000 t lift capacity) from Brackwater, 143 nm, ETA 45.4 h, to reinforce the lift station and ensure sufficient capacity to meet the 25600 t requirement.
+5. Deploy HLB-051 (5000 t lift capacity) from Brackwater, 143 nm, ETA 41.6 h, to provide additional lift capacity and redundancy.
+6. Deploy HLB-053 (5000 t lift capacity) from Brackwater, 143 nm, ETA 45.4 h, to provide further lift capacity and redundancy.
+7. Deploy HLB-054 (5000 t lift capacity) from Brackwater, 143 nm, ETA 41.6 h, to provide additional lift capacity and redundancy.
+8. Deploy HLB-056 (5000 t lift capacity) from Brackwater, 143 nm, ETA 48.3 h, to provide final lift capacity and redundancy.
+9. Deploy HLB-042 (5000 t lift capacity) from underway, 203 nm, ETA 40.8 h, to provide additional lift capacity and redundancy.
+10. Deploy HLB-045 (800 t lift capacity) from Rossway, 303 nm, ETA 80.6 h, to provide auxiliary lift capacity if needed for stabilization or partial lift.
+11. Deploy HLB-011 (800 t lift capacity) from Rossway, 303 nm, ETA 96.5 h, to provide auxiliary lift capacity if needed for stabilization or partial lift.
+12. Deploy HLB-020 (4300 t lift capacity) from Rossway, 303 nm, ETA 84.3 h, to provide auxiliary lift capacity if needed for stabilization or partial lift.
+13. Deploy HLB-034 (3300 t lift capacity) from underway, 71 nm, ETA 14.4 h, to provide auxiliary lift capacity if needed for stabilization or partial lift.
+14. Deploy HLB-040 (5000 t lift capacity) from Brackwater, 143 nm, ETA 62.9 h, to provide auxiliary lift capacity if needed for stabilization or partial lift.
+15. Deploy HLB-042 (5000 t lift capacity) from underway, 203 nm, ETA 40.8 h, to provide auxiliary lift capacity if needed for stabilization or partial lift.
+16. Deploy HLB-032 (5000 t lift capacity) from underway, 256 nm, ETA 51.4 h, to provide auxiliary lift capacity if needed for stabilization or partial lift.
+17. Deploy HLB-023 (5000 t lift capacity) from Rossway, 303 nm, ETA 79.1 h, to provide auxiliary lift capacity if needed for stabilization or partial lift.
+18. Deploy HLB-052 (5000 t lift capacity) from Brackwater, 143 nm, ETA 45.4 h, to provide auxiliary lift capacity if needed for stabilization or partial lift."
+SUN-00138,SUFFICIENT,sunken,lift,HLB-030;HLB-034;HLB-022;HLB-054;HLB-040;HLB-020;HLB-042;HLB-053;HLB-045;HLB-011;HLB-023,HLB-030;HLB-034;HLB-022;HLB-054;HLB-040;HLB-020;HLB-042;HLB-053;HLB-045;HLB-011;HLB-023,no,no,no,"only deploys assets to provide lift capacity, no lift attempted (loop cut)",29,"1. Deploy HLB-030 (5000 t lift capacity) and HLB-034 (3300 t lift capacity) to Brackwater and underway positions respectively, arriving within 17.4 h and 14.4 h, to provide immediate heavy lift capacity for the vessel’s refloat or righting operation.
+2. Deploy HLB-022 (5000 t lift capacity) and HLB-054 (5000 t lift capacity) from Brackwater, arriving within 45.4 h, to supplement the lift capacity and ensure redundancy for the main lifting task.
+3. Deploy HLB-040 (5000 t lift capacity) from Brackwater, arriving within 62.9 h, to provide additional lift capacity as a backup and to support staged lifting operations if required.
+4. Deploy HLB-020 (4300 t lift capacity) from Rossway, arriving within 84.3 h, to provide additional lift capacity for the vessel’s refloat or righting operation, ensuring sufficient capacity is available as the weather window closes.
+5. Deploy HLB-042 (5000 t lift capacity) from underway position, arriving within 40.8 h, to provide additional lift capacity and support the main lifting task.
+6. Deploy HLB-053 (5000 t lift capacity) from Brackwater, arriving within 45.4 h, to provide additional lift capacity and support the main lifting task.
+7. Deploy HLB-045 (800 t lift capacity) from Rossway, arriving within 80.6 h, to provide additional lift capacity for the vessel’s refloat or righting operation.
+8. Deploy HLB-011 (800 t lift capacity) from Rossway, arriving within 96.5 h, to provide additional lift capacity for the vessel’s refloat or righting operation.
+9. Deploy HLB-023 (5000 t lift capacity) from Rossway, arriving within 79.1 h, to provide additional lift capacity for the vessel’s refloat or righting operation.
+10. Deploy HLB-054 (5000 t lift capacity) from Brackwater, arriving within 41.6 h, to provide additional lift capacity and support the main lifting task.
+11. Deploy HLB-040 (5000 t lift capacity) from Brackwater, arriving within 62.9 h, to provide additional lift capacity and support the main lifting task.
+12. Deploy HLB-030 (5000 t lift capacity) from underway position, arriving within 17.4 h, to provide immediate heavy lift capacity for the vessel’s refloat or righting operation.
+13. Deploy HLB-034 (3300 t lift capacity) from underway position, arriving within 14.4 h, to provide immediate heavy lift capacity for the vessel’s refloat or righting operation.
+14. Deploy HLB-022 (5000 t lift capacity) from Brackwater, arriving within 45.4 h, to provide additional lift capacity and support the main lifting task."
+SUN-00138,SCARCE,sunken,lift,HLB-022;HLB-053;HLB-045;HLB-020;HLB-002;SHL-043;CRN-019;BRG-022;DIV-052;BOOM-031,HLB-022;HLB-053;HLB-020;HLB-002;SHL-043;CRN-019;BRG-022;DIV-052;BOOM-031,yes,no,no,"HLB-045 backup; HLB-020 late but given a task, counted; BRG-022 offload is for safety, not reduce",0,"1. Deploy HLB-022 heavy lift crane barge (5000 t lift capacity) from Brackwater, 143 nm, ETA 45.4 h, to position at the casualty site to provide primary lift capacity for the vessel.
+2. Deploy HLB-053 heavy lift crane barge (5000 t lift capacity) from Brackwater, 143 nm, ETA 45.4 h, to provide secondary lift capacity and redundancy for the lift operation.
+3. Deploy HLB-045 heavy lift crane barge (800 t lift capacity) from Rossway, 303 nm, ETA 80.6 h, to supplement lift capacity as a backup resource, though it will arrive after the weather window closes.
+4. Deploy HLB-020 heavy lift crane barge (4300 t lift capacity) from Rossway, 303 nm, ETA 84.3 h, to provide additional lift capacity, though it will arrive after the weather window closes.
+5. Deploy HLB-002 heavy lift crane barge (1200 t lift capacity) from Elden Bay, 16 nm, ETA 32.1 h, to provide additional lift capacity and support for the primary lift operation.
+6. Deploy SHL-043 sheerlegs (1400 t lift capacity) from Elden Bay, 16 nm, ETA 31.3 h, to provide auxiliary lifting capability and support for the primary lift operation.
+7. Deploy CRN-019 floating crane (220 t lift capacity) from Elden Bay, 16 nm, ETA 11.2 h, to provide auxiliary lifting capability and support for the primary lift operation.
+8. Deploy BRG-022 deck cargo barge (1700 t) from Rossway, 303 nm, ETA 47.3 h, to be positioned for potential lightering operations if required to reduce vessel weight before refloat.
+9. Deploy DIV-052 dive team (5 divers) from Brackwater, 143 nm, ETA 7.6 h, to conduct underwater inspection of the hull, check for hazardous materials, and assess structural integrity before any lifting or movement begins.
+10. Deploy BOOM-031 oil containment boom (690 m) from Brackwater, 143 nm, ETA 17.7 h, to contain any potential oil spill during the lifting or refloating operation.
+11. Conduct a stability check and determine the neutral loading point on the hull using data from the dive team and naval architect’s assessment to guide weight removal or redistribution.
+12. Offload any fuel or hazardous cargo from the vessel before initiating any cutting or movement, using the BRG-022 deck cargo barge and other available resources as needed.
+13. Initiate controlled deballasting or parbuckling procedure using the HLB-022, HLB-053, HLB-002, and SHL-043 to right the vessel, ensuring lifting loads are kept controlled to avoid overturning.
+14. Monitor tide levels using a dedicated tide gauge to track ground reaction changes as the tide rises and falls, adjusting lift operations accordingly.
+15. Refloat the vessel using the combined lift capacity of HLB-022, HLB-053, HLB-002, SHL-043, and CRN-019, ensuring the total lift capacity exceeds the 25600 t requirement within the 59.6 h weather window.
+16. Conduct a final stability assessment and ensure the vessel is stable and secure before releasing the lifting equipment and allowing the vessel to float freely."
+SUN-00162,SUFFICIENT,sunken,lift,HLB-040;HLB-034;HLB-058;HLB-013;HLB-041;HLB-055;HLB-035;HLB-010;SHL-036;CRN-027;CRN-026;CRN-005;CRN-010;DIV-003;DWP-051;BOOM-057,HLB-040;HLB-034;HLB-058;HLB-013;HLB-041;HLB-055;HLB-035;HLB-010;SHL-036;CRN-027;CRN-026;CRN-005;CRN-010;DIV-003;DWP-051;BOOM-057,yes,no,yes,step 14 lightering to reduce weight,0,"1. Assess the vessel ""SERVER"" as aground based on its visible list and partial submersion, requiring refloating; confirm no fire or sunken condition via visual inspection.
+2. Deploy HLB-040 (1600 t lift capacity) from underway location (ETA 1.2 h) to provide initial lift capacity and begin securing the vessel for refloat operations.
+3. Deploy HLB-034 (5000 t lift capacity) from Rossway (ETA 24.9 h) and HLB-058 (5000 t lift capacity) from Tolland Point (ETA 19.3 h) to provide additional lift capacity for the refloat operation.
+4. Deploy HLB-013 (5000 t lift capacity) from Tolland Point (ETA 17.0 h) and HLB-041 (5000 t lift capacity) from Tolland Point (ETA 16.7 h) to supplement lift capacity and ensure total capacity exceeds 27100 t.
+5. Deploy HLB-055 (5000 t lift capacity) from Rossway (ETA 28.1 h) and HLB-035 (5000 t lift capacity) from Tolland Point (ETA 39.4 h) to provide redundancy and ensure full capacity is available within the 30.5-hour window.
+6. Deploy HLB-010 (4300 t lift capacity) from Rossway (ETA 28.7 h) to provide additional lift capacity and support the refloat operation.
+7. Deploy SHL-036 (1800 t lift capacity) from Rossway (ETA 27.0 h) to assist with securing and stabilizing the vessel during refloat.
+8. Deploy CRN-027 (190 t lift capacity) from Rossway (ETA 16.2 h) and CRN-026 (100 t lift capacity) from 220 nm (ETA 36.8 h) to assist with securing and stabilizing the vessel during refloat.
+9. Deploy CRN-005 (100 t lift capacity) from 274 nm (ETA 45.9 h) and CRN-010 (100 t lift capacity) from 281 nm (ETA 47.1 h) to assist with securing and stabilizing the vessel during refloat.
+10. Deploy DIV-003 (6 divers) from Maddock Pier (ETA 12.3 h) to inspect the hull for structural integrity, check for hazardous materials, and assess the ground reaction for refloat planning.
+11. Deploy DWP-051 (260 m3/h) from Maddock Pier (ETA 12.0 h) to pump out trapped water from the vessel to reduce weight and improve stability for refloat.
+12. Deploy BOOM-057 (540 m) from Tolland Point (ETA 5.0 h) to contain any potential oil spill during refloat operations.
+13. Coordinate with tide gauge team to monitor tidal changes and adjust refloat timing to maximize natural buoyancy and minimize ground reaction forces.
+14. Execute controlled lightering of cargo or ballast to reduce weight and target the neutral loading point to minimize strain on the hull during refloat.
+15. Use HLB-040, HLB-034, HLB-058, HLB-013, HLB-041, HLB-055, HLB-035, HLB-010, and SHL-036 to apply synchronized lifting forces to refloat the vessel ""SERVER"" as the tide rises.
+16. Use CRN-027, CRN-026, CRN-005, and CRN-010 to secure and stabilize the vessel during the refloat operation.
+17. Use DIV-003 to monitor for hazardous materials and ensure all tanks are checked for fuel and hazardous cargo before any cutting or movement begins.
+18. Use DWP-051 to continue pumping out trapped water to maintain stability during refloat.
+19. Use BOOM-057 to contain any oil spill during refloat.
+20. Monitor the vessel's stability and ground reaction as the tide rises and adjust lifting forces as needed to ensure safe refloat within the 30.5-hour window."
+SUN-00191,SURPLUS,sunken,lift,HLB-043;HLB-058;SHL-041;SHL-048;BRG-050;CRN-051;CRN-019;SHL-043;SHL-018;SHL-026;HLB-019;HLB-006;LB-045;DIV-027;SHL-012;HLB-042;CRN-034,HLB-043;HLB-058;SHL-041;SHL-048;BRG-050;CRN-051;CRN-019;SHL-043;SHL-018;SHL-026;HLB-019;HLB-006;LB-045;DIV-027;SHL-012;HLB-042;CRN-034,no,no,no,"only deploys assets to provide lift capacity, no lift attempted (loop cut)",25,"1. Deploy HLB-043 heavy lift crane barge (2800 t lift capacity) from its current position 102 nm away, ETA 20.7 h, to the casualty site to provide primary lift capacity for the main recovery operation.
+2. Deploy HLB-058 heavy lift crane barge (3200 t lift capacity) from its current position 120 nm away, ETA 24.1 h, to provide secondary lift capacity and redundancy for the main recovery operation.
+3. Deploy SHL-041 sheerlegs (3000 t lift capacity) from its current position 83 nm away, ETA 16.8 h, to provide additional lift capacity and support for the main recovery operation.
+4. Deploy SHL-048 sheerlegs (2300 t lift capacity) from Skerry Quay, ETA 71.3 h, to provide additional lift capacity and support for the main recovery operation.
+5. Deploy BRG-050 deck cargo barge (1600 t) from Varne Roads, ETA 10.7 h, to provide auxiliary lift capacity and support for the main recovery operation.
+6. Deploy CRN-051 floating crane (380 t lift capacity) from Varne Roads, ETA 7.6 h, to provide auxiliary lift capacity and support for the main recovery operation.
+7. Deploy CRN-019 floating crane (210 t lift capacity) from Varne Roads, ETA 8.9 h, to provide auxiliary lift capacity and support for the main recovery operation.
+8. Deploy SHL-043 sheerlegs (1600 t lift capacity) from Varne Roads, ETA 41.9 h, to provide additional lift capacity and support for the main recovery operation.
+9. Deploy SHL-018 sheerlegs (2600 t lift capacity) from Varne Roads, ETA 45.2 h, to provide additional lift capacity and support for the main recovery operation.
+10. Deploy SHL-026 sheerlegs (2500 t lift capacity) from its current position 291 nm away, ETA 58.4 h, to provide additional lift capacity and support for the main recovery operation.
+11. Deploy HLB-019 heavy lift crane barge (800 t lift capacity) from Skerry Quay, ETA 69.0 h, to provide additional lift capacity and support for the main recovery operation.
+12. Deploy HLB-006 heavy lift crane barge (800 t lift capacity) from Skerry Quay, ETA 81.1 h, to provide additional lift capacity and support for the main recovery operation.
+13. Deploy LB-045 lift bag set (10 t lift capacity) from Holm Harbour, ETA 8.4 h, to provide auxiliary lift capacity and support for the main recovery operation.
+14. Deploy DIV-027 dive team (5 divers) from Varne Roads, ETA 2.3 h, to conduct underwater inspection of the casualty to confirm condition, check for hazardous materials, and identify any trapped water or structural weaknesses.
+15. Deploy SHL-012 sheerlegs (2900 t lift capacity) from Varne Roads, ETA 51.7 h, to provide additional lift capacity and support for the main recovery operation.
+16. Deploy HLB-042 heavy lift crane barge (1800 t lift capacity) from its current position 195 nm away, ETA 39.3 h, to provide additional lift capacity and support for the main recovery operation.
+17. Deploy CRN-034 floating crane (600 t lift capacity) from Skerry Quay, ETA 45.7 h, to provide additional lift capacity and support for the main recovery operation."
+SUN-00191,INFEASIBLE,sunken,lift,HLB-042;DIV-027,HLB-042;DIV-027,yes,no,no,"step 9 request is conditional; step 4 offload for safety, not reduce",0,"1. Deploy HLB-042 heavy lift crane barge to the scene, arriving at T+39.3 h, to provide the primary 1800 t lift capacity required for the casualty within the 64.5 h weather window.
+2. Position HLB-042 alongside the casualty and establish secure mooring lines to prevent movement during lift operations.
+3. Conduct a preliminary stability and structural assessment of the casualty using DIV-027 dive team to confirm the vessel is not capsized or on fire and to identify any hazardous materials or trapped water.
+4. Offload any visible fuel or hazardous cargo from the casualty’s accessible compartments before initiating lift operations, using HLB-042’s crane to remove cargo if feasible.
+5. Initiate controlled deballasting or parbuckling procedures using HLB-042’s 1800 t lift capacity to right or refloat the casualty, ensuring the neutral loading point is targeted to minimize hull strain.
+6. Monitor tide levels using a dedicated tide gauge to time the lift operation for optimal ground reaction and minimal draft requirements.
+7. Execute the lift operation using HLB-042’s crane to raise the casualty, ensuring all tanks are checked for fuel and hazardous cargo prior to movement.
+8. Secure the casualty in a stable position after refloat and prepare for transport to a safe anchorage or dry dock using HLB-042’s crane and barge capabilities.
+9. Request additional resources if required beyond the 1800 t capacity, but commit to the current plan using HLB-042 as the sole lift asset within the 64.5 h window."
+SUN-00233,INFEASIBLE,sunken,lift,DIV-024;CRN-001;LB-034;DWP-059,DIV-024;CRN-001;LB-034;DWP-059,yes,no,no,plan treats her as capsized; step 6 crane refloat counted as the lift,0,"1. Assess the vessel’s condition and confirm it is capsized based on visual evidence of the hull inverted in the water, and that it is not aground, sunken, or on fire; commit the vessel as capsized for the entire plan.
+2. Deploy the dive team DIV-024 to inspect the capsized vessel’s interior for trapped water, trapped crew, and structural integrity; prioritize crew rescue if any are present.
+3. Once trapped water is cleared and structural integrity is confirmed, deploy the floating crane CRN-001 to begin controlled deballasting or parbuckling operations to right the vessel, using its 110 t lift capacity.
+4. While CRN-001 is engaged, deploy the lift bag set LB-034 to assist in stabilizing the vessel’s weight distribution during the righting process, using its 10 t lift capacity to target non-neutral loading points.
+5. Once the vessel is righted, deploy the submersible pump DWP-059 to remove any residual water from the hull and cargo holds to prevent further instability.
+6. After water removal, deploy the floating crane CRN-001 to perform controlled refloating operations, ensuring the vessel’s draft is within safe limits for refloat.
+7. Monitor the vessel’s stability and draft throughout the refloating process, using tide gauge data if available, and adjust lift points as needed to avoid overturning.
+8. Once refloated, deploy the floating crane CRN-001 to secure the vessel to a barge or dock, ensuring it is stable and secure before any cargo or hazardous material handling begins.
+9. Conduct a full inspection of the vessel’s tanks and cargo holds to confirm no hazardous materials are present before any further movement or offloading.
+10. Offload any cargo or fuel as needed using the available resources, prioritizing safety and environmental protection."
