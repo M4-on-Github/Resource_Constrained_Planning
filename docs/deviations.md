@@ -459,6 +459,28 @@ is reported as the measured extraction error. It replaces "unvalidated".
   `results/v010_d11/` and reported beside the frozen v0.10 reports, which stay.
 - **If not**, v010 stays.
 
+*Held-out result (2026-10-12).* No d11 prompt was frozen (r3 above), so only v010
+was scored, once, against each label set (`cal/d11/score_heldout_{a,b}_v010.json`).
+d11 was never run against held-out.
+
+| v010 on held-out (96 plans) | vs A | vs B |
+|---|---|---|
+| verdict flips | 8 (8.3%) | 9 (9.4%) |
+| `commitments` F1 (fp / fn) | 0.922 (99 / 12) | 0.922 (98 / 12) |
+| `goal_attempted` agreement | 0.938 | 0.938 |
+| `escalate` agreement (false positives) | 0.948 (5) | 0.938 (5) |
+| `reduce` agreement | 0.667 | 0.677 |
+
+The flips are not random in direction. Against A, all 8 flatten the AR decline.
+On SURPLUS and SUFFICIENT the extractor fails a plan the labels pass (4): a
+backup asset counted as committed fails V2a. On SCARCE and INFEASIBLE it passes a
+plan the labels fail (4): an escalation the labels do not see. Against B, 8 of 9
+do; the ninth is a SCARCE plan the extractor fails. All 6 dev flips go the same
+way. AR on held-out by the labels (A), against v010: SURPLUS 10/24 vs 7/24,
+INFEASIBLE 1/24 vs 3/24. So v010's error, if anything, makes AR look flatter than
+the labels do, and the primary's "not established" does not depend on it. This is
+descriptive: 24 plans per arm, against model labels.
+
 ## D12. v0.12: contingencies in their own section, not banned (§6.2) — FAILED its test
 
 *Why there is a third revision although D10 said prompt work stops after revision
