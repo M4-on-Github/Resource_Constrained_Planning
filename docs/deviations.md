@@ -356,6 +356,60 @@ is not extracted or analysed. Prompt work stops. v0.10 is the study, and
 contingency branches are handled in extraction (D11): an asset named only in a
 conditional, backup or "if needed" step is not committed.
 
+## D11. Extractor: a role per asset, adopted only on held-out labels (§6.3, §6.4) — proposed
+
+*Found.* In 9 of 20 hand-read `SURPLUS` V2a failures, the failure came from an
+asset named only in a backup step (D10). The v010 question lists exclusions and
+defaults to "assigned" when unsure. Extraction error has never been measured
+against hand labels (D2).
+
+*Candidate* `d11` (`rcp.extract --extractor d11`; `prompts/extract_system_d11.txt`,
+sha256 `d875565b…`). Section 1 asks for one role per listed asset (`committed`,
+`held_back`, `not_used`), with no default. `commitments` are the `committed`
+assets. Sections 2–4 and the user prompt are byte-identical to v010's. An asset
+given no role stays committed and is counted in `roles_missing`. v010 remains
+the default. Its 440 frozen v0.10 blind extractions replay byte-identical
+through the new code.
+
+*Labels* (`cal/d11/`, drawn 2026-10-12, before any d11 output exists). 160 v0.10
+blind plans, split by image:
+- dev: 64 plans, 35 images;
+- held-out: 96 plans, 53 images;
+- 4 dev and 6 held-out plans per arm × state.
+
+Labelling:
+- The rules are the study's definitions, in `cal/d11/LABELLING.md`.
+- `assets_named` is pre-filled by the resolver. Nothing else is pre-filled.
+- The dev labels are drafted by the same model that wrote the d11 prompt, so they
+  may share its reading. The PI spot-checks them.
+- The held-out set is labelled by the PI, blind to all extractor output.
+
+*Procedure.*
+1. d11 runs once over the whole sample.
+2. While the prompt may change, only dev scores (both extractors) are read. Each
+   revision gets a new output directory and is listed here with its prompt hash.
+3. The prompt is frozen and its hash recorded here.
+4. The held-out set is then scored once, against both extractors.
+
+`rcp.calibrate score` now keeps every flipped cell, for pairing, and refuses to
+overwrite its output.
+
+*Adoption rule, fixed now.* d11 is adopted only if, on held-out, all of these
+hold:
+- (a) it has fewer verdict flips than v010 (a tie means not adopted);
+- (b) its `commitments` F1 is at least v010's;
+- (c) its `goal_attempted` and `escalate` agreement are each no more than 2 pp
+  below v010's.
+
+The paired counts (cells flipped by v010 only, and by d11 only) are reported in
+either case. With 96 plans this is a decision rule, not a significance test.
+
+*What follows.* Either way, the held-out verdict-flip rate of the extractor used
+is reported as the measured extraction error. It replaces "unvalidated".
+- **If d11 is adopted**, all 880 v0.10 plans are re-extracted to
+  `results/v010_d11/` and reported beside the frozen v0.10 reports, which stay.
+- **If not**, v010 stays.
+
 ## D12. v0.12: contingencies in their own section, not banned (§6.2) — proposed, under test
 
 *Why there is a third revision although D10 said prompt work stops after revision

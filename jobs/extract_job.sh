@@ -15,6 +15,10 @@
 # nothing to download — see plan_adequacy_calibrate_job.sh's header.
 #
 #   sbatch jobs/extract_job.sh generations.jsonl results/extract_v1
+#   sbatch jobs/extract_job.sh cal/d11/gen_sample.jsonl cal/d11/ex_d11 glm4_32b d11
+#
+# The 4th argument picks the extractor's question set (rcp/extract_llm.VARIANTS):
+# v010, the study's, by default; d11 is D11's per-asset-role candidate.
 #
 #SBATCH -p pleiades
 #SBATCH --constraint=RTX6000ADA
@@ -29,7 +33,7 @@
 
 set -euo pipefail
 
-INPUT="${1:?Usage: sbatch jobs/extract_job.sh INPUT_JSONL [OUT_DIR] [MODEL_KEY]}"
+INPUT="${1:?Usage: sbatch jobs/extract_job.sh INPUT_JSONL [OUT_DIR] [MODEL_KEY] [EXTRACTOR]}"
 # Defaults to a sibling of the input, named after it: results/gen_blind.jsonl ->
 # results/ex_gen_blind/. Derived rather than required because the pairing is the
 # thing that matters -- rcp.compare takes two extraction directories, and the one
@@ -37,6 +41,7 @@ INPUT="${1:?Usage: sbatch jobs/extract_job.sh INPUT_JSONL [OUT_DIR] [MODEL_KEY]}
 # directory, where the second silently overwrites the first.
 OUT_DIR="${2:-$(dirname "$INPUT")/ex_$(basename "$INPUT" .jsonl)}"
 MODEL="${3:-glm4_32b}"
+EXTRACTOR="${4:-v010}"
 
 REPO="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 # Every user-writable path lives under /data/$USER; /data/shared is read-only.
@@ -78,6 +83,7 @@ echo "==========================================="
 echo " RCP extraction (plan.md sec. 6.3)"
 echo " Model     : $MODEL"
 echo " Model dir : $MODEL_DIR"
+echo " Extractor : $EXTRACTOR"
 echo " Input     : $INPUT"
 echo " Output    : $OUT_DIR/extracted.jsonl"
 echo " Container : $SIF ($SIF_SHA)"
@@ -113,7 +119,8 @@ apptainer exec \
     python3 -m rcp.extract \
         --model-dir "$MODEL_DIR" \
         --input     "$INPUT" \
-        --out       "$OUT_DIR"
+        --out       "$OUT_DIR" \
+        --extractor "$EXTRACTOR"
 
 EXIT_CODE=$?
 echo "==========================================="

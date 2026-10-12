@@ -28,3 +28,27 @@ def test_the_planner_refuses_an_existing_output_without_resume(tmp_path):
     rc = infer.main(["--images", str(tmp_path), "--out", str(out)])
     assert rc == 1
     assert out.read_text() == "kept\n"
+
+
+def test_the_d11_sampler_refuses_an_existing_sample(tmp_path):
+    import importlib.util
+    import pathlib
+
+    path = pathlib.Path(__file__).resolve().parent.parent / "tools" / "d11_sample.py"
+    spec = importlib.util.spec_from_file_location("d11_sample", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    (tmp_path / "gen_sample.jsonl").write_text("kept\n")
+    assert mod.main(["--out", str(tmp_path)]) == 1
+    assert (tmp_path / "gen_sample.jsonl").read_text() == "kept\n"
+
+
+def test_a_calibration_score_refuses_an_existing_output(tmp_path):
+    from rcp import calibrate
+
+    out = tmp_path / "score.json"
+    out.write_text("kept\n")
+    rc = calibrate.main(["score", "--labels", str(tmp_path / "missing.csv"),
+                         "--extracted", str(tmp_path / "missing.jsonl"), "--out", str(out)])
+    assert rc == 1
+    assert out.read_text() == "kept\n"

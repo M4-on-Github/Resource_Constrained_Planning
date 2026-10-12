@@ -59,9 +59,40 @@ SCHEMA: dict[str, Any] = {
 
 _FIELDS = ("not_assigned_work", "attempts_goal", "escalates", "reduces")
 
+#: D11's candidate: a role for every listed asset instead of a list of exclusions.
+#: The v010 question defaults to "assigned" when unsure, which is how an asset
+#: named only as a backup came to be committed (9 of 20 hand-read SURPLUS V2a
+#: failures). Here there is no default to fall back on: each asset must be placed.
+#: The enum is a plain string enum, not a type array (see SCHEMA).
+ROLES = ("committed", "held_back", "not_used")
+SCHEMA_D11: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "asset_roles": {"type": "array", "items": {
+            "type": "object",
+            "properties": {"asset": {"type": "string"},
+                           "role": {"type": "string", "enum": list(ROLES)}},
+            "required": ["asset", "role"],
+            "additionalProperties": False}},
+        "attempts_goal": {"type": "boolean"},
+        "escalates": {"type": "boolean"},
+        "reduces": {"type": "boolean"},
+    },
+    "required": ["asset_roles", "attempts_goal", "escalates", "reduces"],
+    "additionalProperties": False,
+}
 
-def system_prompt() -> str:
-    return (PROMPTS / "extract_system.txt").read_text(encoding="utf-8")
+#: extractor variant -> (system prompt file, schema). v010 is the study's and the
+#: default; d11 is adopted only under D11's held-out rule. Both share the user
+#: prompt and sections 2-4 of the system prompt byte for byte.
+VARIANTS: dict[str, tuple[str, dict[str, Any]]] = {
+    "v010": ("extract_system.txt", SCHEMA),
+    "d11": ("extract_system_d11.txt", SCHEMA_D11),
+}
+
+
+def system_prompt(variant: str = "v010") -> str:
+    return (PROMPTS / VARIANTS[variant][0]).read_text(encoding="utf-8")
 
 
 def user_prompt(prose: str, assets_named: tuple[str, ...], goal: str) -> str:
@@ -77,18 +108,19 @@ def user_prompt(prose: str, assets_named: tuple[str, ...], goal: str) -> str:
     return template.format(goal=goal, assets=listed, plan=prose.strip())
 
 
-def build_prompts(items: list[dict]) -> list[tuple[str, str]]:
+def build_prompts(items: list[dict], variant: str = "v010") -> list[tuple[str, str]]:
     """(system, user) pairs aligned with `items`.
 
     The system prompt is byte-identical across every call, which is what makes
     vLLM's prefix caching worth enabling — same reasoning as P9's extractor.
     """
-    sys_p = system_prompt()
+    sys_p = system_prompt(variant)
     return [(sys_p, user_prompt(it["prose"], it["assets_named"], it["goal"]))
             for it in items]
 
 
-def parse_response(raw: Any, assets_named: tuple[str, ...]) -> dict:
+def parse_response(raw: Any, assets_named: tuple[str, ...],
+                   variant: str = "v010") -> dict:
     """One guided-JSON response -> the four fields. Never raises.
 
     A parse failure is recorded, not guessed at: `llm_parse_failed` goes true and
@@ -106,16 +138,26 @@ def parse_response(raw: Any, assets_named: tuple[str, ...]) -> dict:
         "reduces": False,
         "llm_parse_failed": False,
     }
+    d11 = variant == "d11"
+    if d11:
+        out["asset_roles"] = {t: "committed" for t in assets_named}
+        out["roles_missing"] = tuple(assets_named)
     if isinstance(raw, str):
         raw = _loads(raw)
-    if not isinstance(raw, dict) or any(f not in raw for f in _FIELDS):
+    fields = ("asset_roles",) + _FIELDS[1:] if d11 else _FIELDS
+    if not isinstance(raw, dict) or any(f not in raw for f in fields):
         out["llm_parse_failed"] = True
         return out
 
     out["attempts_goal"] = bool(raw["attempts_goal"])
     out["escalates"] = bool(raw["escalates"])
     out["reduces"] = bool(raw["reduces"])
-    out["not_assigned_work"] = _restrict(raw["not_assigned_work"], assets_named)
+    if d11:
+        out["asset_roles"], out["roles_missing"] = _roles(raw["asset_roles"], assets_named)
+        out["not_assigned_work"] = tuple(t for t, r in out["asset_roles"].items()
+                                         if r != "committed")
+    else:
+        out["not_assigned_work"] = _restrict(raw["not_assigned_work"], assets_named)
     return out
 
 
@@ -161,3 +203,25 @@ def _restrict(returned: Any, assets_named: tuple[str, ...]) -> tuple[str, ...]:
         if tok is not None and tok not in kept:
             kept.append(tok)
     return tuple(kept)
+
+
+def _roles(returned: Any, assets_named: tuple[str, ...]
+           ) -> tuple[dict[str, str], tuple[str, ...]]:
+    """d11's role list -> ({token: role} over `assets_named`, tokens given none).
+
+    Matched by §4 normalisation, like `_restrict`; off-list names and unknown roles
+    are discarded. An asset given two roles is committed if either says so, as the
+    prompt states.
+    """
+    from .normalize import normalize
+
+    index = {normalize(t): t for t in assets_named}
+    got: dict[str, str] = {}
+    for entry in returned if isinstance(returned, list) else ():
+        if not isinstance(entry, dict) or not isinstance(entry.get("asset"), str):
+            continue
+        tok, role = index.get(normalize(entry["asset"])), entry.get("role")
+        if tok is not None and role in ROLES and got.get(tok) != "committed":
+            got[tok] = role
+    return ({t: got.get(t, "committed") for t in assets_named},
+            tuple(t for t in assets_named if t not in got))

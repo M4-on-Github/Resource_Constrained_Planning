@@ -607,3 +607,110 @@ def test_lines_that_are_not_the_label(line):
 
 def test_a_plan_without_the_section_passes_through_whole():
     assert extract_det.split_contingencies("1. Tow.") == ("1. Tow.", None)
+
+
+# --------------------------------------------------------------------------- #
+# D11's candidate: a role per asset
+# --------------------------------------------------------------------------- #
+
+
+GOOD_D11 = {"asset_roles": [], "attempts_goal": True,
+            "escalates": False, "reduces": False}
+
+
+def _role(asset, role):
+    return {"asset": asset, "role": role}
+
+
+def test_d11_schema_is_closed_at_every_level():
+    def walk(node):
+        if isinstance(node, dict):
+            assert not isinstance(node.get("type"), list), node
+            if node.get("type") == "object":
+                assert node["additionalProperties"] is False
+                assert set(node["required"]) == set(node["properties"])
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+
+    walk(extract_llm.SCHEMA_D11)
+
+
+def test_the_default_extractor_is_unchanged():
+    assert extract_llm.system_prompt() == extract_llm.system_prompt("v010")
+    assert extract_llm.VARIANTS["v010"][1] is extract_llm.SCHEMA
+    out = extract_llm.parse_response(dict(GOOD), ("TUG-001",))
+    assert "asset_roles" not in out and "roles_missing" not in out
+
+
+def test_d11_shares_everything_but_the_asset_question_with_v010():
+    """Only section 1 differs, so a change in escalate or goal agreement on the
+    held-out set cannot come from a reworded question."""
+    tail = lambda v: extract_llm.system_prompt(v).split("2. attempts_goal", 1)[1]
+    assert tail("d11") == tail("v010")
+
+
+@pytest.mark.parametrize("raw", [None, "garbage", dict(GOOD), {"asset_roles": []}])
+def test_d11_parse_failure_commits_everything(raw):
+    out = extract_llm.parse_response(raw, ("TUG-001", "TUG-002"), "d11")
+    assert out["llm_parse_failed"] is True
+    assert out["not_assigned_work"] == ()
+    assert out["roles_missing"] == ("TUG-001", "TUG-002")
+    assert out["escalates"] is False and out["attempts_goal"] is False
+
+
+def test_d11_only_committed_assets_are_committed():
+    raw = dict(GOOD_D11, asset_roles=[_role("TUG-001", "committed"),
+                                      _role("TUG-002", "held_back"),
+                                      _role("TUG-003", "not_used")])
+    out = extract_llm.parse_response(raw, ("TUG-001", "TUG-002", "TUG-003"), "d11")
+    assert out["not_assigned_work"] == ("TUG-002", "TUG-003")
+    assert out["roles_missing"] == ()
+
+
+def test_d11_committed_anywhere_wins():
+    raw = dict(GOOD_D11, asset_roles=[_role("TUG-001", "held_back"),
+                                      _role("tug 001", "committed"),
+                                      _role("TUG-001", "not_used")])
+    out = extract_llm.parse_response(raw, ("TUG-001",), "d11")
+    assert out["asset_roles"] == {"TUG-001": "committed"}
+
+
+def test_d11_an_unplaced_asset_is_committed_and_recorded():
+    raw = dict(GOOD_D11, asset_roles=[_role("TUG-002", "held_back")])
+    out = extract_llm.parse_response(raw, ("TUG-001", "TUG-002"), "d11")
+    assert out["asset_roles"] == {"TUG-001": "committed", "TUG-002": "held_back"}
+    assert out["roles_missing"] == ("TUG-001",)
+
+
+def test_d11_off_list_names_and_unknown_roles_are_discarded():
+    raw = dict(GOOD_D11, asset_roles=[_role("BARGE-999", "held_back"),
+                                      _role("TUG-001", "maybe"), "TUG-001",
+                                      {"asset": 3, "role": "held_back"}])
+    out = extract_llm.parse_response(raw, ("TUG-001",), "d11")
+    assert out["not_assigned_work"] == () and out["roles_missing"] == ("TUG-001",)
+
+
+def test_d11_prompt_never_shows_the_arithmetic(scenario):
+    req, a = scenario.requirement, scenario.ledger[0]
+    sys_p, user_p = extract_llm.build_prompts(
+        [{"prose": "Use " + a.id + ".", "assets_named": (a.id,), "goal": "refloat"}],
+        "d11")[0]
+    assert sys_p == extract_llm.system_prompt("d11")
+    for forbidden in (str(req.amount), str(req.deadline_h), str(a.capability),
+                      str(a.eta_hours)):
+        assert forbidden not in sys_p + "\n" + user_p
+
+
+def test_d11_composes_to_the_same_plan_shape(scenario):
+    a, b = _two_ids(scenario)
+    prose = "1. Use " + a + " to refloat her.\n2. " + b + " stands by if required."
+    raw = dict(GOOD_D11, asset_roles=[_role(a, "committed"), _role(b, "held_back")])
+    plan, tr = extract.compose(prose, scenario, raw, None, "d11")
+    assert plan.commitments == (a,) and set(plan.commitments) <= set(plan.assets_named)
+    assert tr["extractor"] == "d11" and tr["roles_missing"] == []
+    assert tr["not_assigned_work"] == [b]
+    _, tr10 = extract.compose(prose, scenario, dict(GOOD))
+    assert "extractor" not in tr10 and "asset_roles" not in tr10
