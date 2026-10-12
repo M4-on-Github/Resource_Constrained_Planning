@@ -395,6 +395,15 @@ Labelling:
 3. The prompt is frozen and its hash recorded here.
 4. The held-out set is then scored once, against both extractors.
 
+*Dev revisions* (dev scores only; `cal/d11/score_dev_*.json`):
+- **r1** (`ex_d11/`, prompt `d875565b…`, job 51565, run `d11_cal_r1`). 44 of 160
+  replies hit the token cap: GLM repeated `asset_roles` entries, and the open
+  array allowed it. Those plans fell back to all committed, goal not attempted.
+  Dev, v010 → r1: verdict flips 6 → 4 of 64, `commitments` F1 0.906 → 0.956.
+- **r2** (`ex_d11_r2/`, prompt `6830361f…`). `asset_roles` becomes an object with
+  one required key per listed asset, in order, built per plan (`schema_for`);
+  the prompt's format line says so. No question wording changed.
+
 *Amendment (2026-10-12, while the d11 job ran and before any of its output was
 read).* The PI has no time to label, so neither the held-out set nor the dev
 spot-check is hand-labelled. Two model labellers label held-out instead, each blind

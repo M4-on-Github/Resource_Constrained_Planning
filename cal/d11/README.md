@@ -35,7 +35,8 @@ stratum then draws 4 dev plans and 6 held-out plans:
 
 **Extraction.** `v010` is already frozen in `results/ex_blind_all.jsonl`. `d11`
 runs once over the whole sample (one GPU job). Its output is registered with
-`tools/runs.py freeze` and never overwritten. A dev revision gets a new directory.
+`tools/runs.py freeze` and never overwritten. A dev revision gets a new directory
+(`ex_d11_r2/`, ...); the held-out scores below use the frozen revision's.
 
 ```bash
 sbatch --exclude=pleiades-0-17 jobs/extract_job.sh cal/d11/gen_sample.jsonl cal/d11/ex_d11 glm4_32b d11

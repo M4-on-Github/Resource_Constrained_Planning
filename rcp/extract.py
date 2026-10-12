@@ -248,8 +248,9 @@ def main(argv: list[str] | None = None) -> int:
     else:
         v = args.extractor
         prompts = extract_llm.build_prompts(items, v)
+        schemas = [extract_llm.schema_for(v, it["assets_named"]) for it in items]
         metas = backends.run_vllm_batch(
-            prompts, args.model_dir, extract_llm.VARIANTS[v][1],
+            prompts, args.model_dir, schemas,
             retry_if=lambda text: extract_llm.parse_response(text, (), v)["llm_parse_failed"])
         results = [compose(it["prose"], it["scenario"], m["text"], m, v)
                    for it, m in zip(items, metas)]

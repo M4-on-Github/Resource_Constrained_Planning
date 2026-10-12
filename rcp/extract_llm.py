@@ -64,16 +64,17 @@ _FIELDS = ("not_assigned_work", "attempts_goal", "escalates", "reduces")
 #: named only as a backup came to be committed (9 of 20 hand-read SURPLUS V2a
 #: failures). Here there is no default to fall back on: each asset must be placed.
 #: The enum is a plain string enum, not a type array (see SCHEMA).
+#:
+#: `asset_roles` is an object with one required key per listed asset, filled in
+#: per plan by `schema_for`; this template has none. The first d11 run asked for
+#: an open array of {asset, role} and GLM repeated entries until the token cap on
+#: 44 of 160 plans (D11 dev round 1). A closed object cannot repeat or omit a key.
 ROLES = ("committed", "held_back", "not_used")
 SCHEMA_D11: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "asset_roles": {"type": "array", "items": {
-            "type": "object",
-            "properties": {"asset": {"type": "string"},
-                           "role": {"type": "string", "enum": list(ROLES)}},
-            "required": ["asset", "role"],
-            "additionalProperties": False}},
+        "asset_roles": {"type": "object", "properties": {}, "required": [],
+                        "additionalProperties": False},
         "attempts_goal": {"type": "boolean"},
         "escalates": {"type": "boolean"},
         "reduces": {"type": "boolean"},
@@ -89,6 +90,17 @@ VARIANTS: dict[str, tuple[str, dict[str, Any]]] = {
     "v010": ("extract_system.txt", SCHEMA),
     "d11": ("extract_system_d11.txt", SCHEMA_D11),
 }
+
+
+def schema_for(variant: str, assets_named: tuple[str, ...]) -> dict[str, Any]:
+    """The guided-decoding schema for one plan. v010's is the same for every plan;
+    d11's lists that plan's assets as the keys of `asset_roles`, in order."""
+    if variant != "d11":
+        return VARIANTS[variant][1]
+    role = {"type": "string", "enum": list(ROLES)}
+    roles = {"type": "object", "properties": {t: role for t in assets_named},
+             "required": list(assets_named), "additionalProperties": False}
+    return {**SCHEMA_D11, "properties": {**SCHEMA_D11["properties"], "asset_roles": roles}}
 
 
 def system_prompt(variant: str = "v010") -> str:
@@ -207,14 +219,17 @@ def _restrict(returned: Any, assets_named: tuple[str, ...]) -> tuple[str, ...]:
 
 def _roles(returned: Any, assets_named: tuple[str, ...]
            ) -> tuple[dict[str, str], tuple[str, ...]]:
-    """d11's role list -> ({token: role} over `assets_named`, tokens given none).
+    """d11's roles -> ({token: role} over `assets_named`, tokens given none).
 
-    Matched by §4 normalisation, like `_restrict`; off-list names and unknown roles
-    are discarded. An asset given two roles is committed if either says so, as the
-    prompt states.
+    `returned` is the {asset: role} object the schema asks for, or the round-1
+    list of {asset, role}. Matched by §4 normalisation, like `_restrict`;
+    off-list names and unknown roles are discarded. An asset given two roles is
+    committed if either says so, as the prompt states.
     """
     from .normalize import normalize
 
+    if isinstance(returned, dict):
+        returned = [{"asset": a, "role": r} for a, r in returned.items()]
     index = {normalize(t): t for t in assets_named}
     got: dict[str, str] = {}
     for entry in returned if isinstance(returned, list) else ():

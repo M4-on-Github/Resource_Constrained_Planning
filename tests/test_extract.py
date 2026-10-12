@@ -636,6 +636,21 @@ def test_d11_schema_is_closed_at_every_level():
                 walk(v)
 
     walk(extract_llm.SCHEMA_D11)
+    walk(extract_llm.schema_for("d11", ("TUG-001", "WB-002")))
+
+
+def test_d11_schema_names_each_asset_once_in_order():
+    """Round 1's open array let GLM repeat entries to the token cap (D11)."""
+    roles = extract_llm.schema_for("d11", ("WB-002", "TUG-001"))["properties"]["asset_roles"]
+    assert list(roles["properties"]) == roles["required"] == ["WB-002", "TUG-001"]
+    assert extract_llm.schema_for("d11", ())["properties"]["asset_roles"]["required"] == []
+    assert extract_llm.schema_for("v010", ("TUG-001",)) is extract_llm.SCHEMA
+
+
+def test_d11_reads_the_role_object():
+    raw = dict(GOOD_D11, asset_roles={"TUG-001": "committed", "TUG-002": "held_back"})
+    out = extract_llm.parse_response(raw, ("TUG-001", "TUG-002"), "d11")
+    assert out["not_assigned_work"] == ("TUG-002",) and out["roles_missing"] == ()
 
 
 def test_the_default_extractor_is_unchanged():

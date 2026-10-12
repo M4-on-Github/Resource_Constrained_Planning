@@ -1,0 +1,55 @@
+{
+  "bools": {
+    "escalate": {
+      "agree": 61,
+      "agreement": 0.953125,
+      "false_neg": 0,
+      "false_pos": 3,
+      "n": 64
+    },
+    "goal_attempted": {
+      "agree": 58,
+      "agreement": 0.90625,
+      "false_neg": 2,
+      "false_pos": 4,
+      "n": 64
+    },
+    "reduce": {
+      "agree": 44,
+      "agreement": 0.6875,
+      "false_neg": 8,
+      "false_pos": 12,
+      "n": 64
+    }
+  },
+  "missing_from_extraction": [],
+  "n_compared": 64,
+  "n_labelled": 64,
+  "sets": {
+    "assets_named": {
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "commitments": {
+      "f1": 0.9557762954401231,
+      "fn": 8,
+      "fp": 23,
+      "precision": 0.9399691671176046,
+      "recall": 0.9841937295751634
+    }
+  },
+  "verdict_flip": {
+    "cells": [
+      "CAP-00006/SCARCE",
+      "CAP-00019/SURPLUS",
+      "CAP-00176/SUFFICIENT",
+      "SUN-00064/INFEASIBLE"
+    ],
+    "flips": 4,
+    "n": 64,
+    "rate": 0.0625
+  }
+}
