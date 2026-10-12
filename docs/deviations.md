@@ -159,7 +159,7 @@ primary NOT ESTABLISHED, with a larger fitted decline (blind −0.287, 90 % CI
 `SURPLUS`, so this subset is not a random one; it is reported beside the primary,
 not instead of it.
 
-## D10. v0.11 commitment header in the planner prompt (§6.2) — proposed, under test
+## D10. v0.11 commitment header in the planner prompt (§6.2) — FAILED its test
 
 *Found, after the four-arm run (so this is a post-data change and the v0.10 run
 becomes a pilot if it is adopted):* the single-course guard (D1) did not hold.
@@ -356,7 +356,7 @@ is not extracted or analysed. Prompt work stops. v0.10 is the study, and
 contingency branches are handled in extraction (D11): an asset named only in a
 conditional, backup or "if needed" step is not committed.
 
-## D11. Extractor: a role per asset, adopted only on held-out labels (§6.3, §6.4) — proposed
+## D11. Extractor: a role per asset, adopted only on held-out labels (§6.3, §6.4) — not adopted; v010 measured on held-out
 
 *Found.* In 9 of 20 hand-read `SURPLUS` V2a failures, the failure came from an
 asset named only in a backup step (D10). The v010 question lists exclusions and
@@ -577,7 +577,29 @@ Reported only: asks/escalate in the plan 58.3 % (v0.10 55.0 %); asks only under
 "Contingencies:" 15.0 %. The planner writes its failure branches ("if the
 refloat stalls, …") in the plan and lists contingencies again below it; every
 section label parsed. As fixed above, there is no further revision: v0.12 is
-not run in full, and v0.10, re-scored under D11, is the study.
+not run in full, and v0.10, re-scored under D11, is the study. (D11 was not
+adopted, so v0.10 stands as scored, with v010's held-out error reported.)
+
+*Exploratory: where the branches come from (2026-10-12, after the result; post
+hoc, descriptive).* `tools/branch_diag.py` classifies each conditional step by its
+trigger, by the first matching pattern, so the categories are rough.
+- v0.10, all 3,217 conditional steps: "if needed" top-ups 24 %, casualty state
+  20 %, findings (hazmat, trapped water) 17 %, failure 7 %, **time 5 %**, other
+  25 % (mostly escalation ladders and operating feedback). State branches mostly
+  vanish when the state is stated.
+- v0.10 blind: a capability asset named only in branches is 8.0 % of on-time
+  ones and 28.6 % of late ones. Holding a late asset back is consistent with the
+  deadline; holding back an on-time one is the hedge that matters for AR.
+- On the 30 v0.12 guard images (SURPLUS+SCARCE blind): v0.11's header removed
+  state branches (1.03 → 0.00 per plan), and failure branches rose (0.13 → 0.60;
+  v0.12 1.18). Plans holding back an on-time capability asset: v0.10 20.0 %,
+  v0.11 33.3 %, v0.12 63.3 %. v0.12's request to name "backup or reserve
+  assets" there went with more hedging, not less.
+
+Reading: the planner's branching is not driven by time, so relaxing deadlines
+would not address it, and the prompt revisions moved it rather than removed it.
+Any later planner work should target on-time assets held back, which needs a
+per-asset role measure (D11's question) calibrated on that study's own plans.
 
 ## Provenance: run registry and no-overwrite guards (2026-10-09)
 
