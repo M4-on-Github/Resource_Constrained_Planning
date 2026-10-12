@@ -22,6 +22,9 @@ Print order, which is also the order a reader must be allowed to stop reading in
      ceiling-artifact column (step and word count) printed beside it, because a flat
      profile is consistent with two different stories and length is what separates
      them.
+  3b. **Declared casualty state** (D10), for runs with the commitment header
+     only: declared-state accuracy per arm, and the primary restricted to images
+     declared correctly in all four arms. Beside the primary, not a second test.
   4. **Descriptive decomposition**, not tested: `PLAN-SUCCEEDS`, `RESOURCE-VALID`,
      `V5` alone, and §5.2's two refusal rates.
   5. **Secondary**, pre-specified: the §5 flags per arm, extraction loss adjacent.
@@ -294,15 +297,66 @@ def endpoints(verdicts: list[Verdict],
     return out
 
 
+def declared_state(verdicts: list[Verdict], scenarios: dict[str, Scenario],
+                   declared: dict[str, str | None], primary_equivalent: bool | None
+                   ) -> dict | None:
+    """D10's V5 additions (b) and (c), beside the primary. None for a run with no
+    commitment header (v0.10), so its report is unchanged.
+
+    (b) per arm, the share of plans whose declared casualty state is the true one,
+    and how often the four arms of one image declare the same state. (c) the
+    primary restricted to images whose declared state is correct in all four arms,
+    with each arm's AR level on that subset (a). `agrees` is False when (c) and
+    the primary differ on ESTABLISHED / NOT ESTABLISHED, and the report then leads
+    with neither.
+    """
+    if not any(declared.get(f"{v.scenario_id}/{v.arm}") for v in verdicts):
+        return None
+    g = _group(verdicts)
+    arms = {}
+    for arm in ARMS:
+        vs = g.get(arm, [])
+        if not vs:
+            continue
+        ds = [declared.get(f"{v.scenario_id}/{v.arm}") for v in vs]
+        truth = [scenarios[f"{v.scenario_id}/{v.arm}"].casualty_state for v in vs]
+        arms[arm] = {"n": len(vs),
+                     "correct": _rate([d == t for d, t in zip(ds, truth)]),
+                     "ambiguous": _rate([d == "ambiguous" for d in ds]),
+                     "none": _rate([d is None for d in ds])}
+    by: dict[str, dict[str, Verdict]] = {}
+    for v in verdicts:
+        by.setdefault(v.scenario_id, {})[v.arm] = v
+    complete = {i: a for i, a in by.items() if all(x in a for x in ARMS)}
+    states = [{declared.get(f"{i}/{x}") for x in ARMS} for i in complete]
+    same = [len(st) == 1 and not st & {None, "ambiguous"} for st in states]
+    correct = {i: a for i, a in complete.items()
+               if all(declared.get(f"{i}/{x}") ==
+                      scenarios[f"{i}/{x}"].casualty_state for x in ARMS)}
+    cs = contrasts({i: {x: a[x].appropriate_response for x in ARMS}
+                    for i, a in correct.items()})
+    eq = equivalence(cs)
+    return {"arms": arms,
+            "same_across_arms": _rate(same),
+            "restricted": {"n_images": len(correct), "of": len(complete),
+                           "ar": {x: _rate([a[x].appropriate_response
+                                            for a in correct.values()]) for x in ARMS},
+                           "equivalence": eq},
+            "agrees": (None if eq["equivalent"] is None or primary_equivalent is None
+                       else eq["equivalent"] == primary_equivalent)}
+
+
 def build(verdicts: list[Verdict], scenarios: dict[str, Scenario],
           controls: dict | None = None, provenance: dict | None = None,
           truncated: dict[str, bool | None] | None = None,
-          looped: dict[str, bool | None] | None = None) -> dict:
+          looped: dict[str, bool | None] | None = None,
+          declared: dict[str, str | None] | None = None) -> dict:
     by_image: dict[str, dict[str, bool]] = {}
     for v in verdicts:
         by_image.setdefault(v.scenario_id, {})[v.arm] = v.appropriate_response
     cs = contrasts(by_image)
-    return {
+    eq = equivalence(cs)
+    rep = {
         "provenance": provenance or {},
         "manipulation_check": manipulation_check(verdicts, scenarios),
         "controls": controls or {},
@@ -310,11 +364,16 @@ def build(verdicts: list[Verdict], scenarios: dict[str, Scenario],
                     "test": "paired sign-flip permutation trend test",
                     "arms": ARMS, "scores": SCORES,
                     **trend_test(cs),
-                    "equivalence": equivalence(cs)},
+                    "equivalence": eq},
         "escalation_contrast": escalation_contrast(verdicts),
         "arms": endpoints(verdicts, truncated, looped),
         "invariant_violations": invariant_check(verdicts),
     }
+    # only for a run with the commitment header, so a v0.10 report.json is unchanged
+    ds = declared_state(verdicts, scenarios, declared or {}, eq["equivalent"])
+    if ds is not None:
+        rep["declared_state"] = ds
+    return rep
 
 
 # --------------------------------------------------------------------------- #
@@ -409,6 +468,10 @@ def render(rep: dict) -> str:
         L.append(f"    fitted SURPLUS->INFEASIBLE change : {eq['change']:+.3f}  "
                  f"90% CI [{lo:+.3f}, {hi:+.3f}]  (n = {eq['n']})")
         L.append(f"    -> {'FLAT: no change larger than delta' if eq['equivalent'] else 'NOT ESTABLISHED: the CI reaches past delta'}")
+        ds = rep.get("declared_state") or {}
+        if ds.get("agrees") is False:
+            L.append("    !! The restricted analysis in 3b reaches the other verdict.")
+            L.append("    !! Report both and lead with neither (D10).")
     if p.get("p_value") is None:
         L.append("\n  trend test: not run (no complete-case image)")
     else:
@@ -434,6 +497,37 @@ def render(rep: dict) -> str:
     L.append("\n  Equal rates with flat lengths support P4. Equal rates with lengths")
     L.append("  falling toward INFEASIBLE mean the arms are cleared by saying less,")
     L.append("  which is not competence. Descriptive, not a second test.")
+
+    # ---- 3b. declared casualty state (D10's V5 additions) ------------------
+    ds = rep.get("declared_state")
+    if ds:
+        L.append(_bar("3b. Declared casualty state (D10; beside the primary, not a "
+                      "second test)"))
+        L.append(f"  {'arm':<12} {'n':>4}  {'declared correct':>17} {'ambiguous':>10} "
+                 f"{'no header':>10}")
+        for arm, r in ds["arms"].items():
+            L.append(f"  {arm:<12} {r['n']:>4}  {_pct(r['correct'][0]):>17} "
+                     f"{_pct(r['ambiguous'][0]):>10} {_pct(r['none'][0]):>10}")
+        same = ds["same_across_arms"]
+        L.append(f"  images declaring one state in all four arms: {_pct(same[0])} "
+                 f"({same[1]}/{same[2]})")
+        rs = ds["restricted"]
+        L.append(f"\n  Primary restricted to images declared correctly in all four arms "
+                 f"({rs['n_images']}/{rs['of']}):")
+        L.append("    AR " + "  ".join(f"{x} {_pct(rs['ar'][x][0])}" for x in ARMS))
+        req = rs["equivalence"]
+        if req.get("change") is None:
+            L.append("    equivalence test: not run (fewer than two images)")
+        else:
+            lo, hi = req["ci90"]
+            L.append(f"    fitted SURPLUS->INFEASIBLE change : {req['change']:+.3f}  "
+                     f"90% CI [{lo:+.3f}, {hi:+.3f}]  (n = {req['n']})")
+            L.append(f"    -> {'FLAT' if req['equivalent'] else 'NOT ESTABLISHED'}"
+                     + ("" if ds["agrees"] is not False else
+                        "  -- DISAGREES with the primary: lead with neither"))
+        L.append("  A wrong declared state fails V5 in every arm, which lowers AR")
+        L.append("  everywhere and makes flatness easier to show. The stated condition")
+        L.append("  (rcp.compare) is the vision-free comparison.")
 
     # ---- 4. descriptive decomposition -------------------------------------
     L.append(_bar("4. Descriptive decomposition (reported beside the primary, not "
@@ -547,10 +641,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--controls", default=None,
                     help="controls JSON from `python -m rcp.controls`")
     ap.add_argument("--permutations", type=int, default=PERMUTATIONS)
+    ap.add_argument("--overwrite", action="store_true",
+                    help="replace an existing report in --out (default: refuse)")
     args = ap.parse_args(argv)
+    if args.out and (pathlib.Path(args.out) / "report.txt").exists() and not args.overwrite:
+        print(f"ERROR: {pathlib.Path(args.out) / 'report.txt'} exists. Write to a new "
+              "--out, or pass --overwrite.", file=sys.stderr)
+        return 1
 
     verdicts, scenarios = _load_verdicts(pathlib.Path(args.input))
-    truncated, looped = {}, {}
+    truncated, looped, declared = {}, {}, {}
     for line in pathlib.Path(args.input).read_text(encoding="utf-8").splitlines():
         if line.strip():
             row = json.loads(line)
@@ -558,6 +658,7 @@ def main(argv: list[str] | None = None) -> int:
             truncated[f"{d['scenario_id']}/{d['arm']}"] = row.get("truncated")
             lp = row.get("looped_steps_dropped")
             looped[f"{d['scenario_id']}/{d['arm']}"] = None if lp is None else lp > 0
+            declared[f"{d['scenario_id']}/{d['arm']}"] = row.get("declared_casualty")
     controls = (json.loads(pathlib.Path(args.controls).read_text(encoding="utf-8"))
                 if args.controls else None)
 
@@ -565,7 +666,7 @@ def main(argv: list[str] | None = None) -> int:
         "scored": len(verdicts),
         "domain_digest": _run_digest(pathlib.Path(args.input)),
         "extraction": pathlib.Path(args.input).name,
-    }, truncated=truncated, looped=looped)
+    }, truncated=truncated, looped=looped, declared=declared)
     text = render(rep)
     print(text)
 

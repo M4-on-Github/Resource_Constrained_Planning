@@ -40,7 +40,8 @@ DEFAULT_MAX_TOKENS = 768
 RETRY_MAX_TOKENS = 2048
 
 
-def run_vllm_batch(prompts: list[tuple[str, str]], model_dir: str, schema: dict,
+def run_vllm_batch(prompts: list[tuple[str, str]], model_dir: str,
+                   schema: dict | list[dict],
                    max_model_len: int = DEFAULT_MAX_MODEL_LEN,
                    max_tokens: int = DEFAULT_MAX_TOKENS,
                    retry_if: Callable[[str], bool] | None = None,
@@ -51,6 +52,7 @@ def run_vllm_batch(prompts: list[tuple[str, str]], model_dir: str, schema: dict,
     The text is kept verbatim; `extract_llm.parse_response` decides what it means.
     `retry_if(text)` marks replies to re-ask once at `retry_max_tokens`; the
     retried reply replaces the first, and `attempts` records that it happened.
+    `schema` is one schema for every prompt, or a list aligned with `prompts`.
     """
     import os
 
@@ -58,10 +60,12 @@ def run_vllm_batch(prompts: list[tuple[str, str]], model_dir: str, schema: dict,
 
     try:  # vLLM <= 0.11
         from vllm.sampling_params import GuidedDecodingParams
-        guided = {"guided_decoding": GuidedDecodingParams(json=schema)}
+        guided = lambda s: {"guided_decoding": GuidedDecodingParams(json=s)}
     except ImportError:  # vLLM 0.12 renamed it
         from vllm.sampling_params import StructuredOutputsParams
-        guided = {"structured_outputs": StructuredOutputsParams(json=schema)}
+        guided = lambda s: {"structured_outputs": StructuredOutputsParams(json=s)}
+    schemas = schema if isinstance(schema, list) else [schema] * len(prompts)
+    assert len(schemas) == len(prompts)
 
     resolved = os.path.expandvars(model_dir)
     print(f"  [vLLM] loading {resolved}")
@@ -75,8 +79,9 @@ def run_vllm_batch(prompts: list[tuple[str, str]], model_dir: str, schema: dict,
         enable_prefix_caching=True,
     )
 
-    def run(batch: list[tuple[str, str]], cap: int) -> list[dict]:
-        params = SamplingParams(temperature=0.0, max_tokens=cap, **guided)
+    def run(batch: list[tuple[str, str]], cap: int, sch: list[dict]) -> list[dict]:
+        params = [SamplingParams(temperature=0.0, max_tokens=cap, **guided(s))
+                  for s in sch]
         conversations = [[{"role": "system", "content": s},
                           {"role": "user", "content": u}] for s, u in batch]
         out = []
@@ -87,12 +92,13 @@ def run_vllm_batch(prompts: list[tuple[str, str]], model_dir: str, schema: dict,
                         "attempts": 1})
         return out
 
-    results = run(prompts, max_tokens)
+    results = run(prompts, max_tokens, schemas)
     if retry_if is not None:
         redo = [i for i, r in enumerate(results) if retry_if(r["text"])]
         if redo:
             print(f"  [vLLM] {len(redo)} replies failed to parse; retrying at "
                   f"max_tokens={retry_max_tokens}")
-            for i, r in zip(redo, run([prompts[i] for i in redo], retry_max_tokens)):
+            for i, r in zip(redo, run([prompts[i] for i in redo], retry_max_tokens,
+                                      [schemas[i] for i in redo])):
                 results[i] = {**r, "attempts": 2}
     return results

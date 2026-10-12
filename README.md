@@ -166,7 +166,7 @@ All post-v0.9 changes and why: `docs/deviations.md`.
 
 ```bash
 python -m rcp                              # Phase A gates: corpus + drift, controls, coverage, freeze
-python -m pytest tests/ -q                 # 253 tests
+python -m pytest tests/ -q                 # 328 tests
 python tools/simulate_delta.py             # the sec. 9.4 equivalence margin (delta = 0.20)
 python -m rcp.coverage                     # the §8.4 vocabulary gate on controls/gold_plans/
 python -m rcp.controls --out results/controls.json
@@ -301,6 +301,9 @@ Model paths use `/data/$USER/...`, expanded at runtime with `os.path.expandvars(
 Never hardcode a username; `/data/shared/` is read-only.
 
 ### Calibration (§6.4)
+
+The study's calibration set is `cal/d11/` (D11): 160 v0.10 blind plans split by
+image into dev and held-out, with its own README. The generic tool:
 
 ```bash
 python -m rcp.calibrate sample --input results/generations.jsonl --out cal/

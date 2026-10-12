@@ -216,7 +216,8 @@ def compare(labels: list[dict], extracted: dict[str, dict]) -> dict:
                   for f, v in bools.items()},
         "verdict_flip": {"n": scored, "flips": len(flips),
                          "rate": (len(flips) / scored) if scored else None,
-                         "cells": flips[:20]},
+                         # all of them: D11 pairs two extractors' flips by cell
+                         "cells": flips},
     }
 
 
@@ -251,7 +252,8 @@ def render(rep: dict) -> str:
         L.append("    because the endpoint is a conjunction. This is the figure")
         L.append("    sec. 4's registry carries for V2a and V3.")
         if vf["cells"]:
-            L.append(f"    cells          : {', '.join(vf['cells'])}")
+            L.append(f"    cells          : {', '.join(vf['cells'][:20])}"
+                     + (" ..." if len(vf["cells"]) > 20 else ""))
     L.append("")
     L.append("  assets_named F1 below 1.000 falsifies sec. 4's ~0 claim for V1 and")
     L.append("  is a resolver bug, not a model error -- no model touches that field.")
@@ -280,7 +282,8 @@ def main(argv: list[str] | None = None) -> int:
     c = sub.add_parser("score", help="compare hand labels to the extractor")
     c.add_argument("--labels", required=True, help="the filled-in label sheet")
     c.add_argument("--extracted", required=True, help="extracted.jsonl")
-    c.add_argument("--out", default=None, help="also write calibration.json here")
+    c.add_argument("--out", default=None,
+                   help="also write the report as JSON to this file (refuses to overwrite)")
 
     args = ap.parse_args(argv)
 
@@ -303,6 +306,9 @@ def main(argv: list[str] | None = None) -> int:
         print("  a label and will be rejected.")
         return 0
 
+    if args.out and pathlib.Path(args.out).exists():
+        print(f"ERROR: {args.out} exists. Write to a new --out.", file=sys.stderr)
+        return 1
     labels = list(csv.DictReader(
         pathlib.Path(args.labels).open(encoding="utf-8-sig", newline="")))
     got = {}

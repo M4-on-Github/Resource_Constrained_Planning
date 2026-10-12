@@ -36,6 +36,7 @@ real because nothing above touches it.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import pathlib
 import sys
@@ -69,7 +70,8 @@ def deterministic_only(prose: str, scenario: Scenario) -> tuple[ExtractedPlan, d
 
 
 def compose(prose: str, scenario: Scenario, llm_raw: object,
-            llm_meta: dict | None = None) -> tuple[ExtractedPlan, dict]:
+            llm_meta: dict | None = None,
+            variant: str = "v010") -> tuple[ExtractedPlan, dict]:
     """The real extraction: deterministic pass, then the model's subtraction.
 
     `llm_meta` is the backend's record of the call (raw text, finish reason,
@@ -79,7 +81,7 @@ def compose(prose: str, scenario: Scenario, llm_raw: object,
     """
     det = extract_det.deterministic_pass(prose, scenario)
     named = det["assets_named"]
-    llm = extract_llm.parse_response(llm_raw, named)
+    llm = extract_llm.parse_response(llm_raw, named, variant)
 
     excluded = set(llm["not_assigned_work"])
     commitments = tuple(t for t in named if t not in excluded)
@@ -125,6 +127,10 @@ def compose(prose: str, scenario: Scenario, llm_raw: object,
         "llm_finish_reason": (llm_meta or {}).get("finish_reason"),
         "llm_attempts": (llm_meta or {}).get("attempts"),
     }
+    if variant != "v010":
+        # added only off the default, so a v010 trace is unchanged (D11)
+        trace.update(extractor=variant, asset_roles=llm["asset_roles"],
+                     roles_missing=list(llm["roles_missing"]))
     return plan, trace
 
 
@@ -177,6 +183,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", required=True, help="output directory")
     ap.add_argument("--model-dir", default=backends.DEFAULT_MODEL_DIR,
                     help="vLLM weights dir (GLM-4-32B GPTQ, as P9)")
+    ap.add_argument("--extractor", choices=sorted(extract_llm.VARIANTS),
+                    default="v010",
+                    help="LLM question set: v010 (the study's) or d11 (per-asset "
+                         "roles, D11's candidate)")
     ap.add_argument("--no-llm", action="store_true",
                     help="deterministic pass only; no GPU, no model")
     ap.add_argument("--limit", type=int, default=None)
@@ -185,7 +195,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--allow-unhashed", action="store_true",
                     help="accept generation rows written before ledger_hash existed "
                          "(the exploratory calibration plans); never for a study run")
+    ap.add_argument("--overwrite", action="store_true",
+                    help="replace an existing extracted.jsonl in --out (default: refuse)")
     args = ap.parse_args(argv)
+
+    # Checked before the model loads, so a wrong --out costs nothing. A finished
+    # run's files are also read-only once registered (runs/README.md).
+    existing = pathlib.Path(args.out) / "extracted.jsonl"
+    if existing.exists() and not args.overwrite:
+        print(f"ERROR: {existing} exists. Write to a new --out, or pass --overwrite.",
+              file=sys.stderr)
+        return 1
 
     scenarios = _load_scenarios(args.corpus)
     rows = [json.loads(ln) for ln in
@@ -207,22 +227,32 @@ def main(argv: list[str] | None = None) -> int:
         if sc is None:
             print(f"  [skip] no scenario for {key}", file=sys.stderr)
             continue
+        # v0.11's commitment header is read off and only the plan below it is
+        # scored (D10); a v0.10 plan has no header and passes through whole.
+        declared, prose = extract_det.split_header(r["prose"])
+        # v0.12's "Contingencies:" section is set aside and never scored (D12): an
+        # asset named only there is held back for a failure, not committed.
+        prose, contingencies = extract_det.split_contingencies(prose)
         # A greedy loop is cut at its first repeated step before anything reads
         # the plan (D9); both the deterministic pass and the model see the cut.
-        prose, looped = extract_det.trim_repeated_steps(r["prose"])
+        prose, looped = extract_det.trim_repeated_steps(prose)
         det = extract_det.deterministic_pass(prose, sc)
         items.append({"row": r, "scenario": sc, "prose": prose, "looped": looped,
+                      "declared_casualty": declared,
+                      "contingencies": contingencies,
                       "assets_named": det["assets_named"],
                       "goal": states()[sc.casualty_state]["goal"]})
 
     if args.no_llm:
         results = [deterministic_only(it["prose"], it["scenario"]) for it in items]
     else:
-        prompts = extract_llm.build_prompts(items)
+        v = args.extractor
+        prompts = extract_llm.build_prompts(items, v)
+        schemas = [extract_llm.schema_for(v, it["assets_named"]) for it in items]
         metas = backends.run_vllm_batch(
-            prompts, args.model_dir, extract_llm.SCHEMA,
-            retry_if=lambda text: extract_llm.parse_response(text, ())["llm_parse_failed"])
-        results = [compose(it["prose"], it["scenario"], m["text"], m)
+            prompts, args.model_dir, schemas,
+            retry_if=lambda text: extract_llm.parse_response(text, (), v)["llm_parse_failed"])
+        results = [compose(it["prose"], it["scenario"], m["text"], m, v)
                    for it, m in zip(items, metas)]
 
     out = pathlib.Path(args.out)
@@ -232,7 +262,10 @@ def main(argv: list[str] | None = None) -> int:
         envinfo.append(out / "env.jsonl", envinfo.record(
             args.model_dir, stage="extract", input=str(args.input),
             max_tokens=backends.DEFAULT_MAX_TOKENS,
-            retry_max_tokens=backends.RETRY_MAX_TOKENS))
+            retry_max_tokens=backends.RETRY_MAX_TOKENS,
+            extractor=args.extractor,
+            system_prompt_sha256=hashlib.sha256(
+                extract_llm.system_prompt(args.extractor).encode()).hexdigest()))
     with (out / "extracted.jsonl").open("w", encoding="utf-8", newline="\n") as fh:
         for it, (plan, trace) in zip(items, results):
             # condition and domain_digest are carried through from the generation
@@ -252,8 +285,21 @@ def main(argv: list[str] | None = None) -> int:
                                  "n_tokens": it["row"].get("n_tokens"),
                                  # steps dropped by trim_repeated_steps; 0 = untouched
                                  "looped_steps_dropped": it["looped"],
+                                 # the header's "Casualty type:" (None = no header)
+                                 "declared_casualty": it["declared_casualty"],
+                                 # v0.12's set-aside section (None = no label), and
+                                 # the ledger IDs named only there: recorded, never
+                                 # scored (D12)
+                                 "contingencies": it["contingencies"],
+                                 "contingency_only_assets": [
+                                     a for a in extract_det.scan_ledger_ids(
+                                         it["contingencies"] or "", it["scenario"])
+                                     if a not in it["assets_named"]],
                                  "ledger_hash": it["row"].get("ledger_hash"),
-                                 "run_id": it["row"].get("run_id")},
+                                 "run_id": it["row"].get("run_id"),
+                                 # only off the default, so v010 rows are unchanged
+                                 **({} if args.no_llm or args.extractor == "v010"
+                                    else {"extractor": args.extractor})},
                                 sort_keys=True) + "\n")
 
     failed = sum(1 for _, t in results if t.get("llm_parse_failed"))

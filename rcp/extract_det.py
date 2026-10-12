@@ -210,6 +210,83 @@ def trim_repeated_steps(prose: str) -> tuple[str, int]:
     return prose, 0
 
 
+#: v0.11's commitment header (plan.md §6.2): three labelled lines, then the plan.
+#: Markdown emphasis around a label ("**Salvage Plan:**") is tolerated.
+_PLAN_LABEL = re.compile(r"^[\s*#_]*salvage plan[\s*_]*:[\s*_]*", re.IGNORECASE | re.MULTILINE)
+#: Looser forms of the label, tried only after a "Casualty type:" line and only
+#: when the exact label is absent: a heading with no colon ("### Salvage Plan"),
+#: a qualifier ("Salvage Plan (refloat):", "Salvage Plan - tow:"), a number
+#: ("4. Salvage Plan:"). The label must be alone on its line, so a step that
+#: mentions the salvage plan is never taken for it.
+_PLAN_LABEL_LOOSE = re.compile(
+    r"^[\s*#_]*(?:\d+[.)][\s*#_]*)?salvage plan(?:\s*\([^)\n]*\)|\s*[-\u2013\u2014][^\n:]*)?"
+    r"[\s*#_]*:?[\s*_]*$\n?", re.IGNORECASE | re.MULTILINE)
+_CASUALTY_LABEL = re.compile(r"^[\s*#_]*casualty type[\s*_]*:[\s*_]*(.*)$",
+                             re.IGNORECASE | re.MULTILINE)
+_STATE_WORDS = (("aground", r"aground|grounded"), ("capsized", r"capsized"),
+                ("sunken", r"sunken|sunk|sinking"), ("on_fire", r"on fire|on_fire|burning|ablaze|(?<!no )(?<!not )fire"))
+
+
+def split_header(prose: str) -> tuple[str | None, str]:
+    """Separate the commitment header from the plan it commits to.
+
+    Returns `(declared casualty state, plan text)`. Only the plan text is scored:
+    an asset ID named in "Course of action:" is reasoning, not a step. A
+    generation with no "Salvage Plan:" label is returned whole, so v0.10 plans,
+    which have no header, extract exactly as before.
+
+    The declared state is one of `Scenario.casualty_state`'s values, "ambiguous"
+    when the line names more than one (a refusal to commit), or None when there
+    is no "Casualty type:" line at all.
+    """
+    if not prose:
+        return None, prose
+    declared = None
+    m = _CASUALTY_LABEL.search(prose)
+    if m:
+        value = m.group(1).lower()
+        hits = [s for s, pat in _STATE_WORDS if re.search(rf"\b(?:{pat})\b", value)]
+        declared = hits[0] if len(hits) == 1 else ("ambiguous" if hits else None)
+    p = _PLAN_LABEL.search(prose)
+    if not p and m:
+        p = _PLAN_LABEL_LOOSE.search(prose, m.end())
+    plan = prose[p.end():].strip() if p else prose
+    return declared, plan
+
+
+#: v0.12's contingency section (D12): a "Contingencies:" label alone on its line, or
+#: with its first item after the colon. Emphasised forms, one qualifier word or a
+#: parenthesis, and a dash for the colon are tolerated ("**Contingencies:**",
+#: "### Contingency plan", "Contingency measures:", "Contingencies (if a step
+#: fails):", "Contingencies -"). It must open a line, so a step that mentions
+#: "contingencies" is never taken for it. A numbered label ("16. Contingencies:")
+#: must stand alone on its line: "2. Contingency: keep TUG-045 ready" is a step of
+#: the plan, and splitting there would drop every step after it from scoring.
+_CONTINGENCY_WORD = r"contingenc(?:y|ies)(?:[ \t]+[a-z]+)?(?:[ \t]*\([^)\n]*\))?"
+_CONTINGENCY_LABEL = re.compile(
+    r"^[\s*#_]*(?:"
+    rf"{_CONTINGENCY_WORD}[\s*_]*(?::|[ \t]+[-–—]|$)"
+    rf"|\d+[.)][\s*#_]*{_CONTINGENCY_WORD}[\s*#_]*:?[ \t*_]*$"
+    r")[\s*_]*", re.IGNORECASE | re.MULTILINE)
+
+
+def split_contingencies(plan: str) -> tuple[str, str | None]:
+    """Separate the committed plan from the contingencies written after it.
+
+    Returns `(plan, contingencies)`, contingencies None when there is no label.
+    Only the plan is scored (D12): an asset that appears only under
+    "Contingencies:" is held back for a failure, not committed. Call it on the
+    text `split_header` returns; a plan with no such label is returned whole, so
+    v0.10 and v0.11 plans extract exactly as before.
+    """
+    if not plan:
+        return plan, None
+    c = _CONTINGENCY_LABEL.search(plan)
+    if not c:
+        return plan, None
+    return plan[:c.start()].rstrip(), plan[c.end():].strip()
+
+
 def conditional_steps(steps: list[str]) -> int:
     """How many steps carry an if/unless/otherwise/should-…-fail branch."""
     return sum(1 for st in steps if _CONDITIONAL.search(st))

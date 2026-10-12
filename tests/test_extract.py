@@ -465,3 +465,285 @@ def test_the_repeat_ignores_the_step_number_case_and_spacing():
 def test_unmarked_prose_is_never_cut():
     prose = "Monitor the tide. Monitor the tide. Monitor the tide."
     assert extract_det.trim_repeated_steps(prose) == (prose, 0)
+
+
+# --------------------------------------------------------------------------- #
+# D10: the v0.11 commitment header is read off; only the plan is scored
+# --------------------------------------------------------------------------- #
+
+HEADED = ("Casualty type: aground\n"
+          "Observed conditions: bow on a sandbar, no list\n"
+          "Course of action: tug pull on the rising tide, TUG-022 is closest\n"
+          "Salvage Plan:\n"
+          "1. Make fast TUG-006 aft.\n"
+          "2. Refloat on the rising tide.")
+
+
+def test_the_header_is_split_off_and_only_the_plan_is_kept():
+    declared, plan = extract_det.split_header(HEADED)
+    assert declared == "aground"
+    assert plan == "1. Make fast TUG-006 aft.\n2. Refloat on the rising tide."
+
+
+def test_an_id_in_the_header_is_not_named_by_the_plan(scenario):
+    a, b = scenario.ledger_ids[:2]
+    prose = HEADED.replace("TUG-022", a).replace("TUG-006", b)
+    _, plan = extract_det.split_header(prose)
+    assert extract_det.scan_ledger_ids(plan, scenario) == (b,)
+
+
+def test_a_v010_plan_without_a_header_passes_through_whole():
+    prose = "1. Make fast TUG-006 aft.\n2. Refloat."
+    assert extract_det.split_header(prose) == (None, prose)
+
+
+@pytest.mark.parametrize("line, want", [
+    ("Casualty type: on fire", "on_fire"),
+    ("**Casualty type:** Capsized", "capsized"),
+    ("Casualty type: sunken (partially)", "sunken"),
+    ("Casualty type: aground, no fire visible", "aground"),
+    ("Casualty type: aground or capsized", "ambiguous"),
+    ("Casualty type: cannot tell from the image", None),
+    ("Casualty type: fire", "on_fire"),
+    ("Casualty type: fire (engine room)", "on_fire"),
+    ("Casualty type: aground, not fire", "aground"),
+])
+def test_the_declared_state_is_one_value_or_flagged(line, want):
+    declared, _ = extract_det.split_header(line + "\nSalvage Plan:\n1. Refloat.")
+    assert declared == want
+
+
+def test_a_markdown_plan_label_is_tolerated():
+    _, plan = extract_det.split_header("Casualty type: aground\n**Salvage Plan:**\n1. Refloat.")
+    assert plan == "1. Refloat."
+
+
+@pytest.mark.parametrize("label", [
+    "### Salvage Plan",
+    "Salvage Plan (refloat):",
+    "Salvage Plan - refloat on the tide:",
+    "4. Salvage Plan:",
+    "**4) Salvage Plan**",
+])
+def test_a_loose_plan_label_after_a_header_still_splits(label):
+    prose = HEADED.replace("Salvage Plan:", label)
+    declared, plan = extract_det.split_header(prose)
+    assert declared == "aground"
+    assert plan == "1. Make fast TUG-006 aft.\n2. Refloat on the rising tide."
+
+
+def test_a_step_that_mentions_the_salvage_plan_is_not_a_label():
+    prose = ("Casualty type: aground\nCourse of action: tow with TUG-022\n"
+             "1. Brief the crew on the salvage plan.\n2. Tow with TUG-006.")
+    assert extract_det.split_header(prose) == ("aground", prose)
+
+
+def test_a_loose_label_needs_a_header_so_v010_plans_are_untouched():
+    prose = "### Salvage Plan\n1. Make fast TUG-006 aft."
+    assert extract_det.split_header(prose) == (None, prose)
+
+
+# --------------------------------------------------------------------------- #
+# D12: the v0.12 "Contingencies:" section is set aside; only the plan is scored
+# --------------------------------------------------------------------------- #
+
+SECTIONED = HEADED + ("\nContingencies:\n"
+                      "1. If the tow parts, bring in TUG-009.\n"
+                      "2. Lighter with BRG-004 if the first pull fails.")
+
+
+def test_the_contingencies_are_split_off_the_plan():
+    _, plan = extract_det.split_header(SECTIONED)
+    plan, cont = extract_det.split_contingencies(plan)
+    assert plan == "1. Make fast TUG-006 aft.\n2. Refloat on the rising tide."
+    assert cont.startswith("1. If the tow parts")
+
+
+def test_an_asset_only_in_the_contingencies_is_not_named_by_the_plan(scenario):
+    a, b = scenario.ledger_ids[:2]
+    _, plan = extract_det.split_header(SECTIONED.replace("TUG-006", a).replace("TUG-009", b))
+    plan, cont = extract_det.split_contingencies(plan)
+    assert extract_det.scan_ledger_ids(plan, scenario) == (a,)
+    assert extract_det.scan_ledger_ids(cont, scenario)[0] == b
+
+
+@pytest.mark.parametrize("label", [
+    "Contingencies:", "**Contingencies:**", "### Contingency plan", "Contingency Plans:",
+    "16. Contingencies:", "Contingencies: none.", "Contingency measures:",
+    "Contingency Actions:", "**Contingency options:**",
+    "Contingencies (if a step does not work):", "Contingencies -", "CONTINGENCIES",
+    "**16. Contingencies:**",
+])
+def test_contingency_label_forms(label):
+    plan, cont = extract_det.split_contingencies("1. Tow.\n" + label + "\n1. Lighter.")
+    assert plan == "1. Tow." and cont is not None
+
+
+def test_a_step_that_mentions_contingencies_is_not_a_label():
+    plan = "1. Tow with TUG-006.\n2. Brief the crew on contingencies before the pull."
+    assert extract_det.split_contingencies(plan) == (plan, None)
+
+
+@pytest.mark.parametrize("step", [
+    "2. Contingency: keep TUG-045 ready.", "2. Contingency plan: TUG-045 stands by.",
+    "2. Contingencies: TUG-045 stands by.",
+])
+def test_a_numbered_contingency_step_does_not_cut_the_plan(step):
+    """A numbered "Contingency:" line with text after it is a step of the plan:
+    splitting there would drop steps 3 and 4 from scoring and from the branch
+    count, which favours the guard test."""
+    plan = "1. Tow with TUG-006.\n" + step + "\n3. Refloat with LIFT-002.\n4. Tow clear."
+    assert extract_det.split_contingencies(plan) == (plan, None)
+
+
+@pytest.mark.parametrize("line", [
+    "Contingency teams stand by at the berth.", "Contingency if the tow parts: TUG-045.",
+    "Backup plan:", "Fallback:",
+])
+def test_lines_that_are_not_the_label(line):
+    plan = "1. Tow.\n" + line + "\n2. Lighter."
+    assert extract_det.split_contingencies(plan) == (plan, None)
+
+
+def test_a_plan_without_the_section_passes_through_whole():
+    assert extract_det.split_contingencies("1. Tow.") == ("1. Tow.", None)
+
+
+# --------------------------------------------------------------------------- #
+# D11's candidate: a role per asset
+# --------------------------------------------------------------------------- #
+
+
+GOOD_D11 = {"asset_roles": [], "attempts_goal": True,
+            "escalates": False, "reduces": False}
+
+
+def _role(asset, role):
+    return {"asset": asset, "role": role}
+
+
+def test_d11_schema_is_closed_at_every_level():
+    def walk(node):
+        if isinstance(node, dict):
+            assert not isinstance(node.get("type"), list), node
+            if node.get("type") == "object":
+                assert node["additionalProperties"] is False
+                assert set(node["required"]) == set(node["properties"])
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+
+    walk(extract_llm.SCHEMA_D11)
+    walk(extract_llm.schema_for("d11", ("TUG-001", "WB-002")))
+
+
+def test_d11_schema_names_each_asset_once_in_order():
+    """Round 1's open array let GLM repeat entries to the token cap (D11)."""
+    roles = extract_llm.schema_for("d11", ("WB-002", "TUG-001"))["properties"]["asset_roles"]
+    assert [e["properties"]["asset"]["const"] for e in roles["prefixItems"]] == ["WB-002", "TUG-001"]
+    assert roles["items"] is False
+    assert extract_llm.schema_for("d11", ())["properties"]["asset_roles"]["prefixItems"] == []
+    assert extract_llm.schema_for("v010", ("TUG-001",)) is extract_llm.SCHEMA
+
+
+def test_d11_schema_stays_on_xgrammar():
+    """vLLM 0.8.5 sends these array keywords to a different backend
+    (`has_xgrammar_unsupported_json_features`), so the schema must not use them."""
+    banned = {"minItems", "maxItems", "uniqueItems", "contains"}
+
+    def walk(node):
+        if isinstance(node, dict):
+            assert not banned & set(node), node
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+
+    walk(extract_llm.schema_for("d11", ("TUG-001", "WB-002")))
+
+
+def test_d11_reads_round_2s_role_object():
+    raw = dict(GOOD_D11, asset_roles={"TUG-001": "committed", "TUG-002": "held_back"})
+    out = extract_llm.parse_response(raw, ("TUG-001", "TUG-002"), "d11")
+    assert out["not_assigned_work"] == ("TUG-002",) and out["roles_missing"] == ()
+
+
+def test_the_default_extractor_is_unchanged():
+    assert extract_llm.system_prompt() == extract_llm.system_prompt("v010")
+    assert extract_llm.VARIANTS["v010"][1] is extract_llm.SCHEMA
+    out = extract_llm.parse_response(dict(GOOD), ("TUG-001",))
+    assert "asset_roles" not in out and "roles_missing" not in out
+
+
+def test_d11_shares_everything_but_the_asset_question_with_v010():
+    """Only section 1 differs, so a change in escalate or goal agreement on the
+    held-out set cannot come from a reworded question."""
+    tail = lambda v: extract_llm.system_prompt(v).split("2. attempts_goal", 1)[1]
+    assert tail("d11") == tail("v010")
+
+
+@pytest.mark.parametrize("raw", [None, "garbage", dict(GOOD), {"asset_roles": []}])
+def test_d11_parse_failure_commits_everything(raw):
+    out = extract_llm.parse_response(raw, ("TUG-001", "TUG-002"), "d11")
+    assert out["llm_parse_failed"] is True
+    assert out["not_assigned_work"] == ()
+    assert out["roles_missing"] == ("TUG-001", "TUG-002")
+    assert out["escalates"] is False and out["attempts_goal"] is False
+
+
+def test_d11_only_committed_assets_are_committed():
+    raw = dict(GOOD_D11, asset_roles=[_role("TUG-001", "committed"),
+                                      _role("TUG-002", "held_back"),
+                                      _role("TUG-003", "not_used")])
+    out = extract_llm.parse_response(raw, ("TUG-001", "TUG-002", "TUG-003"), "d11")
+    assert out["not_assigned_work"] == ("TUG-002", "TUG-003")
+    assert out["roles_missing"] == ()
+
+
+def test_d11_committed_anywhere_wins():
+    raw = dict(GOOD_D11, asset_roles=[_role("TUG-001", "held_back"),
+                                      _role("tug 001", "committed"),
+                                      _role("TUG-001", "not_used")])
+    out = extract_llm.parse_response(raw, ("TUG-001",), "d11")
+    assert out["asset_roles"] == {"TUG-001": "committed"}
+
+
+def test_d11_an_unplaced_asset_is_committed_and_recorded():
+    raw = dict(GOOD_D11, asset_roles=[_role("TUG-002", "held_back")])
+    out = extract_llm.parse_response(raw, ("TUG-001", "TUG-002"), "d11")
+    assert out["asset_roles"] == {"TUG-001": "committed", "TUG-002": "held_back"}
+    assert out["roles_missing"] == ("TUG-001",)
+
+
+def test_d11_off_list_names_and_unknown_roles_are_discarded():
+    raw = dict(GOOD_D11, asset_roles=[_role("BARGE-999", "held_back"),
+                                      _role("TUG-001", "maybe"), "TUG-001",
+                                      {"asset": 3, "role": "held_back"}])
+    out = extract_llm.parse_response(raw, ("TUG-001",), "d11")
+    assert out["not_assigned_work"] == () and out["roles_missing"] == ("TUG-001",)
+
+
+def test_d11_prompt_never_shows_the_arithmetic(scenario):
+    req, a = scenario.requirement, scenario.ledger[0]
+    sys_p, user_p = extract_llm.build_prompts(
+        [{"prose": "Use " + a.id + ".", "assets_named": (a.id,), "goal": "refloat"}],
+        "d11")[0]
+    assert sys_p == extract_llm.system_prompt("d11")
+    for forbidden in (str(req.amount), str(req.deadline_h), str(a.capability),
+                      str(a.eta_hours)):
+        assert forbidden not in sys_p + "\n" + user_p
+
+
+def test_d11_composes_to_the_same_plan_shape(scenario):
+    a, b = _two_ids(scenario)
+    prose = "1. Use " + a + " to refloat her.\n2. " + b + " stands by if required."
+    raw = dict(GOOD_D11, asset_roles=[_role(a, "committed"), _role(b, "held_back")])
+    plan, tr = extract.compose(prose, scenario, raw, None, "d11")
+    assert plan.commitments == (a,) and set(plan.commitments) <= set(plan.assets_named)
+    assert tr["extractor"] == "d11" and tr["roles_missing"] == []
+    assert tr["not_assigned_work"] == [b]
+    _, tr10 = extract.compose(prose, scenario, dict(GOOD))
+    assert "extractor" not in tr10 and "asset_roles" not in tr10

@@ -1,0 +1,65 @@
+{
+  "bools": {
+    "escalate": {
+      "agree": 52,
+      "agreement": 0.8125,
+      "false_neg": 0,
+      "false_pos": 12,
+      "n": 64
+    },
+    "goal_attempted": {
+      "agree": 60,
+      "agreement": 0.9375,
+      "false_neg": 0,
+      "false_pos": 4,
+      "n": 64
+    },
+    "reduce": {
+      "agree": 45,
+      "agreement": 0.703125,
+      "false_neg": 1,
+      "false_pos": 18,
+      "n": 64
+    }
+  },
+  "missing_from_extraction": [],
+  "n_compared": 64,
+  "n_labelled": 64,
+  "sets": {
+    "assets_named": {
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "commitments": {
+      "f1": 0.9057212056747973,
+      "fn": 81,
+      "fp": 16,
+      "precision": 0.9684934129901961,
+      "recall": 0.8741167609963566
+    }
+  },
+  "verdict_flip": {
+    "cells": [
+      "AGR-00041/INFEASIBLE",
+      "AGR-00063/SCARCE",
+      "AGR-00074/INFEASIBLE",
+      "AGR-00157/SUFFICIENT",
+      "AGR-00204/SCARCE",
+      "CAP-00006/SCARCE",
+      "CAP-00176/SCARCE",
+      "ON_-00070/SCARCE",
+      "ON_-00135/SCARCE",
+      "ON_-00198/SUFFICIENT",
+      "SUN-00048/SURPLUS",
+      "SUN-00048/INFEASIBLE",
+      "SUN-00064/INFEASIBLE",
+      "SUN-00138/SCARCE"
+    ],
+    "flips": 14,
+    "n": 64,
+    "rate": 0.21875
+  }
+}

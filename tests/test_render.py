@@ -178,6 +178,14 @@ def test_blind_is_the_default_so_existing_callers_are_unchanged(sample):
     assert domain_digest() == domain_digest("blind")
 
 
+def test_the_prompt_is_v010s():
+    """The study is v0.10, so main must regenerate its prompts byte for byte. These
+    are the digests in `runs/v010.json`. The failed v0.11 and v0.12 prompts (D10,
+    D12) are at tags `run/v011_gen` and `run/v012_guard`, with the tests that held them."""
+    assert domain_digest("blind").startswith("22e9bbd8233453c7")
+    assert domain_digest("stated").startswith("bb5bebf4732ddedd")
+
+
 def test_the_escalate_affordance_is_present_and_unconditional():
     """sec. 6.2: the affordance must exist, or over-refusal has no numerator --
     but it must not be attached to a condition, or it becomes a hint (Rule 2)."""

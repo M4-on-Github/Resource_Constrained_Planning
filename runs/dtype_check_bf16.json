@@ -1,0 +1,44 @@
+{
+  "archive": "/data/mmyatmau/rcp_archive/dtype_check_bf16",
+  "files": [
+    {
+      "bytes": 943,
+      "lines": 1,
+      "path": "results/dtype_check/gen_bf16.env.jsonl",
+      "sha256": "4504981ada913bcb2a9e3a97954547d8f6aaec1177572f39a209b5301beb2c4a"
+    },
+    {
+      "bytes": 142895,
+      "lines": 30,
+      "path": "results/dtype_check/gen_bf16.jsonl",
+      "sha256": "f1fb3f96e56bb874969af5d21fedc9f04b7afeb1dec540456746717dab33ed12"
+    }
+  ],
+  "frozen_utc": "2026-10-09T18:09:58+00:00",
+  "jobs": [
+    {
+      "arms": [
+        "SURPLUS"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "22e9bbd8233453c71516fc07c7a901dc2df6968103a1676208b443189f063a2e",
+      "dtype": "bfloat16",
+      "git_commit": "60b2fddc5bda7c3ba5135c02e7ccd62422619efc",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 2048,
+      "record": "results/dtype_check/gen_bf16.env.jsonl",
+      "run_id": "slurm-50450",
+      "stage": "plan",
+      "time_utc": "2026-10-09T17:22:29+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    }
+  ],
+  "name": "dtype_check_bf16",
+  "purpose": "D10 dtype check: v0.10 prompt in bfloat16, 30 SURPLUS/blind cells, job 50450, branch dtype-check 60b2fdd",
+  "repo_commit_at_freeze": "ea9f29c8a672eda1b1d6e8e104db1c6e91743f17",
+  "repo_dirty_at_freeze": true
+}
