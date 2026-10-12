@@ -410,6 +410,10 @@ labeller would be. The adoption rule below must hold against A and against B
 separately. The extraction error is reported against each, with A–B agreement,
 and is called agreement with model labels, not measured error.
 
+Both written before any d11 output was read: A `7ac0be92…`, B `ccfe2e55…`. A–B
+agreement: commitments identical on 95/96 plans, `goal_attempted` 96/96,
+`escalate` 95/96, `reduce` 93/96.
+
 `rcp.calibrate score` now keeps every flipped cell, for pairing, and refuses to
 overwrite its output.
 

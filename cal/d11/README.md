@@ -31,6 +31,7 @@ stratum then draws 4 dev plans and 6 held-out plans:
 | `dev_view.md`, `heldout_view.md`: the same plans, readable | `e118c3d4…`, `541fc195…` |
 | `labels_dev.csv`: model-drafted dev labels | `726a1286…` |
 | `LABELLING.md`: rules, with the conventions added after dev drafting | `981c1cce…` |
+| `labels_heldout_a.csv`, `labels_heldout_b.csv`: model labellers A and B | `7ac0be92…`, `ccfe2e55…` |
 
 **Extraction.** `v010` is already frozen in `results/ex_blind_all.jsonl`. `d11`
 runs once over the whole sample (one GPU job). Its output is registered with
