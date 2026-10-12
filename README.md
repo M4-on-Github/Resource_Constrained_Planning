@@ -166,7 +166,7 @@ All post-v0.9 changes and why: `docs/deviations.md`.
 
 ```bash
 python -m rcp                              # Phase A gates: corpus + drift, controls, coverage, freeze
-python -m pytest tests/ -q                 # 253 tests
+python -m pytest tests/ -q                 # 313 tests
 python tools/simulate_delta.py             # the sec. 9.4 equivalence margin (delta = 0.20)
 python -m rcp.coverage                     # the §8.4 vocabulary gate on controls/gold_plans/
 python -m rcp.controls --out results/controls.json

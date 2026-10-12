@@ -281,3 +281,51 @@ def test_escalation_contrast_is_positive_when_escalation_tracks_the_arm():
           for i in range(5) for a in ARMS]
     res = escalation_contrast(vs)
     assert res["diff"] == 1.0 and res["n"] == 5
+
+
+# --------------------------------------------------------------------------- #
+# D10's V5 additions: declared casualty state, for runs with the header
+# --------------------------------------------------------------------------- #
+
+
+def test_a_run_without_the_header_has_no_declared_state_section(run):
+    """v0.10 has no header, so its report.txt and report.json stay as frozen."""
+    rep = build(*run, declared={})
+    assert "declared_state" not in rep
+    assert "3b." not in render(rep)
+
+
+def test_declared_state_accuracy_and_the_restricted_primary(run):
+    vs, scs = run
+    declared = {k: "aground" for k in scs}
+    declared["AGR-00003/SCARCE"] = "sunken"      # wrong in one arm
+    declared["AGR-00004/SURPLUS"] = None         # no header in one arm
+    ds = build(vs, scs, declared=declared)["declared_state"]
+    assert ds["arms"]["SURPLUS"]["correct"][1:] == (4, 5)
+    assert ds["arms"]["SURPLUS"]["none"][1:] == (1, 5)
+    assert ds["arms"]["SCARCE"]["correct"][1:] == (4, 5)
+    assert ds["same_across_arms"][1:] == (3, 5)
+    assert ds["restricted"]["n_images"] == 3
+    assert ds["restricted"]["ar"]["SURPLUS"][1:] == (3, 3)
+
+
+def test_the_report_leads_with_neither_when_the_restricted_primary_disagrees():
+    """D10: if (c) and the primary differ on ESTABLISHED, the report says so."""
+    vs, scs, declared = [], {}, {}
+    for n in range(10):
+        sid = f"AGR-{n:05d}"
+        for arm in ARMS:
+            sat = arm in ("SURPLUS", "SUFFICIENT")
+            scs[f"{sid}/{arm}"] = scenario(sid, arm, tug("TUG-001", 400 if sat else 30, 1.0))
+            flat = n < 5          # flat images escalate where they should
+            vs.append(verdict(sid, arm, satisfiable=sat, succeeds=sat,
+                              escalate=flat and not sat))
+            declared[f"{sid}/{arm}"] = ("aground" if flat or arm != "SCARCE"
+                                        else "capsized")
+    rep = build(vs, scs, declared=declared)
+    assert rep["primary"]["equivalence"]["equivalent"] is False
+    assert rep["declared_state"]["restricted"]["equivalence"]["equivalent"] is True
+    assert rep["declared_state"]["agrees"] is False
+    text = render(rep)
+    assert "lead with neither" in text
+    assert [c for c in text if ord(c) > 127] == []

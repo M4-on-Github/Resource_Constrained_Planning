@@ -405,6 +405,30 @@ no worse than v0.10 on these cells. Reported only: state correct; contingency
 section present; asks/escalate in the plan section (a fall well below v0.10 is a
 reason to look before adopting, as in D10); hedge with no "if"; over 15 steps.
 
+*Pre-flight review, before any v0.12 generation (2026-10-12).* The criteria are
+unchanged. Three fixes and one addition:
+- **Parser: a numbered contingency step no longer cuts the plan.**
+  `split_contingencies` took "2. Contingency: keep TUG-045 ready" for the section
+  label, so steps 3 onward were dropped from scoring and from the branch count,
+  which favours the guard test. A numbered label now counts only when it stands
+  alone on its line ("16. Contingencies:").
+- **Parser: more label forms.** It now takes one qualifier word, a parenthesis or
+  a dash ("Contingency measures:", "Contingencies (if a step fails):",
+  "Contingencies -"). "Backup plan:" and "Fallback:" are still not the label, and
+  count as not following the format. On the 1,820 earlier plans (v0.10, v0.11,
+  test 1) the label still never occurs, so their extraction is unchanged.
+- **`guard_check.py`: "asks, cont. only"** (reported, not a criterion): the
+  share of plans that ask for resources under "Contingencies:" but not in the
+  plan. ESCALATE is read from the plan only, so this is the share whose ask the
+  new section moved out of P1′.
+- **`report.py`: D10's V5 additions (b) and (c)**, now implemented. For a run
+  with the header it prints section 3b: declared-state accuracy per arm, the
+  share of images declaring one state in all four arms, and the primary
+  restricted to images declared correctly in all four arms, with each arm's AR
+  on that subset (a). If that and the primary differ on ESTABLISHED, both the
+  primary and 3b say so. (d) is `rcp.compare`, unchanged. All four v0.10 reports
+  (`rep_*`, `sens_noloop_*`) regenerate byte-identical.
+
 *What follows.*
 - **If it passes**, the 8 v0.12 jobs run in full to `results/v012/`, extraction
   uses the extractor D11 settles on, and the analysis plan is unchanged, with D10's

@@ -255,12 +255,19 @@ def split_header(prose: str) -> tuple[str | None, str]:
 
 
 #: v0.12's contingency section (D12): a "Contingencies:" label alone on its line, or
-#: with its first item after the colon. Numbered or emphasised forms are tolerated
-#: ("**Contingencies:**", "### Contingency plan", "16. Contingencies:"). It must
-#: open a line, so a step that mentions "contingencies" is never taken for it.
+#: with its first item after the colon. Emphasised forms, one qualifier word or a
+#: parenthesis, and a dash for the colon are tolerated ("**Contingencies:**",
+#: "### Contingency plan", "Contingency measures:", "Contingencies (if a step
+#: fails):", "Contingencies -"). It must open a line, so a step that mentions
+#: "contingencies" is never taken for it. A numbered label ("16. Contingencies:")
+#: must stand alone on its line: "2. Contingency: keep TUG-045 ready" is a step of
+#: the plan, and splitting there would drop every step after it from scoring.
+_CONTINGENCY_WORD = r"contingenc(?:y|ies)(?:[ \t]+[a-z]+)?(?:[ \t]*\([^)\n]*\))?"
 _CONTINGENCY_LABEL = re.compile(
-    r"^[\s*#_]*(?:\d+[.)][\s*#_]*)?contingenc(?:y|ies)(?: plans?| steps?)?[\s*_]*"
-    r"(?::|$)[\s*_]*", re.IGNORECASE | re.MULTILINE)
+    r"^[\s*#_]*(?:"
+    rf"{_CONTINGENCY_WORD}[\s*_]*(?::|[ \t]+[-–—]|$)"
+    rf"|\d+[.)][\s*#_]*{_CONTINGENCY_WORD}[\s*#_]*:?[ \t*_]*$"
+    r")[\s*_]*", re.IGNORECASE | re.MULTILINE)
 
 
 def split_contingencies(plan: str) -> tuple[str, str | None]:

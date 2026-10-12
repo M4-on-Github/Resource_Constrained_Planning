@@ -569,7 +569,10 @@ def test_an_asset_only_in_the_contingencies_is_not_named_by_the_plan(scenario):
 
 @pytest.mark.parametrize("label", [
     "Contingencies:", "**Contingencies:**", "### Contingency plan", "Contingency Plans:",
-    "16. Contingencies:", "Contingencies: none.",
+    "16. Contingencies:", "Contingencies: none.", "Contingency measures:",
+    "Contingency Actions:", "**Contingency options:**",
+    "Contingencies (if a step does not work):", "Contingencies -", "CONTINGENCIES",
+    "**16. Contingencies:**",
 ])
 def test_contingency_label_forms(label):
     plan, cont = extract_det.split_contingencies("1. Tow.\n" + label + "\n1. Lighter.")
@@ -578,6 +581,27 @@ def test_contingency_label_forms(label):
 
 def test_a_step_that_mentions_contingencies_is_not_a_label():
     plan = "1. Tow with TUG-006.\n2. Brief the crew on contingencies before the pull."
+    assert extract_det.split_contingencies(plan) == (plan, None)
+
+
+@pytest.mark.parametrize("step", [
+    "2. Contingency: keep TUG-045 ready.", "2. Contingency plan: TUG-045 stands by.",
+    "2. Contingencies: TUG-045 stands by.",
+])
+def test_a_numbered_contingency_step_does_not_cut_the_plan(step):
+    """A numbered "Contingency:" line with text after it is a step of the plan:
+    splitting there would drop steps 3 and 4 from scoring and from the branch
+    count, which favours the guard test."""
+    plan = "1. Tow with TUG-006.\n" + step + "\n3. Refloat with LIFT-002.\n4. Tow clear."
+    assert extract_det.split_contingencies(plan) == (plan, None)
+
+
+@pytest.mark.parametrize("line", [
+    "Contingency teams stand by at the berth.", "Contingency if the tow parts: TUG-045.",
+    "Backup plan:", "Fallback:",
+])
+def test_lines_that_are_not_the_label(line):
+    plan = "1. Tow.\n" + line + "\n2. Lighter."
     assert extract_det.split_contingencies(plan) == (plan, None)
 
 

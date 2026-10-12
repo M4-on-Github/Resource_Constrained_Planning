@@ -52,6 +52,10 @@ REQUEST = re.compile(r"\b(?:request\w*|call(?:s|ed)? for|mobili[sz]e additional|
                      r"additional (?:tugs?|resources?|capacity|assets?|lift\w*|pull)|"
                      r"escalat\w*)\b", re.IGNORECASE)
 MAX_STEPS = 15          # revision 2's step cap; the share over it is reported only
+#: "asks, cont. only" (report-only, added to D12 before any v0.12 generation): the
+#: share of plans that ask for resources under "Contingencies:" but not in the plan
+#: section. ESCALATE is read from the plan section, so this is the share whose ask
+#: the new section took out of the outcome P1' measures.
 
 
 def load(paths: list[str]) -> list[dict]:
@@ -68,7 +72,7 @@ def measure(rows: list[dict]) -> dict:
         return {"n": 0}
     header = committed = correct = branched = looped = truncated = 0
     branches, tokens, ambiguous, hedged, steps, requests = [], [], 0, 0, [], 0
-    sectioned = 0
+    sectioned = cont_only_asks = 0
     for r in rows:
         declared, plan = extract_det.split_header(r["prose"])
         has_label = plan != r["prose"]
@@ -85,6 +89,7 @@ def measure(rows: list[dict]) -> dict:
         hedged += any(HEDGE.search(s) and not extract_det.conditional_steps([s])
                       for s in segs)
         requests += bool(REQUEST.search(plan))
+        cont_only_asks += bool(cont and REQUEST.search(cont) and not REQUEST.search(plan))
         steps.append(len(segs))
         branches.append(k)
         branched += k > 0
@@ -98,7 +103,7 @@ def measure(rows: list[dict]) -> dict:
             "over_cap": sum(k > MAX_STEPS for k in steps) / n,
             "looped": looped / n, "truncated": truncated / n,
             "median_tokens": statistics.median(tokens),
-            "sectioned": sectioned / n}
+            "sectioned": sectioned / n, "cont_only_asks": cont_only_asks / n}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -123,6 +128,7 @@ def main(argv: list[str] | None = None) -> int:
             ("ambiguous", "ambiguous"), ("state correct", "correct"),
             ("w/ branch", "branched"), ("branches/plan", "mean_branches"),
             ("hedge, no if", "hedged"), ("asks/escalate", "requests"),
+            ("asks, cont. only", "cont_only_asks"),
             ("median steps", "median_steps"), (f"> {MAX_STEPS} steps", "over_cap"),
             ("looped", "looped"), ("truncated", "truncated"),
             ("median tokens", "median_tokens")]
@@ -161,8 +167,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  {'PASS' if ok else 'FAIL'}  {name:32} {detail}")
     print("  (state correct is reported, never a criterion: it is the planner's"
           " vision, not the prompt's format)")
-    print("  ('hedge, no if', 'asks/escalate' and the step counts are reported, never"
-          " criteria; a fall in 'asks/escalate' is a reason to look before adopting)")
+    print("  ('hedge, no if', 'asks/escalate', 'asks, cont. only' and the step counts"
+          " are reported, never criteria; a fall in 'asks/escalate' or a large"
+          " 'asks, cont. only' is a reason to look before adopting)")
     return 0 if all(ok for _, ok, _ in checks) else 1
 
 
