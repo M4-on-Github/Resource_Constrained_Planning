@@ -32,15 +32,27 @@ the environment records each stage writes), and the repo commit when it was froz
 
 | path | what |
 |---|---|
-| `results/gen_<ARM>_<cond>.jsonl`, `ex_gen_*`, `rep_*`, `cmp_*`, `sens_*` | v0.10 (the pilot, if v0.11 is adopted); flat, as run |
-| `results/v011_guard/` | D10's structural tests of the v0.11 prompt |
+| `results/gen_<ARM>_<cond>.jsonl`, `ex_gen_*`, `ex_*_all.jsonl`, `rep_*`, `cmp_*`, `sens_*` | v0.10, the study; flat, as run |
 | `results/dtype_check/` | D10's float16 vs bfloat16 check |
-| `results/v011/gen_<ARM>_<cond>.jsonl` | v0.11 plans, one file per arm × condition |
-| `results/v011/ex_gen_<ARM>_<cond>/` | v0.11 extraction (`extract_job.sh`'s default beside its input) |
-| `results/v011/rep_<cond>/`, `cmp_<ARM>/`, `sens_*` | v0.11 reports |
+| `results/v011_guard/` | D10's structural tests of the v0.11 prompt |
+| `results/v011/gen_<ARM>_<cond>.jsonl` | v0.11 revision 2 plans (failed, not analysed) |
+| `results/v012_guard/` | D12's guard test of the v0.12 prompt (failed) |
+| `cal/d11/ex_d11*/` | D11's extractor rounds r1–r3 on the calibration sample |
 
 Names: `<version>_<stage>` for study runs (`v011_gen`, `v011_extract`,
 `v011_reports`), `<version>_<test>` for checks (`v011_guard_r2`).
+
+## Code for a run
+
+`main` runs the study, v0.10: its planner prompt regenerates v0.10's prompt
+digests (`tests/test_render.py`), and replaying v0.10's stored extractor replies
+through it reproduces `rep_blind` and `rep_stated` byte for byte
+(`python3 tools/check_v010.py`, in the container). The code a later
+run used is at its job's `git_commit`, also tagged `run/<name>`:
+
+    git checkout run/v012_guard
+
+v0.10 itself ran at `4e348e6` (tag `study-2026-10-09`) and `2a86040` (the resumes).
 
 ## Index
 

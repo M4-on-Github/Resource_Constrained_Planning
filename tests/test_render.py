@@ -178,49 +178,12 @@ def test_blind_is_the_default_so_existing_callers_are_unchanged(sample):
     assert domain_digest() == domain_digest("blind")
 
 
-def test_the_task_half_asks_for_a_commitment_header_before_the_plan():
-    """v0.11 (D10): one casualty reading and one course of action, declared before
-    the steps, so a blind planner decides instead of branching over states."""
-    t = task_block()
-    for label in ("Casualty type:", "Observed conditions:", "Course of action:",
-                  '"Salvage Plan:"'):
-        assert label in t, label
-    assert t.index("Casualty type:") < t.index('"Salvage Plan:"')
-    header = t[t.index("Casualty type:"):t.index('"Salvage Plan:"')].lower()
-    for word in ("resource", "enough", "short", "insufficient", "escalat", "request",
-                 "adequate", "sufficient"):
-        assert word not in header, word
-
-
-def test_revision_2_caps_the_steps_and_describes_a_committed_plan():
-    """D10 revision 2: a step cap against the loops, "name only the assets the plan
-    uses" against backup assets in the steps, and a guard that says what a
-    committed plan is rather than listing words -- a word list is passed by
-    paraphrase, which the branch count cannot see."""
-    t = task_block()
-    assert "at most 15 steps" in t
-    assert "Name only the assets the plan uses." in t
-    guard = next(ln for ln in t.splitlines() if "conditional" in ln)
-    assert "not a set of options" in guard
-    assert "no step depends on how an earlier step turns out" in guard
-    assert "backup or reserve steps" in guard
-    for word in ("adequate", "sufficient", "enough", "short", '"if"'):
-        assert word not in guard, word
-
-
-def test_v012_sets_contingencies_aside_without_an_escalation_cue():
-    """D12: backup and reserve assets go in a "Contingencies:" section after the
-    plan, which is never scored. The line must not name a shortfall or a remedy
-    for one (Rule 2), and must come after the affordance, so the affordance is
-    not read as part of a condition."""
-    t = task_block()
-    assert '"Contingencies:"' in t
-    assert t.index('"Salvage Plan:"') < t.index('"Contingencies:"')
-    line = next(ln for ln in t.splitlines() if '"Contingencies:"' in ln).lower()
-    for word in ("enough", "short", "insufficient", "escalat", "request",
-                 "adequate", "sufficient", "more "):
-        assert word not in line, word
-    assert t.index("Include any assumptions") < t.index('"Contingencies:"')
+def test_the_prompt_is_v010s():
+    """The study is v0.10, so main must regenerate its prompts byte for byte. These
+    are the digests in `runs/v010.json`. The failed v0.11 and v0.12 prompts (D10,
+    D12) are at tags `run/v011_gen` and `run/v012_guard`, with the tests that held them."""
+    assert domain_digest("blind").startswith("22e9bbd8233453c7")
+    assert domain_digest("stated").startswith("bb5bebf4732ddedd")
 
 
 def test_the_escalate_affordance_is_present_and_unconditional():
