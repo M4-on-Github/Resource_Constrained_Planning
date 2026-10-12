@@ -409,6 +409,10 @@ Labelling:
   63 committed assets to r1's 8 and gets `escalate` wrong on 7 to r1's 3, though
   that question's text is unchanged: the closed object changed GLM's answers, not
   only their form. r2 is not frozen.
+- **r3** (`ex_d11_r3/`, prompt `ca15ff28…`). Round 1's list of {asset, role},
+  fixed to one entry per listed asset, in order (`prefixItems`, each asset a
+  `const`); the format line says so. No question wording changed. If r3 does not
+  have fewer dev flips than v010, no d11 prompt is frozen and v010 stays.
 
 *Amendment (2026-10-12, while the d11 job ran and before any of its output was
 read).* The PI has no time to label, so neither the held-out set nor the dev

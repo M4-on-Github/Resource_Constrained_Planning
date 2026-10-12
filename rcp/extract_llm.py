@@ -65,16 +65,17 @@ _FIELDS = ("not_assigned_work", "attempts_goal", "escalates", "reduces")
 #: failures). Here there is no default to fall back on: each asset must be placed.
 #: The enum is a plain string enum, not a type array (see SCHEMA).
 #:
-#: `asset_roles` is an object with one required key per listed asset, filled in
-#: per plan by `schema_for`; this template has none. The first d11 run asked for
-#: an open array of {asset, role} and GLM repeated entries until the token cap on
-#: 44 of 160 plans (D11 dev round 1). A closed object cannot repeat or omit a key.
+#: `asset_roles` is a list of {asset, role} with exactly one entry per listed
+#: asset, in order, filled in per plan by `schema_for`; this template has none.
+#: Round 1's open list let GLM repeat entries until the token cap on 44 of 160
+#: plans. Round 2's {asset: role} object stopped that but changed the answers
+#: (D11). Round 3 keeps round 1's form and fixes its length with `prefixItems`:
+#: xgrammar ignores `maxItems`, and vLLM 0.8.5 sends `maxItems` to another backend.
 ROLES = ("committed", "held_back", "not_used")
 SCHEMA_D11: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "asset_roles": {"type": "object", "properties": {}, "required": [],
-                        "additionalProperties": False},
+        "asset_roles": {"type": "array", "prefixItems": [], "items": False},
         "attempts_goal": {"type": "boolean"},
         "escalates": {"type": "boolean"},
         "reduces": {"type": "boolean"},
@@ -94,12 +95,15 @@ VARIANTS: dict[str, tuple[str, dict[str, Any]]] = {
 
 def schema_for(variant: str, assets_named: tuple[str, ...]) -> dict[str, Any]:
     """The guided-decoding schema for one plan. v010's is the same for every plan;
-    d11's lists that plan's assets as the keys of `asset_roles`, in order."""
+    d11's fixes `asset_roles` to one {asset, role} entry per listed asset, in order."""
     if variant != "d11":
         return VARIANTS[variant][1]
     role = {"type": "string", "enum": list(ROLES)}
-    roles = {"type": "object", "properties": {t: role for t in assets_named},
-             "required": list(assets_named), "additionalProperties": False}
+    entry = lambda t: {"type": "object",
+                       "properties": {"asset": {"const": t}, "role": role},
+                       "required": ["asset", "role"], "additionalProperties": False}
+    roles = {"type": "array", "prefixItems": [entry(t) for t in assets_named],
+             "items": False}
     return {**SCHEMA_D11, "properties": {**SCHEMA_D11["properties"], "asset_roles": roles}}
 
 
@@ -221,8 +225,8 @@ def _roles(returned: Any, assets_named: tuple[str, ...]
            ) -> tuple[dict[str, str], tuple[str, ...]]:
     """d11's roles -> ({token: role} over `assets_named`, tokens given none).
 
-    `returned` is the {asset: role} object the schema asks for, or the round-1
-    list of {asset, role}. Matched by §4 normalisation, like `_restrict`;
+    `returned` is the list of {asset, role} the schema asks for, or round 2's
+    {asset: role} object. Matched by §4 normalisation, like `_restrict`;
     off-list names and unknown roles are discarded. An asset given two roles is
     committed if either says so, as the prompt states.
     """

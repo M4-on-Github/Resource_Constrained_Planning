@@ -4,8 +4,9 @@ a good plan, and you are not given the information needed to judge one.
 You answer exactly four questions about one plan. Output a single JSON object
 with these four keys and nothing else. No explanation, no markdown fences.
 
-  asset_roles   : object with one key per supplied asset name, in the order
-                  listed, each set to "committed", "held_back" or "not_used"
+  asset_roles   : array of {"asset": <name>, "role": <role>}, one per supplied
+                  asset in the order listed, role one of "committed",
+                  "held_back", "not_used"
   attempts_goal : true or false
   escalates     : true or false
   reduces       : true or false
