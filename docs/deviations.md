@@ -252,7 +252,7 @@ and v0.11. It is read alongside the branch criteria, never as one. If revision 2
 fails, prompt work stops here: v0.10 stands as the study and the branching is
 handled in extraction (D11).
 
-*Dtype check (job 50450, branch `dtype-check` at `60b2fdd`; not merged).* v0.10
+*Dtype check (job 50450, commit `60b2fdd`, tag `run/dtype_check_bf16`; not merged).* v0.10
 loads the planner in float16, copied from QWEN-Maritime's `run_inference.py`;
 the checkpoint is bfloat16. 30 `SURPLUS` / blind cells under the v0.10 prompt
 (same domain digest) were rerun in bfloat16 (`cal/dtype_check/ids.txt` on that
