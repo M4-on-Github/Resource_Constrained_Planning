@@ -1,0 +1,44 @@
+{
+  "archive": "/data/mmyatmau/rcp_archive/v012_guard",
+  "files": [
+    {
+      "bytes": 932,
+      "lines": 1,
+      "path": "results/v012_guard/gen_blind.env.jsonl",
+      "sha256": "2148a720e8a0c8a7c1de2949098823c2093275ba8de3937dd611bf82ebd1fc61"
+    },
+    {
+      "bytes": 181637,
+      "lines": 60,
+      "path": "results/v012_guard/gen_blind.jsonl",
+      "sha256": "9b49e1d22a16f6bd10b1493aa7b269f15b18ce6ccb5223ec2745706612222c2f"
+    }
+  ],
+  "frozen_utc": "2026-10-12T06:49:31+00:00",
+  "jobs": [
+    {
+      "arms": [
+        "SURPLUS",
+        "SCARCE"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "d82e636c2bae5c47061e25283180de8747721c6a5475d0bbf4b4bf3a7c393cbc",
+      "git_commit": "264dcd87be704a8ca68e2e34e7fa32aa4f719b12",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 2048,
+      "record": "results/v012_guard/gen_blind.env.jsonl",
+      "run_id": "slurm-51566",
+      "stage": "plan",
+      "time_utc": "2026-10-12T06:15:52+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    }
+  ],
+  "name": "v012_guard",
+  "purpose": "D12 guard test: v0.12 contingencies section, fresh 30 images x SURPLUS/SCARCE blind, job 51566; FAILED the branch criteria",
+  "repo_commit_at_freeze": "23723fb8b980087daeb8be3f49d96e35eb2df649",
+  "repo_dirty_at_freeze": false
+}

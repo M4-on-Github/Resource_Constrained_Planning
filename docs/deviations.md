@@ -442,7 +442,7 @@ is reported as the measured extraction error. It replaces "unvalidated".
   `results/v010_d11/` and reported beside the frozen v0.10 reports, which stay.
 - **If not**, v010 stays.
 
-## D12. v0.12: contingencies in their own section, not banned (§6.2) — proposed, under test
+## D12. v0.12: contingencies in their own section, not banned (§6.2) — FAILED its test
 
 *Why there is a third revision although D10 said prompt work stops after revision
 2 (decided 2026-10-10, at the PI's request, before any v0.12 generation).* This
@@ -522,6 +522,23 @@ unchanged. Three fixes and one addition:
   v0.10, re-scored under D11, is still reported beside it.
 - **If it fails**, there is no further revision. The test output is registered as
   a failed attempt, and v0.10 with D11 is the study.
+
+*Result (2026-10-12, job 51566, run `v012_guard`): FAILED.* All 60 plans wrote
+the header and a "Contingencies:" section, but the plan section still branched:
+
+| criterion | v0.12 | v0.10 | v0.11 | limit |
+|---|---|---|---|---|
+| header | 100 % | 0 % | 100 % | ≥ 95 % |
+| plans with a branch | 83.3 % | 85.0 % | 76.7 % | ≤ 30 % |
+| branches per plan | 4.28 | 3.97 | 3.35 | ≤ 1.0 |
+| looped | 13.3 % | 20.0 % | 10.0 % | no worse than v0.10 |
+| truncated | 0 % | 20.0 % | 13.3 % | no worse than v0.10 |
+
+Reported only: asks/escalate in the plan 58.3 % (v0.10 55.0 %); asks only under
+"Contingencies:" 15.0 %. The planner writes its failure branches ("if the
+refloat stalls, …") in the plan and lists contingencies again below it; every
+section label parsed. As fixed above, there is no further revision: v0.12 is
+not run in full, and v0.10, re-scored under D11, is the study.
 
 ## Provenance: run registry and no-overwrite guards (2026-10-09)
 
