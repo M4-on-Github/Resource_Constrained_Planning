@@ -413,6 +413,13 @@ Labelling:
   fixed to one entry per listed asset, in order (`prefixItems`, each asset a
   `const`); the format line says so. No question wording changed. If r3 does not
   have fewer dev flips than v010, no d11 prompt is frozen and v010 stays.
+  Job 51619, run `d11_cal_r3`: 0 parse failures. Dev, v010 → r3: verdict flips
+  6 → 14 of 64, `commitments` F1 0.906 → 0.906 (false negatives 6 → 81),
+  `escalate` agreement 0.984 → 0.812. On the 307 gold-committed assets r1 placed,
+  r3 calls 54 not committed to r1's 8. r3's misses grow along the list (none in
+  its first quarter, 25 of 79 in its last). **Stop rule met: no d11 prompt is
+  frozen, v010 stays.** Why a forced, complete list changes GLM's answers is not
+  known.
 
 *Amendment (2026-10-12, while the d11 job ran and before any of its output was
 read).* The PI has no time to label, so neither the held-out set nor the dev

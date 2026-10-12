@@ -1,0 +1,38 @@
+{
+  "archive": "/data/mmyatmau/rcp_archive/d11_cal_r3",
+  "files": [
+    {
+      "bytes": 852,
+      "lines": 1,
+      "path": "cal/d11/ex_d11_r3/env.jsonl",
+      "sha256": "3418063ad314b6f5661ae580f878b4146b97cec85fbd076f18ab24a6a2399c27"
+    },
+    {
+      "bytes": 362931,
+      "lines": 160,
+      "path": "cal/d11/ex_d11_r3/extracted.jsonl",
+      "sha256": "1ff9af7f12f6311ffe4ce7d4eb85078f5de368ecf8644bea8ded103b0ae8450f"
+    }
+  ],
+  "frozen_utc": "2026-10-12T12:55:34+00:00",
+  "jobs": [
+    {
+      "container_sha256": "856149e58cc76ac14a67876b67f56d3a3a3c85b27a5f5ad2c122864a56e5687a",
+      "git_commit": "82ff92a045e660ac81928900e9640da5d4def602",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "input": "cal/d11/gen_sample.jsonl",
+      "max_tokens": 768,
+      "record": "cal/d11/ex_d11_r3/env.jsonl",
+      "run_id": "slurm-51619",
+      "stage": "extract",
+      "time_utc": "2026-10-12T12:54:46+00:00",
+      "weights_sha256": "676057b9b569b43f547be020d86c37202f94523acdd72def14b0cc4007fa6bd7"
+    }
+  ],
+  "name": "d11_cal_r3",
+  "purpose": "D11: d11 extractor r3 (prompt ca15ff28, {asset, role} list fixed by prefixItems) over the 160-plan calibration sample, job 51619; dev-revision round 3",
+  "repo_commit_at_freeze": "82ff92a045e660ac81928900e9640da5d4def602",
+  "repo_dirty_at_freeze": false
+}
