@@ -382,7 +382,7 @@ Labelling:
 - `assets_named` is pre-filled by the resolver. Nothing else is pre-filled.
 - The dev labels are drafted by the same model that wrote the d11 prompt, so they
   may share its reading. The PI spot-checks them.
-- The held-out set is labelled by the PI, blind to all extractor output.
+- ~~The held-out set is labelled by the PI~~ (amended below).
 - The dev labels (`labels_dev.csv`, sha256 `726a1286…`) were drafted before any
   extractor output on the sample was read. Drafting turned up cases the rules
   did not settle. Conventions for them were added to `LABELLING.md` (sha256
@@ -395,11 +395,26 @@ Labelling:
 3. The prompt is frozen and its hash recorded here.
 4. The held-out set is then scored once, against both extractors.
 
+*Amendment (2026-10-12, while the d11 job ran and before any of its output was
+read).* The PI has no time to label, so neither the held-out set nor the dev
+spot-check is hand-labelled. Two model labellers label held-out instead, each blind
+to all extractor output and to the other's labels:
+- **A** (`labels_heldout_a.csv`): the model that wrote the d11 prompt and the dev
+  labels. It may share the d11 prompt's reading.
+- **B** (`labels_heldout_b.csv`): a fresh instance of the same model, given only
+  `LABELLING.md` and the held-out sheet. It has seen no prompt, dev label or
+  extractor output.
+
+A and B are the same model, so they are not independent in the way a human
+labeller would be. The adoption rule below must hold against A and against B
+separately. The extraction error is reported against each, with A–B agreement,
+and is called agreement with model labels, not measured error.
+
 `rcp.calibrate score` now keeps every flipped cell, for pairing, and refuses to
 overwrite its output.
 
 *Adoption rule, fixed now.* d11 is adopted only if, on held-out, all of these
-hold:
+hold (against both label sets, per the amendment):
 - (a) it has fewer verdict flips than v010 (a tie means not adopted);
 - (b) its `commitments` F1 is at least v010's;
 - (c) its `goal_attempted` and `escalate` agreement are each no more than 2 pp

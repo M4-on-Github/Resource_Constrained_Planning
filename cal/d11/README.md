@@ -18,8 +18,10 @@ stratum then draws 4 dev plans and 6 held-out plans:
 - **Dev** (`labels_dev.csv`): drafted by a model from the rules, before any
   extractor output was read; ambiguous calls are in `notes`. The PI spot-checks
   them. Dev is where the d11 prompt may be revised.
-- **Held-out** (`labels_heldout.csv`): labelled by the PI blind to every
-  extractor's output, and scored once, after the d11 prompt is frozen.
+- **Held-out**: labelled twice, by model labellers A (`labels_heldout_a.csv`)
+  and B (`labels_heldout_b.csv`, a fresh instance), each blind to every
+  extractor's output and to the other. Scored once, after the d11 prompt is
+  frozen. See D11's amendment.
 
 | file | sha256 (as drawn) |
 |---|---|
@@ -36,6 +38,8 @@ runs once over the whole sample (one GPU job). Its output is registered with
 
 ```bash
 sbatch --exclude=pleiades-0-17 jobs/extract_job.sh cal/d11/gen_sample.jsonl cal/d11/ex_d11 glm4_32b d11
-python -m rcp.calibrate score --labels cal/d11/labels_heldout.csv --extracted results/ex_blind_all.jsonl --out cal/d11/score_heldout_v010.json
-python -m rcp.calibrate score --labels cal/d11/labels_heldout.csv --extracted cal/d11/ex_d11/extracted.jsonl --out cal/d11/score_heldout_d11.json
+for L in a b; do
+  python -m rcp.calibrate score --labels cal/d11/labels_heldout_$L.csv --extracted results/ex_blind_all.jsonl --out cal/d11/score_heldout_${L}_v010.json
+  python -m rcp.calibrate score --labels cal/d11/labels_heldout_$L.csv --extracted cal/d11/ex_d11/extracted.jsonl --out cal/d11/score_heldout_${L}_d11.json
+done
 ```
