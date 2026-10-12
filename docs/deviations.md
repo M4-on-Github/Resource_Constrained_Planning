@@ -402,7 +402,13 @@ Labelling:
   Dev, v010 → r1: verdict flips 6 → 4 of 64, `commitments` F1 0.906 → 0.956.
 - **r2** (`ex_d11_r2/`, prompt `6830361f…`). `asset_roles` becomes an object with
   one required key per listed asset, in order, built per plan (`schema_for`);
-  the prompt's format line says so. No question wording changed.
+  the prompt's format line says so. No question wording changed. Job 51580, run
+  `d11_cal_r2`: 0 parse failures. Dev, v010 → r2: verdict flips 6 → 11 of 64,
+  `commitments` F1 0.906 → 0.917 (false negatives 6 → 80, mostly `not_used`),
+  `escalate` agreement 0.984 → 0.844. On the 43 dev plans r1 parsed, r2 misses
+  63 committed assets to r1's 8 and gets `escalate` wrong on 7 to r1's 3, though
+  that question's text is unchanged: the closed object changed GLM's answers, not
+  only their form. r2 is not frozen.
 
 *Amendment (2026-10-12, while the d11 job ran and before any of its output was
 read).* The PI has no time to label, so neither the held-out set nor the dev

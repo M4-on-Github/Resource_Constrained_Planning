@@ -52,3 +52,4 @@ Names: `<version>_<stage>` for study runs (`v011_gen`, `v011_extract`,
 | `v011_gen` | 2026-10-09 | 16 | v0.11 revision 2 full run, FAILED D10 test 2 (branch criteria), never extracted or analysed: 880 plans (4 arms x blind/stated, float16, greedy), jobs 50538-50545, commit 8ccb922 |
 | `d11_cal_r1` | 2026-10-12 | 2 | D11: d11 extractor (prompt d875565b) over the 160-plan calibration sample, job 51565; dev-revision round 1 |
 | `v012_guard` | 2026-10-12 | 2 | D12 guard test: v0.12 contingencies section, fresh 30 images x SURPLUS/SCARCE blind, job 51566; FAILED the branch criteria |
+| `d11_cal_r2` | 2026-10-12 | 2 | D11: d11 extractor r2 (prompt 6830361f, per-plan closed asset_roles object) over the 160-plan calibration sample, job 51580; dev-revision round 2 |
