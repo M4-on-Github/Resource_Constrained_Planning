@@ -638,6 +638,7 @@ the repo, run in the container from the repo root:
 - `rcp.calibrate`: D11's scores, and `tools/flip_direction.py` their direction;
 - `tools/audit.py`: D10's hand reads (output only; the readings are above);
 - `tools/cited.py`: everything else, each line labelled with its entry.
+`tools/cases.py` draws the tex's case studies (seeded, rules fixed before reading).
 `tools/check_v010.py` replays the frozen v0.10 extraction byte for byte. Not
 re-derivable: D0–D5 (measured with the code of the time), job ids and crash
 details (SLURM logs), and D10's "the same result as before for all 940" (a
