@@ -66,3 +66,4 @@ v0.10 itself ran at `4e348e6` (tag `study-2026-10-09`) and `2a86040` (the resume
 | `v012_guard` | 2026-10-12 | 2 | D12 guard test: v0.12 contingencies section, fresh 30 images x SURPLUS/SCARCE blind, job 51566; FAILED the branch criteria |
 | `d11_cal_r2` | 2026-10-12 | 2 | D11: d11 extractor r2 (prompt 6830361f, per-plan closed asset_roles object) over the 160-plan calibration sample, job 51580; dev-revision round 2 |
 | `d11_cal_r3` | 2026-10-12 | 2 | D11: d11 extractor r3 (prompt ca15ff28, {asset, role} list fixed by prefixItems) over the 160-plan calibration sample, job 51619; dev-revision round 3 |
+| `v013_probe` | 2026-10-14 | 6 | plan_v013.md probe (SLURM 51908) |

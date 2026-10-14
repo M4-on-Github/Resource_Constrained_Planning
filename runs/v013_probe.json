@@ -1,0 +1,117 @@
+{
+  "archive": "/data/mmyatmau/rcp_archive/v013_probe",
+  "files": [
+    {
+      "bytes": 979,
+      "lines": 1,
+      "path": "results/v013_probe/probe_can.env.jsonl",
+      "sha256": "64a23fbf66c030dfc97ca70e9990a56b78fcb0b1e22022a5466d00b770061fd5"
+    },
+    {
+      "bytes": 261671,
+      "lines": 440,
+      "path": "results/v013_probe/probe_can.jsonl",
+      "sha256": "c2786487dacafc8838816296e5ec987b385c0cf0c4bdafaf20d365e51f673cd6"
+    },
+    {
+      "bytes": 981,
+      "lines": 1,
+      "path": "results/v013_probe/probe_short.env.jsonl",
+      "sha256": "3ab3b4bdcb2e841ac8f0d0a922cd061fb07c452840611c0b4948baa5d661b9ee"
+    },
+    {
+      "bytes": 245206,
+      "lines": 440,
+      "path": "results/v013_probe/probe_short.jsonl",
+      "sha256": "dc7d88e922c7539ded67680999d095100d357b85324a1d87545a6970bdbb486f"
+    },
+    {
+      "bytes": 976,
+      "lines": 1,
+      "path": "results/v013_probe/repro_plan.env.jsonl",
+      "sha256": "bae905a42d8e7981511eaa728a58dee5ce0ab0313d41c6f8a63c962311c387f4"
+    },
+    {
+      "bytes": 34118,
+      "lines": 12,
+      "path": "results/v013_probe/repro_plan.jsonl",
+      "sha256": "eb0a1950af24b6ad8d0eb21925a43be16f1af0fccf03eaed88b067803cc07d11"
+    }
+  ],
+  "frozen_utc": "2026-10-14T14:24:54+00:00",
+  "jobs": [
+    {
+      "arms": [
+        "SURPLUS",
+        "SUFFICIENT",
+        "SCARCE",
+        "INFEASIBLE"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "11493b333d2e1f34c7bd23512b5be142cd59671eea9407ca31ea07336bab10fc",
+      "git_commit": "ce4d41399c8a292a9547f8a3675f674009513d26",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "max_tokens": 64,
+      "record": "results/v013_probe/probe_can.env.jsonl",
+      "run_id": "slurm-51908",
+      "stage": "plan",
+      "task": "probe_can",
+      "time_utc": "2026-10-14T13:38:51+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SURPLUS",
+        "SUFFICIENT",
+        "SCARCE",
+        "INFEASIBLE"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "77dfbd63a109e7a94cec5ccc8ee1bc31dcd7555c9b90bef2712b6ee427f17d30",
+      "git_commit": "ce4d41399c8a292a9547f8a3675f674009513d26",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "max_tokens": 64,
+      "record": "results/v013_probe/probe_short.env.jsonl",
+      "run_id": "slurm-51908",
+      "stage": "plan",
+      "task": "probe_short",
+      "time_utc": "2026-10-14T14:01:52+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SURPLUS",
+        "SUFFICIENT",
+        "SCARCE",
+        "INFEASIBLE"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "22e9bbd8233453c71516fc07c7a901dc2df6968103a1676208b443189f063a2e",
+      "git_commit": "ce4d41399c8a292a9547f8a3675f674009513d26",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-17",
+      "max_tokens": 2048,
+      "record": "results/v013_probe/repro_plan.env.jsonl",
+      "run_id": "slurm-51908",
+      "stage": "plan",
+      "task": "plan",
+      "time_utc": "2026-10-14T13:26:30+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    }
+  ],
+  "name": "v013_probe",
+  "purpose": "plan_v013.md probe (SLURM 51908)",
+  "repo_commit_at_freeze": null,
+  "repo_dirty_at_freeze": null
+}
