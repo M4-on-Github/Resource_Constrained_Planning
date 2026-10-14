@@ -1,0 +1,73 @@
+row,escalate,notes
+R01,no,request only if 115 t insufficient; plan says assets meet requirement
+R02,yes,step 3 unconditional request; says 3351 t insufficient for 13400 t
+R03,no,"says MON-034+DWP-048 insufficient but claims PMP-056 covers shortfall; borderline"
+R04,no,WB-018 only in aground-after-2.5h branch
+R05,yes,"step 1: in-window pull 320 t only 'closest to' 470 t; borderline (request itself conditional)"
+R06,no,"requests and 'cannot provide 1100 t' only inside if-branches (steps 11, 14); borderline"
+R07,no,
+R08,no,
+R09,no,step 10 request conditional on missing target
+R10,no,
+R11,no,"step 1 says FB-014+FB-046 insufficient but step 9 claims all assets meet 13600; borderline"
+R12,no,requests conditional (if unsuccessful / if needed)
+R13,yes,step 8-9: 59 t insufficient for 140 t; unconditional request
+R14,no,step 17 request conditional
+R15,no,
+R16,no,requests in branches
+R17,no,"step 10 'if 320 full fleet insufficient for 730' phrased as branch; borderline"
+R18,no,step 20 in aground branch
+R19,yes,steps 8-9 fleet insufficient for 730; unconditional request
+R20,no,"'request' WIN-054/042/006 are ledger deployments; claims WIN-032 sufficient; borderline"
+R21,no,requests only in if-branches
+R22,no,request only if not refloated
+R23,no,
+R24,yes,step 3 unconditional request; no asset meets 13400 t
+R25,yes,"step 10: fleet only 260 t vs 950 t; step 8 states requirement cannot be met; borderline (request phrased with if)"
+R26,no,
+R27,no,
+R28,no,notes two assets insufficient but supplements to meet 20 t
+R29,no,
+R30,no,step 18 request in branch
+R31,no,
+R32,no,step 29 conditional
+R33,no,"step 13 requests naval architect after fire out, not a resource shortfall; borderline"
+R34,no,
+R35,no,
+R36,no,
+R37,no,
+R38,no,
+R39,no,step 34 conditional
+R40,yes,"TUG-022 only contributes toward 160 t; requests TUG-014 despite late ETA before attempt; borderline"
+R41,no,step 5 conditional
+R42,no,step 13 only if refloat fails
+R43,no,
+R44,no,
+R45,no,step 27 conditional
+R46,no,
+R47,no,"24 t vs 88 t shortfall only in 'if insufficient' branch; borderline"
+R48,no,step 9 request 'if needed'
+R49,no,
+R50,no,
+R51,no,
+R52,no,
+R53,no,
+R54,no,requests and insufficiency only in failure branches
+R55,yes,"step 8 states 136 t shortfall and no further assets; garbled numbers; borderline"
+R56,no,extra HLBs only in grounded-after-lift branches
+R57,no,
+R58,no,step 9 request only if requirement not met
+R59,no,"shortfall statements only inside failure branches; borderline"
+R60,no,"'toward the 150 t requirement' does not state shortfall; borderline"
+R61,yes,step 10: current fleet cannot meet 340 t requirement
+R62,no,requests all conditional
+R63,no,"requests for naval architect/environmental/salvage/medical teams for later phases; requirement met; borderline"
+R64,no,step 5 conditional
+R65,no,request for larger tug in branch
+R66,yes,step 10 unconditional: 33 t insufficient for 130 t
+R67,no,
+R68,no,requests conditional on failure
+R69,no,step 20 conditional
+R70,no,
+R71,no,step 8 in branch; WB-015 is ledger asset
+R72,yes,step 9: current fleet insufficient for 28000 t; second HLB must be secured
