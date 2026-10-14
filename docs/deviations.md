@@ -611,6 +611,35 @@ would not address it, and the prompt revisions moved it rather than removed it.
 Any later planner work should target on-time assets held back, which needs a
 per-asset role measure (D11's question) calibrated on that study's own plans.
 
+## D13. v0.13 knowing-doing probe (`plan_v013.md`) — GAP
+
+Pre-registered at `v0.13-prereg`; labels `cal/v013/labels_{a,b}.csv` committed
+before the run; SLURM 51908, run `v013_probe`; `tools/probe_gap.py report` ->
+`results/v013_probe/report.txt`.
+
+- Reproduction 12/12 byte-identical. All 880 probe answers parsed.
+- Says "short" on every SCARCE and INFEASIBLE cell, both wordings (220/220).
+- Knows contrast +0.570 [+0.522, +0.619]; acts (labels A and B) +0.041
+  [+0.010, +0.072] and [+0.012, +0.070].
+- **Primary:** G = +0.530 [+0.473, +0.586] (A), [+0.474, +0.585] (B) -> **GAP**,
+  both label sets. On unsatisfiable cells the plan escalates in 10 (A) / 9 (B)
+  of 220 although the probe said "short" on all 220.
+- The `can` wording answers NO on 68 % (SURPLUS) and 76 % (SUFFICIENT) of
+  satisfiable cells; 128 of 220 satisfiable cells answer NO to both wordings.
+  In a seeded read of 5 (§7), the `can` answer adds up a subset of assets and
+  finds too little; the `short` answer quotes the totals line. Post hoc, per
+  wording: G = +0.241 [+0.164, +0.318] (`can`), +0.818 [+0.759, +0.877]
+  (`short`), labels A. The contrast removes a constant bias, so the `can`
+  wording's NO lean lowers K and does not make the gap.
+- **ESCALATE check:** of the 36 extractor-positive blind cells, A confirms 10 and
+  B 8; of 36 sampled negatives, each finds 1. So most extractor ESCALATE flags
+  are not escalations, and v0.10's per-arm ESCALATE rates
+  (`results/rep_blind/report.txt` §5) overstate it. Missed escalations among the
+  404 unsampled negatives are not corrected (plan_v013.md §9).
+
+Reading: the planner sees the shortfall when asked and does not act on it in the
+plan. Next lever is task structure (plan_v013.md §8), which is Track E.
+
 ## Provenance: run registry and no-overwrite guards (2026-10-09)
 
 `results/` is gitignored, so until now the 880 v0.10 plans and every report
@@ -658,8 +687,6 @@ Not done. Each would be a new version or a new study, never a change to v0.10.
   how much the results depend on the decoding.
 - **Held-back assets** (D12): later planner work needs a per-asset role measure,
   calibrated on that study's own plans.
-- **Knowing or doing**: whether the planner sees the shortfall it does not act
-  on. Pre-registered as v0.13 in `plan_v013.md`; not run yet.
 
 `plan.md` is the pre-registration and is not edited after the run; its §6.1
 assertion audit is `prompts/assertions_audit.csv`.
