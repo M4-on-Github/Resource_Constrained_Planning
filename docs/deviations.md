@@ -99,9 +99,10 @@ container sha256, weights hash, `run_id`). Output files are per arm and conditio
 ## D8. Smoke run (SLURM 50412, 2026-10-09)
 
 10 images, `SUFFICIENT`, blind, before the full run, to check guard compliance
-(`conditional_steps`) and the truncation rate at 2048. Its outputs are discarded.
-Guard: 7 of 10 plans ran 400–770 tokens with a median of 1 conditional step
-(exploratory: ~8). Truncation: 3 of 10 hit 2048, every one a loop — see D9.
+(`conditional_steps`) and the truncation rate at 2048. Its outputs are kept (run
+`v010`) but are not results. Guard: 7 of 10 plans ran 401–766 tokens with a median
+of 1 conditional step (exploratory blind: 6.5). Truncation: 3 of 10 hit 2048, every
+one a loop — see D9.
 
 ## D9. Greedy loops cut at the first repeated step (found by D8)
 
@@ -110,9 +111,10 @@ until the token cap — greedy decoding's self-reinforcing repeat. Not new: the 
 rule finds 10 blind and 15 stated exploratory plans looping, all inside D3's 1024-cap
 truncations, so a share of D3's "truncated" was loops, not long plans, and raising
 the cap could not fix them. *Considered and rejected:* a no-repeat-n-gram ban at
-decoding. Clean plans legitimately repeat token runs of 12–22 (exploratory up to
-~60), while the loops repeat only ~30 because the step number changes, so no n
-separates them and the ban would alter clean plans. *Changed:*
+decoding. A loop's longest repeated token run is 24–71 tokens (the step number
+changes between copies), while plans that do not loop repeat runs of up to 22 (D8)
+and, in the exploratory plans, up to 64 below the cap (AGR-00086) and 73 at it; no
+n separates them, and the ban would alter clean plans. *Changed:*
 `extract_det.trim_repeated_steps` cuts a plan at its first marker-led step whose
 text (number, case and spacing ignored) repeats an earlier step; both the
 deterministic pass and the extractor see the cut plan. Under greedy decoding this
@@ -168,11 +170,17 @@ Blind plans with ≥ 1 conditional step: 78–90 % per arm (3.9–5.9 per plan);
 to be aground…"): 66 / 440 blind plans, 5 / 440 stated — the blind planner hedges
 over what the photo shows instead of deciding. (ii) Contingency branches ("if the
 pull is insufficient, add TUG-006"), in both conditions. The branches matter
-because the extractor under-excludes their assets: a hand read of 20 random
-`SURPLUS`/blind V2a failures found 9 where the late asset appears only in a
-backup, "if it fails", other-casualty or explicitly "do not commit" step, against
-D2's rule; the extractor excluded 4.6 % of named assets overall. (The extractor
-fix is separate and needed regardless; it is not part of D10.)
+because the extractor under-excludes their assets. A hand read of 20 random
+`SURPLUS`/blind V2a failures (`tools/audit.py v2a SURPLUS blind 20 7`) found 9
+where the late asset appears only in a backup, "if it fails", other-casualty or
+explicitly "do not commit" step, against D2's rule; 9 used it in the main
+operation and 2 were unclear (the per-plan reading was not kept). The extractor
+excluded 4.6 % of named assets in `SURPLUS`/blind (1.1–4.4 % in the other blind
+arms). Of the 16 looped `SCARCE`/blind plans, 5 are scored as escalating
+(`tools/audit.py loop SCARCE blind`): 2 clearly, 1 calls its capacity
+insufficient and then says it meets the need, and 2 only say "if still grounded,
+deploy more", which D2's rule does not count. (The extractor fix is separate and
+needed regardless; it is not part of D10.)
 
 *Changed:* `prompts/planner_task.txt` asks for three lines before the plan —
 `Casualty type:` (choose one), `Observed conditions:` ("cannot tell from the
@@ -255,8 +263,8 @@ handled in extraction (D11).
 *Dtype check (job 50450, commit `60b2fdd`, tag `run/dtype_check_bf16`; not merged).* v0.10
 loads the planner in float16, copied from QWEN-Maritime's `run_inference.py`;
 the checkpoint is bfloat16. 30 `SURPLUS` / blind cells under the v0.10 prompt
-(same domain digest) were rerun in bfloat16 (`cal/dtype_check/ids.txt` on that
-branch): 20 whose float16 plan looped, 10 clean. Looped 6 / 20 and 2 / 10 (float16:
+(same domain digest) were rerun in bfloat16 (`cal/dtype_check/ids.txt` at that
+tag): 20 whose float16 plan looped, 10 clean. Looped 6 / 20 and 2 / 10 (float16:
 20 / 20 and 0 / 10); prose identical in 0 / 30. The groups were selected on the
 float16 outcome, so most of the drop is that selection: any numerical change moves
 a greedy path off its repeat, and it moved two clean plans onto one. Weighted by
@@ -306,15 +314,16 @@ a named open item, to be settled before a later version, never mid-run.
   comparison.
   If (c) and the primary disagree on ESTABLISHED / NOT ESTABLISHED, the report
   says so and leads with neither.
-- **Where test 1's state errors fall.** All 18 wrong cells are sunken images
-  (9 images: 5 read as capsized, 4 as aground). Every aground, capsized and on-fire
-  image was right. `prompt_procedural_v3.txt` adds a checklist of features to
-  look for, image-based reasons for ruling out each other technique, and "Do not
-  guess". On the same 30 images it does no better: 21 / 30, sunken 1 / 9. Over
-  all 110 it gets 70 / 110 (sunken 7 / 33). So this is the planner's vision, not
-  the prompt. No observation wording is added: tuning it toward the sunken label
-  on the study's own images is what §6.4 rules out. The image goes to the model
-  in both conditions (`rcp/infer.py`), and "stated" adds only the disclosure line.
+- **Where test 1's state errors fall.** All 18 wrong cells are the 9 sunken
+  images, wrong in both arms (13 cells read as capsized, 5 as aground). Every
+  aground, capsized and on-fire image was right. `prompt_procedural_v3.txt` adds
+  a checklist of features to look for, image-based reasons for ruling out each
+  other technique, and "Do not guess". On the same 30 images it does no better:
+  21 / 30, sunken 1 / 9. Over all 110 it gets 70 / 110 (sunken 7 / 33). So this
+  is the planner's vision, not the prompt. No observation wording is added: tuning
+  it toward the sunken label on the study's own images is what §6.4 rules out. The
+  image goes to the model in both conditions (`rcp/infer.py`), and "stated" adds
+  only the disclosure line.
 
 *Revision 2 is run as the full study, and the test is read from it (decided for
 time, before any revision 2 output exists).* The 8 v0.11 jobs (4 arms × 2
@@ -471,7 +480,8 @@ d11 was never run against held-out.
 | `escalate` agreement (false positives) | 0.948 (5) | 0.938 (5) |
 | `reduce` agreement | 0.667 | 0.677 |
 
-The flips are not random in direction. Against A, all 8 flatten the AR decline.
+The flips are not random in direction (`tools/flip_direction.py`). Against A,
+all 8 flatten the AR decline.
 On SURPLUS and SUFFICIENT the extractor fails a plan the labels pass (4): a
 backup asset counted as committed fails V2a. On SCARCE and INFEASIBLE it passes a
 plan the labels fail (4): an escalation the labels do not see. Against B, 8 of 9
@@ -611,7 +621,42 @@ wrote them, and the repo commit at freeze; `tools/runs.py freeze` makes the file
 read-only and copies them to `/data/$USER/rcp_archive/<name>/`, a separate volume;
 `tools/runs.py verify` rechecks both copies. `rcp.infer` refuses an existing
 `--out` without `--resume`, `rcp.extract` an existing `extracted.jsonl` and
-`rcp.report` an existing `report.txt`, unless `--overwrite`. Registered so far:
-`v010` (56 files, jobs 50412–50435), `v011_guard_r1` (job 50449) and
-`dtype_check_bf16` (job 50450, outputs copied from the `dtype-check` worktree), and `v011_gen` (jobs 50538–50545, the failed revision 2 run, D10).
-Rules and layout: `runs/README.md`.
+`rcp.report` an existing `report.txt`, unless `--overwrite`. Registered so far,
+each with a tag `run/<name>` on the commit that froze it: `v010` (56 files, jobs
+50412–50435, smoke and rerun included), `v011_guard_r1` (job 50449),
+`dtype_check_bf16` (job 50450, outputs copied from the `dtype-check` worktree),
+`v011_gen` (jobs 50538–50545, the failed revision 2 run, D10), `v012_guard` (job
+51566) and `d11_cal_r1`–`r3` (jobs 51565, 51580, 51619). Rules and layout:
+`runs/README.md`.
+
+*Where the numbers come from.* Each number in D8–D12 is printed by a script in
+the repo, run in the container from the repo root:
+- `rcp.report` (`results/rep_*/report.txt`): per-arm loops, branches and
+  truncation, D9's sensitivity;
+- `tools/guard_check.py`: the D10 and D12 test tables;
+- `tools/branch_diag.py`: D12's exploratory note;
+- `rcp.calibrate`: D11's scores, and `tools/flip_direction.py` their direction;
+- `tools/audit.py`: D10's hand reads (output only; the readings are above);
+- `tools/cited.py`: everything else, each line labelled with its entry.
+`tools/check_v010.py` replays the frozen v0.10 extraction byte for byte. Not
+re-derivable: D0–D5 (measured with the code of the time), job ids and crash
+details (SLURM logs), and D10's "the same result as before for all 940" (a
+comparison with parser code since replaced).
+
+## Open items (2026-10-14)
+
+Not done. Each would be a new version or a new study, never a change to v0.10.
+- **Dtype** (D10): bfloat16 looped less than float16 (roughly 23 % against 33 %,
+  n = 30). Settle it before a later version.
+- **P5** (plan.md §9.1): the mechanism-block ablation was never run.
+- **Hand labels** (D2, D11): extraction error is measured against model labels
+  only.
+- **d11** (D11): never run on held-out. Why a closed or complete output schema
+  changed GLM's answers, not only their form, is not known.
+- **Replicates**: one model, greedy decoding, one plan per cell. Nothing measures
+  how much the results depend on the decoding.
+- **Held-back assets** (D12): later planner work needs a per-asset role measure,
+  calibrated on that study's own plans.
+
+`plan.md` is the pre-registration and is not edited after the run; its §6.1
+assertion audit is `prompts/assertions_audit.csv`.
