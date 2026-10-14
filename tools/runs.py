@@ -34,7 +34,7 @@ ARCHIVE = pathlib.Path(os.path.expandvars("/data/$USER/rcp_archive"))
 #: Fields kept from each environment record; the rest (package lists) stay in the
 #: record itself, which is one of the frozen files.
 ENV_KEYS = ("run_id", "stage", "host", "gpu", "time_utc", "git_commit", "git_dirty",
-            "condition", "arms", "domain_digest", "max_tokens", "dtype", "input",
+            "condition", "task", "arms", "domain_digest", "max_tokens", "dtype", "input",
             "weights_sha256", "container_sha256", "corpus_sha256")
 
 

@@ -658,6 +658,8 @@ Not done. Each would be a new version or a new study, never a change to v0.10.
   how much the results depend on the decoding.
 - **Held-back assets** (D12): later planner work needs a per-asset role measure,
   calibrated on that study's own plans.
+- **Knowing or doing**: whether the planner sees the shortfall it does not act
+  on. Pre-registered as v0.13 in `plan_v013.md`; not run yet.
 
 `plan.md` is the pre-registration and is not edited after the run; its §6.1
 assertion audit is `prompts/assertions_audit.csv`.

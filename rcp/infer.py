@@ -31,7 +31,7 @@ import sys
 from . import corpus as frozen
 from . import envinfo
 from .generator import manifest, manifest_images
-from .render import CONDITIONS, domain_digest, planner_prompt
+from .render import CONDITIONS, TASKS, domain_digest, planner_prompt
 from .schema import Scenario
 
 #: §7.1's planner. Vision-language, 8B, runs in one RTX6000Ada at bf16.
@@ -119,7 +119,8 @@ def done_keys(path: pathlib.Path, digest: str | None = None) -> set[str]:
 
 
 def run(scenarios: list[Scenario], root: pathlib.Path, model_dir: str,
-        max_tokens: int = DEFAULT_MAX_TOKENS, condition: str = "blind"):
+        max_tokens: int = DEFAULT_MAX_TOKENS, condition: str = "blind",
+        task: str = "plan"):
     """Yield `(scenario, prose, n_tokens)` one cell at a time. Cluster-only.
 
     **Transformers, not vLLM.** The planner runs in `castor_qwen.sif`, which is the
@@ -158,7 +159,7 @@ def run(scenarios: list[Scenario], root: pathlib.Path, model_dir: str,
         path = image_path(sc, root, images)
         messages = [{"role": "user", "content": [
             {"type": "image", "image": str(path)},
-            {"type": "text", "text": planner_prompt(sc, condition)},
+            {"type": "text", "text": planner_prompt(sc, condition, task)},
         ]}]
         # apply_chat_template inserts the model's own image placeholder tokens;
         # hand-writing them is the thing that silently breaks across versions.
@@ -200,6 +201,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="casualty-state disclosure. 'blind' (default) is the "
                          "pre-existing prompt; 'stated' adds one line naming the "
                          "state. Recorded in domain_digest so the two cannot pool")
+    ap.add_argument("--task", choices=list(TASKS), default="plan",
+                    help="'plan' (default) is the study's task block; 'probe_can' and "
+                         "'probe_short' are plan_v013.md's YES/NO probe. Recorded in "
+                         "domain_digest so plans and probes cannot pool")
     ap.add_argument("--limit", type=int, default=None,
                     help="first N cells, image-major (keeps arms complete)")
     ap.add_argument("--ids-file", default=None,
@@ -237,13 +242,14 @@ def main(argv: list[str] | None = None) -> int:
               f"first: {sorted(set(missing))[:3]}", file=sys.stderr)
         return 1
 
-    digest = domain_digest(args.condition)
+    digest = domain_digest(args.condition, args.task)
     if args.resume:
         already = done_keys(out, digest)
         cells = [sc for sc in cells if key(sc) not in already]
         print(f"  resuming: {len(already)} done, {len(cells)} to go")
     print(f"  arms         : {', '.join(arms)}")
     print(f"  condition    : {args.condition}")
+    print(f"  task         : {args.task}")
     print(f"  cells        : {len(cells)}")
     print(f"  domain digest: {digest}   (Rule 2 - must match across pooled runs)")
 
@@ -254,8 +260,9 @@ def main(argv: list[str] | None = None) -> int:
                 fh.write(json.dumps({
                     "scenario_id": sc.id, "arm": sc.arm,
                     "condition": args.condition,
+                    "task": args.task,
                     "image": str(image_path(sc, root, images)),
-                    "prompt": planner_prompt(sc, args.condition),
+                    "prompt": planner_prompt(sc, args.condition, args.task),
                 }, sort_keys=True) + "\n")
         print(f"  dry run -> {dest}")
         return 0
@@ -270,6 +277,7 @@ def main(argv: list[str] | None = None) -> int:
     # One environment record per job, appended so a resumed file keeps every
     # job's record; each row names the job that wrote it.
     env = envinfo.record(args.model_dir, stage="plan", condition=args.condition,
+                         task=args.task,
                          arms=list(arms), max_tokens=args.max_tokens,
                          domain_digest=digest, corpus_sha256=frozen.recorded_sha())
     envinfo.append(out.with_suffix(".env.jsonl"), env)
@@ -279,13 +287,14 @@ def main(argv: list[str] | None = None) -> int:
     n = empty = truncated = 0
     with out.open(mode, encoding="utf-8", newline="\n") as fh:
         for sc, prose, n_tokens in run(cells, root, args.model_dir, args.max_tokens,
-                                       args.condition):
+                                       args.condition, args.task):
             hit_cap = n_tokens >= args.max_tokens
             fh.write(json.dumps({
                 "scenario_id": sc.id,
                 "arm": sc.arm,
                 "casualty_state": sc.casualty_state,
                 "condition": args.condition,
+                "task": args.task,
                 "prose": prose.strip(),
                 "domain_digest": digest,
                 "ledger_hash": frozen.ledger_hash(sc),

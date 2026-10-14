@@ -157,6 +157,7 @@ python -m rcp.corpus --write    # (re)freeze — before inference only
 ```
 
 All post-v0.9 changes and why: `docs/deviations.md`.
+The v0.13 knowing-doing probe is pre-registered separately in `plan_v013.md`.
 
 ---
 
@@ -383,6 +384,7 @@ validator (Q14).
 
 ```
 plan.md                    the specification
+plan_v013.md               v0.13 probe pre-registration (builds on plan.md)
 data/                      the declared world — manifest + four JSON registries
 prompts/                   planner halves, extractor prompts, the assertion audit
 rcp/                       the pipeline

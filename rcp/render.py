@@ -58,6 +58,15 @@ TASK_FILE = PROMPTS / "planner_task.txt"
 #: read the identical domain block, identical task block, identical ledger.
 CONDITIONS = ("blind", "stated")
 
+#: The task block. `plan` is the study's (v0.10). The two `probe_*` tasks are
+#: plan_v013.md's knowing probe: the same domain and scenario blocks, with the
+#: plan request replaced by one YES/NO question, asked in two polarities.
+TASKS = {
+    "plan": TASK_FILE,
+    "probe_can": PROMPTS / "probe_task_can.txt",
+    "probe_short": PROMPTS / "probe_task_short.txt",
+}
+
 #: Rendered form of `Scenario.casualty_state`. Only `on_fire` needs help; the
 #: prompt is prose and `on_fire` is a column value, not something to show a planner.
 _STATE_PROSE = {"on_fire": "on fire"}
@@ -67,11 +76,17 @@ def domain_block() -> str:
     return DOMAIN_FILE.read_text(encoding="utf-8").strip()
 
 
-def task_block() -> str:
-    return TASK_FILE.read_text(encoding="utf-8").strip()
+def task_block(task: str = "plan") -> str:
+    return _task_file(task).read_text(encoding="utf-8").strip()
 
 
-def domain_digest(condition: str = "blind") -> str:
+def _task_file(task: str) -> pathlib.Path:
+    if task not in TASKS:
+        raise ValueError(f"unknown task {task!r}; expected one of {tuple(TASKS)}")
+    return TASKS[task]
+
+
+def domain_digest(condition: str = "blind", task: str = "plan") -> str:
     """SHA-256 over both constant halves and the disclosure condition.
 
     Rule 2's audit trail. If this moves between two runs, the runs are not
@@ -84,13 +99,18 @@ def domain_digest(condition: str = "blind") -> str:
     exactly what would let two runs differing in the manipulation share a digest
     and be silently pooled. Hashing the label makes the manipulation visible to
     the one mechanism that already refuses to pool.
+
+    A probe task hashes its own task file and its name. The `plan` task hashes
+    exactly what it did in v0.10, so the study's digest is unchanged.
     """
     if condition not in CONDITIONS:
         raise ValueError(f"unknown condition {condition!r}; expected one of {CONDITIONS}")
     h = hashlib.sha256()
-    for f in (DOMAIN_FILE, TASK_FILE):
+    for f in (DOMAIN_FILE, _task_file(task)):
         h.update(f.read_bytes())
     h.update(b"\x00condition=" + condition.encode("ascii"))
+    if task != "plan":
+        h.update(b"\x00task=" + task.encode("ascii"))
     return h.hexdigest()
 
 
@@ -193,6 +213,6 @@ def scenario_block(sc: Scenario, condition: str = "blind") -> str:
     ])
 
 
-def planner_prompt(sc: Scenario, condition: str = "blind") -> str:
+def planner_prompt(sc: Scenario, condition: str = "blind", task: str = "plan") -> str:
     """The full text prompt. The image is attached separately by `rcp.infer`."""
-    return "\n\n".join([domain_block(), scenario_block(sc, condition), task_block()])
+    return "\n\n".join([domain_block(), scenario_block(sc, condition), task_block(task)])
