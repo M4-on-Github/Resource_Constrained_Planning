@@ -3,9 +3,12 @@
     python3 tools/probe_gap.py prepare   # cal/v013/: ESCALATE check sheet, repro ids
     python3 tools/probe_gap.py power     # plan_v013.md §6's power figures
     python3 tools/probe_gap.py report    # results/v013_probe/report.txt
+    python3 tools/probe_gap.py check     # rebuild the report, compare byte for byte
+    python3 tools/probe_gap.py posthoc   # results/v013_probe/posthoc.txt (D13)
 
-`prepare` and `report` refuse to overwrite. Run in the container from the repo
-root. Every number in plan_v013.md and in its report is printed here.
+`prepare`, `report` and `posthoc` refuse to overwrite. Run in the container from
+the repo root. Every number in plan_v013.md, its report and D13 is printed here.
+`posthoc` is not pre-registered and says so.
 """
 
 from __future__ import annotations
@@ -174,6 +177,29 @@ def labels(name: str) -> dict[str, bool]:
             for r in csv.DictReader((CAL / f"labels_{name}.csv").open(encoding="utf-8"))}
 
 
+def probe_reads() -> dict[str, dict[str, bool | None]]:
+    """Per cell, per wording: does the answer say the ledger falls short."""
+    read: dict[str, dict[str, bool | None]] = {}
+    for w in WORDINGS:
+        rs = rows(OUT / f"{w}.jsonl")
+        bad = {r["domain_digest"] for r in rs} - {domain_digest("blind", w)}
+        if bad:
+            sys.exit(f"{w}.jsonl carries another prompt's digest: {sorted(bad)}")
+        for r in rs:
+            read.setdefault(key(r), {})[w] = says_short(r["prose"], w)
+    return read
+
+
+def labelled_acts() -> dict[str, dict[str, float]]:
+    """The acts score per cell: the extractor's flag, and with labels A or B."""
+    esc = v010_escalate()
+    acts = {"extractor": {c: float(v) for c, v in esc.items()}}
+    for n in ("a", "b"):
+        lb = labels(n)
+        acts[f"labels {n.upper()}"] = {c: float(lb.get(c, v)) for c, v in esc.items()}
+    return acts
+
+
 def repro(L: list[str]) -> bool:
     """Halt rule: the regenerated v0.10 cells must be byte-identical."""
     plans = v010_plans()
@@ -186,25 +212,13 @@ def repro(L: list[str]) -> bool:
     return ok
 
 
-def report() -> int:
-    dest = OUT / "report.txt"
-    if dest.exists():
-        sys.exit(f"{dest} exists; a report is written once")
+def build_report() -> tuple[list[str], int]:
     L = ["RCP v0.13 knowing-doing probe (plan_v013.md)", "=" * 44]
     if not repro(L):
-        dest.write_text("\n".join(L) + "\n", encoding="utf-8")
-        print("\n".join(L))
-        return 2
+        return L, 2
 
     sat = {k: sc.ledger_satisfiable for k, sc in corpus.by_key().items()}
-    read: dict[str, dict[str, bool | None]] = {}
-    for w in WORDINGS:
-        rs = rows(OUT / f"{w}.jsonl")
-        bad = {r["domain_digest"] for r in rs} - {domain_digest("blind", w)}
-        if bad:
-            sys.exit(f"{w}.jsonl carries another prompt's digest: {sorted(bad)}")
-        for r in rs:
-            read.setdefault(key(r), {})[w] = says_short(r["prose"], w)
+    read = probe_reads()
     k = {c: knows(list(v.values())) for c, v in read.items()}
     images = {c.split("/")[0] for c in k
               if all(k.get(f"{c.split('/')[0]}/{a}") is not None for a in ARMS)}
@@ -226,10 +240,8 @@ def report() -> int:
     L.append(f"  complete-case images: {len(images)}")
 
     esc = v010_escalate()
-    acts = {"extractor": {c: float(v) for c, v in esc.items()}}
+    acts = labelled_acts()
     lab = {n: labels(n) for n in ("a", "b")}
-    for n, lb in lab.items():
-        acts[f"labels {n.upper()}"] = {c: float(lb.get(c, v)) for c, v in esc.items()}
     K = contrasts(k, images)
 
     L.append("\n2. Contrasts (unsatisfiable minus satisfiable arms), paired 95% CI")
@@ -274,6 +286,58 @@ def report() -> int:
             e = sum(acts[n][c] for c in cs)
             L.append(f"  {name:<26}: {len(cs):>3} cells, plan escalates ({n}) {int(e)}"
                      + (f" ({e / len(cs):.1%})" if cs else ""))
+    return L, 0
+
+
+def report() -> int:
+    dest = OUT / "report.txt"
+    if dest.exists():
+        sys.exit(f"{dest} exists; a report is written once")
+    L, code = build_report()
+    dest.write_text("\n".join(L) + "\n", encoding="utf-8")
+    print("\n".join(L))
+    return code
+
+
+def check() -> int:
+    """Rebuild the report from the frozen outputs and labels; it must match."""
+    L, _ = build_report()
+    same = (OUT / "report.txt").read_text(encoding="utf-8") == "\n".join(L) + "\n"
+    print(f"  report.txt {'reproduces byte for byte' if same else 'DIFFERS'}")
+    return 0 if same else 1
+
+
+def posthoc() -> int:
+    """D13's numbers that plan_v013.md did not pre-register. Not tests."""
+    dest = OUT / "posthoc.txt"
+    if dest.exists():
+        sys.exit(f"{dest} exists; it is written once")
+    read, acts = probe_reads(), labelled_acts()
+    images = {c.split("/")[0] for c in read}
+    L = ["RCP v0.13 probe: post hoc, NOT pre-registered (docs/deviations.md D13)",
+         "=" * 70, "\n1. Gap per wording (plan_v013.md pre-registers only the pooled gap)"]
+    for n in ("labels A", "labels B"):
+        E = contrasts(acts[n], images)
+        for w in WORDINGS:
+            K = contrasts({c: float(v[w]) for c, v in read.items()}, images)
+            m, lo, hi = ci95([K[i] - E[i] for i in sorted(images)])
+            L.append(f"  {n}, {w:<12}: G = {m:+.3f} [{lo:+.3f}, {hi:+.3f}]")
+    L.append("\n2. Plan escalates, per arm (v0.10 blind; the extractor and the two label sets)")
+    L.append(f"  {'arm':<12}" + "".join(f"{n:>12}" for n in acts))
+    for a in ARMS:
+        cs = [c for c in acts["extractor"] if c.endswith("/" + a)]
+        L.append(f"  {a:<12}" + "".join(f"{sum(s[c] for c in cs) / len(cs):>12.1%}"
+                                        for s in acts.values()))
+    sat = [c for c in read if c.split("/")[1] in SAT]
+    both = [c for c in sat if read[c]["probe_can"] and not read[c]["probe_short"]]
+    L.append(f"\n3. Satisfiable cells answering NO to both wordings: {len(both)}/{len(sat)}")
+    prose = {w: {key(r): r["prose"] for r in rows(OUT / f"{w}.jsonl")} for w in WORDINGS}
+    L.append("\n4. Five of those, drawn with seed {} (plan_v013.md §7: read to describe)"
+             .format(SEED))
+    for c in sorted(random.Random(SEED).sample(both, 5)):
+        L.append(f"  {c}")
+        for w in WORDINGS:
+            L.append(f"    {w:<12}: " + prose[w][c][:300].replace("\n", " | "))
     dest.write_text("\n".join(L) + "\n", encoding="utf-8")
     print("\n".join(L))
     return 0
@@ -281,9 +345,11 @@ def report() -> int:
 
 def main() -> int:
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
-    if cmd not in ("prepare", "power", "report"):
+    cmds = {"prepare": prepare, "power": power, "report": report, "check": check,
+            "posthoc": posthoc}
+    if cmd not in cmds:
         sys.exit(__doc__)
-    return {"prepare": prepare, "power": power, "report": report}[cmd]()
+    return cmds[cmd]()
 
 
 if __name__ == "__main__":

@@ -633,9 +633,16 @@ before the run; SLURM 51908, run `v013_probe`; `tools/probe_gap.py report` ->
   wording's NO lean lowers K and does not make the gap.
 - **ESCALATE check:** of the 36 extractor-positive blind cells, A confirms 10 and
   B 8; of 36 sampled negatives, each finds 1. So most extractor ESCALATE flags
-  are not escalations, and v0.10's per-arm ESCALATE rates
-  (`results/rep_blind/report.txt` §5) overstate it. Missed escalations among the
-  404 unsampled negatives are not corrected (plan_v013.md §9).
+  are not escalations. With labels, the plan escalates on 0.0 / 0.9 / 2.7 /
+  6.4 % (A) and 0.0 / 0.0 / 2.7 / 5.5 % (B) of SURPLUS / SUFFICIENT / SCARCE /
+  INFEASIBLE, against the extractor's 5.5 / 5.5 / 9.1 / 12.7 %
+  (`results/rep_blind/report.txt` §5). v0.10's ESCALATE rates, P6 and AR on the
+  unsatisfiable arms (which is ESCALATE there) are overstated; v0.10's
+  pre-registered numbers are not recomputed. Missed escalations among the 404
+  unsampled negatives are not corrected (plan_v013.md §9).
+- Post hoc numbers above: `tools/probe_gap.py posthoc` ->
+  `results/v013_probe/posthoc.txt`. `probe_gap.py check` rebuilds `report.txt`
+  byte for byte.
 
 Reading: the planner sees the shortfall when asked and does not act on it in the
 plan. Next lever is task structure (plan_v013.md §8), which is Track E.
