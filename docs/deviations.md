@@ -647,6 +647,67 @@ before the run; SLURM 51908, run `v013_probe`; `tools/probe_gap.py report` ->
 Reading: the planner sees the shortfall when asked and does not act on it in the
 plan. Next lever is task structure (plan_v013.md §8), which is Track E.
 
+## D14. Closing the v0.10 record (2026-10-19; post hoc, no GPU)
+
+`tools/d14.py report` -> `results/d14/report.txt`, from frozen outputs only;
+`d14.py check` rebuilds every D14 output byte for byte. Nothing here is a test.
+It replaces the review's [new] numbers (`docs/review_2026-10-19.md`), whose
+ledger-size split was tie-biased.
+
+- **P4′ reading.** §9.2 supports P4′ only if the 90 % CI lies inside ±δ; §9.1's
+  "refuted" and the report's NOT ESTABLISHED name the same outcome. A decline
+  larger than δ is not shown either: no CI below is wholly under −δ.
+- **Checked ESCALATE** (`cal/v013` labels on their 72 cells; other cells keep the
+  extractor's flag). AR on SCARCE / INFEASIBLE 2.7 / 6.4 % (A), 2.7 / 5.5 % (B),
+  against 9.1 / 12.7 %. P4′ D = −0.254 [−0.329, −0.178] (A), −0.262 [−0.336,
+  −0.188] (B): not established. P1′ +0.041 [+0.010, +0.072] (A), [+0.012,
+  +0.070] (B). P6 (ESCALATE on satisfiable ledgers) 0.0 / 0.9 % (A), 0 / 0 (B).
+  Of 36 sampled negatives 1 escalates (95 % ≤ 14.5 %); if the 178 unchecked
+  unsatisfiable negatives escalated at that rate D would rise by 0.027, at
+  14.5 % by 0.139.
+- **P2 MDE** (§9.4 "to be entered"; §12.2 gate 1 never closed). n = 110, exact
+  one-sided .05, power .80: 0.015 against π = 0. The extractor flags OVERCOMMIT
+  on 5 of 16 held-out satisfiable plans the D11 labels clear (95 % ≤ 58.7 %;
+  misses 1 of 32); against that bound the MDE is 0.705, not §9.4's guessed
+  0.07–0.11. Observed 76.4 % [67.3, 83.9] lies above 58.7 %, so OVERCOMMIT at
+  SUFFICIENT is not all extractor error.
+- **Asset count** (§7.2, §9.2; pre-specified, never run). Mean ledger 18.6 /
+  13.0 / 7.9 / 6.0 assets by arm. RESOURCE-VALID falls with size within an arm
+  (SURPLUS 41.4 % at ≤ 18 assets, 15.4 % above; SUFFICIENT 24.6 % at ≤ 12, 13.2 %
+  above), and SURPLUS beats SUFFICIENT at equal size (12–14: 50.0 vs 12.5 %;
+  15–17: 37.5 vs 7.7 %; 18–20: 26.5 vs 10.0 %). Size runs against the arm trend,
+  so it does not explain the decline.
+- **Other pre-specified rows** (§5.1, §9.2): OVERCOMMIT ∧ ¬REDUCE 40–45 % in every
+  arm, ∧ REDUCE 22 / 36 / 46 / 45 %, but REDUCE agrees with held-out labels on
+  only 64/96 (A) and 65/96 (B). Co-occurrence and casualty state are in the
+  report; capsized has the lowest AR in every arm (0–10.5 %).
+- **Post hoc.** Looped or truncated plans: AR 11 % vs 38 % in SURPLUS, 31 % vs
+  5 % in SCARCE (n = 16). The D10 "asks for more" regex matches 52–61 % of plans
+  in every arm and both conditions; it does not separate the arms and is not
+  validated.
+- **v0.13 by wording** (from D13's posthoc): G = +0.241 [+0.164, +0.318] for
+  `can`, whose CI crosses the 0.2 margin, and +0.818 [+0.759, +0.877] for
+  `short`. Only the pooled G was registered; it now carries both in its headline.
+- **Track E split** (§12.4 item 2; Track M's rates are frozen in
+  `runs/v010.json`). `d14.py split` -> `cal/track_e/split.csv`: 40 dev / 70 test
+  images, stratified on state (dev 15 aground, 7 capsized, 6 on_fire, 12
+  sunken), seed 20261019. Tune on dev only; report on test against Track M
+  recomputed on test.
+- **Human work, open.**
+  - §10.3 read: `d14.py read` -> `cal/d14/sheet.md`. It holds 40 blind v0.10 plans
+    on test images (10 per arm, shuffled; arm and verdicts withheld). Test images
+    keep the read away from the material Track E tunes on. Fill `cal/d14/read.csv`.
+    About a week later, `d14.py rerate` draws 15 for a blind re-read. `d14.py
+    human` writes `results/d14/human.txt`; its summary was fixed in code before
+    the read. The read is never used for tuning.
+  - Hand ESCALATE labels on the 72 `cal/v013` cells: `cal/v013/labels_human.csv`,
+    rule D2 in `cal/d11/LABELLING.md`. Do not open `labels_{a,b}.csv` or
+    extractor output first.
+- **Pre-registered, not done.** V2b, V4a, V4b and V6 (§4) are not in the
+  validator; each needs a reading the extractor does not make. DEGRADE needs an
+  open-vocabulary LLM read and was never built. P5's ablation was never run.
+  Replicates and sampling: one greedy draw per cell (open items).
+
 ## Provenance: run registry and no-overwrite guards (2026-10-09)
 
 `results/` is gitignored, so until now the 880 v0.10 plans and every report
@@ -665,7 +726,7 @@ each with a tag `run/<name>` on the commit that froze it: `v010` (56 files, jobs
 51566) and `d11_cal_r1`–`r3` (jobs 51565, 51580, 51619). Rules and layout:
 `runs/README.md`.
 
-*Where the numbers come from.* Each number in D8–D12 is printed by a script in
+*Where the numbers come from.* Each number in D8–D14 is printed by a script in
 the repo, run in the container from the repo root:
 - `rcp.report` (`results/rep_*/report.txt`): per-arm loops, branches and
   truncation, D9's sensitivity;
@@ -674,6 +735,7 @@ the repo, run in the container from the repo root:
 - `rcp.calibrate`: D11's scores, and `tools/flip_direction.py` their direction;
 - `tools/audit.py`: D10's hand reads (output only; the readings are above);
 - `tools/cited.py`: everything else, each line labelled with its entry.
+- `tools/probe_gap.py`: D13; `tools/d14.py`: D14.
 `tools/cases.py` draws the tex's case studies (seeded, rules fixed before reading).
 `tools/check_v010.py` replays the frozen v0.10 extraction byte for byte. Not
 re-derivable: D0–D5 (measured with the code of the time), job ids and crash
@@ -683,13 +745,9 @@ comparison with parser code since replaced).
 ## Open items (2026-10-14; order set 2026-10-19)
 
 **Next, in order** (why: `docs/review_2026-10-19.md` §4):
-1. **D14: close the record (no GPU).**
-   - Make the review's [new] numbers reproducible: the labelled P4′/P1′/P6 and the asset-count covariate.
-   - Say which reading of P4′'s refute rule governs.
-   - Put the per-wording G in the v0.13 headline.
-   - Fill in the P2 MDE and fix the README test counts.
-   - Do the §10.3 blind human read and hand-label the 72 `cal/v013` cells.
-   - Declare Track E's dev/test split.
+1. **D14: close the record (no GPU).** Computed and entered (D14). Still open:
+   the §10.3 blind human read and its re-rate, and hand labels on the 72
+   `cal/v013` cells.
 2. **v0.13b (`plan_v013b.md`, pre-registered, dev split only).** A plan with the computed shortfall stated in the prompt, a probe without the totals line, and more probe wordings, one of them not YES/NO.
 3. **v0.14 (Track E, test split).** Assess, then plan. Where the verdict comes from (the model's own or computed) is set by step 2's result.
 4. Then a second model and replicates.

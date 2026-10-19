@@ -167,7 +167,7 @@ The v0.13 knowing-doing probe is pre-registered separately in `plan_v013.md`.
 
 ```bash
 python -m rcp                              # Phase A gates: corpus + drift, controls, coverage, freeze
-python -m pytest tests/ -q                 # 328 tests
+python -m pytest tests/ -q                 # 357 tests
 python tools/simulate_delta.py             # the sec. 9.4 equivalence margin (delta = 0.20)
 python -m rcp.coverage                     # the §8.4 vocabulary gate on controls/gold_plans/
 python -m rcp.controls --out results/controls.json
@@ -343,7 +343,7 @@ arm is **dropped, not imputed** — imputing would put a guess inside the headli
 
 ## Status
 
-**Built and tested end to end.** 253 tests pass. The dry pipeline runs
+**Built and tested end to end.** 357 tests pass. The dry pipeline runs
 `mock_planner → extract → controls → coverage → report` with arm fidelity PASS and
 both non-negotiable controls PASS over all 440 cells.
 
@@ -389,7 +389,7 @@ data/                      the declared world — manifest + four JSON registrie
 prompts/                   planner halves, extractor prompts, the assertion audit
 rcp/                       the pipeline
 controls/                  hand-written material: gold plans, stimuli, provenance
-tests/                     206 tests
+tests/                     357 tests
 tools/                     manifest builder, mock planner
 jobs/                      SLURM scripts
 archive/                   earlier plan revisions, the rejected casualty-tree design
