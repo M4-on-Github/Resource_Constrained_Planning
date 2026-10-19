@@ -1,0 +1,161 @@
+row,escalate,notes
+T001,yes,borderline: step 6 unconditional request CRN-038 to supplement lift; no explicit shortfall stated
+T002,no,
+T003,no,
+T004,no,
+T005,yes,
+T006,no,environmental team request only in branch (if fuel tanks breached)
+T007,yes,
+T008,no,
+T009,yes,
+T010,no,
+T011,no,borderline: unconditional request for environmental monitoring team (auxiliary not capacity)
+T012,no,borderline: step 40 requests a dedicated tide gauge (auxiliary)
+T013,yes,
+T014,no,
+T015,no,
+T016,no,DIV-053/SVY-007 used for monitoring; no request for more resources
+T017,no,request only if needed; plan states requirement met
+T018,yes,
+T019,no,
+T020,yes,
+T021,yes,
+T022,yes,
+T023,no,
+T024,no,
+T025,no,
+T026,no,capacity looks short but plan never says so
+T027,no,
+T028,no,borderline: step 15 requests environmental risk assessment (auxiliary)
+T029,no,borderline: step 13 requests marine surveyor after refloat (auxiliary)
+T030,no,
+T031,yes,
+T032,no,
+T033,no,request only if required; plan says not needed
+T034,no,
+T035,yes,states current resources insufficient; request itself phrased with if
+T036,no,
+T037,yes,
+T038,yes,
+T039,yes,borderline: requests DWP-027/PMP-058/BRG-023 for additional capacity; shortfall implied
+T040,no,borderline: step 12 requests environmental response team for booms (auxiliary)
+T041,no,
+T042,yes,
+T043,yes,
+T044,yes,
+T045,no,
+T046,no,
+T047,yes,
+T048,no,
+T049,no,
+T050,no,
+T051,no,
+T052,no,lightering only if refloat fails
+T053,yes,
+T054,yes,
+T055,no,
+T056,yes,
+T057,yes,
+T058,yes,borderline: step 3 unconditional request RCB-049 to supplement capacity
+T059,yes,
+T060,yes,borderline: step 4 unconditional request WB-018 to supplement pull; tide gauge request auxiliary; step 8 conditional
+T061,yes,
+T062,yes,
+T063,yes,
+T064,no,
+T065,no,borderline: step 25 requests environmental assessment team after operation (auxiliary)
+T066,yes,borderline: step 10 says despite the shortfall in available capacity while claiming requirement met
+T067,yes,
+T068,no,
+T069,no,
+T070,no,borderline: current assets insufficient stated only inside branch If refloat remains impossible
+T071,no,
+T072,no,requests only in branches
+T073,no,borderline: DWP-057 requested now but purpose is a branch (if 1900 m3/h is insufficient)
+T074,no,
+T075,yes,step 7 unconditional request PMP-015; step 9 says on-scene assets cannot meet requirement
+T076,no,request only if deadline not met
+T077,no,
+T078,yes,
+T079,no,request only if needed
+T080,no,
+T081,no,
+T082,yes,
+T083,no,
+T084,yes,
+T085,yes,step 12 states 3951 t insufficient for 7900 t and requests more lift
+T086,yes,step 7 unconditional request for extra fireboats/pumps; step 10 says resources insufficient
+T087,yes,borderline: step 5 unconditional request PMP-025/PMP-024 to maximize capacity; no explicit shortfall
+T088,no,
+T089,no,borderline: step 10 requests naval architect/salvage specialist after refloat (auxiliary)
+T090,no,
+T091,no,
+T092,yes,requests more tugs; notes 4.8 h deadline cannot be met
+T093,no,borderline: TUG-045 requested as standby after refloat; plan claims requirement exceeded
+T094,no,
+T095,no,
+T096,no,
+T097,no,
+T098,yes,step 2 unconditional request for additional tugs over 150 t
+T099,no,borderline: WIN-015 called only asset beyond window that can contribute; shortfall implied not stated
+T100,no,
+T101,yes,states 420 t insufficient for 950 t; requests more AHTs
+T102,no,
+T103,no,
+T104,no,borderline: AHT-007 at T+23 h to meet 1100 t after the 5.0 h window implies shortfall but never stated or requested
+T105,yes,step 11 states fleet cannot meet 186200 t.m and requests more assets
+T106,yes,step 5 unconditional request for assets over 75 t to meet 120 t
+T107,no,
+T108,no,request only if lightering needed; says assets sufficient
+T109,no,request only if lift remains insufficient
+T110,no,
+T111,no,
+T112,no,
+T113,no,request only if further lightering needed
+T114,no,BG-017 request only if still aground after T+6.9 h
+T115,no,borderline: many unconditional requests for auxiliary teams (hazmat/salvage team/naval architect/fire safety officer) but no capacity shortfall; core requests branched
+T116,no,borderline: fleet cannot meet deadline stated only inside failure branch step 9
+T117,no,
+T118,no,
+T119,yes,step 9 states resources insufficient and requests assets beyond ledger
+T120,no,request only if not refloated in 2.5 h
+T121,no,requests only in branches
+T122,no,
+T123,no,
+T124,no,
+T125,yes,step 6 states 390 t vs 1500 t and escalates
+T126,no,
+T127,yes,step 10 states 7000 t vs 27100 t and requests more heavy lift
+T128,no,borderline: fleet cannot meet 150 t stated only inside state branches (capsized/sunken/fire)
+T129,no,
+T130,yes,step 7 states fleet cannot meet 70 t and requests more lift
+T131,no,
+T132,no,
+T133,no,
+T134,no,
+T135,no,
+T136,yes,step 11 states fleet cannot meet 17500 t and requests more lift
+T137,no,
+T138,no,
+T139,no,request only if not righted within 16.9 h
+T140,no,
+T141,yes,steps 2/4/10 state 362 t falls short of 880 t and request more tugs
+T142,no,step 10 requests cargo inventory (information not resources)
+T143,yes,steps 10 and 20 request more resources; fleet cannot meet 189300 t.m
+T144,no,
+T145,no,
+T146,yes,borderline: step 12 unconditional request HLB-011 for additional lift after window closes; no explicit shortfall
+T147,no,
+T148,no,
+T149,yes,step 10 states fleet cannot meet 340 t and requests more assets
+T150,no,
+T151,yes,step 6 unconditional request PMP-058 and more pumps; 50 m3/h vs 100 m3/h target
+T152,no,
+T153,yes,borderline: step 5 unconditional request WIN-006/WIN-042/WIN-054 to supplement righting moment; shortfall implied
+T154,no,
+T155,no,
+T156,yes,step 7 states resources insufficient for 7900 t and requests more lift
+T157,no,
+T158,no,environmental teams only in branch (if hazardous materials detected)
+T159,no,
+T160,no,
