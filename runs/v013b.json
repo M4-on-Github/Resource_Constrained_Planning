@@ -1,0 +1,353 @@
+{
+  "archive": "/data/mmyatmau/rcp_archive/v013b",
+  "files": [
+    {
+      "bytes": 858,
+      "lines": 1,
+      "path": "results/v013b/ex_told_plan/env.jsonl",
+      "sha256": "ad6c16065b82df8b04dd903e84fe3f200a90b4c4c362c8ccac972b947cfd5873"
+    },
+    {
+      "bytes": 289380,
+      "lines": 160,
+      "path": "results/v013b/ex_told_plan/extracted.jsonl",
+      "sha256": "984a21080412a5e86e306249c8b1aa8a30d6bbf75d4f54b860d04ff5962516de"
+    },
+    {
+      "bytes": 983,
+      "lines": 1,
+      "path": "results/v013b/no_totals_probe_can.env.jsonl",
+      "sha256": "24585312552a2a6f543fc9e1aeab6cd671f8772cddbc3a55113618ca2fb84ec5"
+    },
+    {
+      "bytes": 99469,
+      "lines": 160,
+      "path": "results/v013b/no_totals_probe_can.jsonl",
+      "sha256": "1752a8fd0b70124197643f126bfe2dfb45c3b62c7b27e39e6cf58a12b2c4018a"
+    },
+    {
+      "bytes": 985,
+      "lines": 1,
+      "path": "results/v013b/no_totals_probe_short.env.jsonl",
+      "sha256": "5a2cbe21f6a9417ea8e9dcd8aeca74be6c1b6f86beba2d6f461c5782d34fc7b2"
+    },
+    {
+      "bytes": 97443,
+      "lines": 160,
+      "path": "results/v013b/no_totals_probe_short.jsonl",
+      "sha256": "7bd264689267a4364268f4420d67a19c98b72b0589e0f74e33e249e1d1f5d949"
+    },
+    {
+      "bytes": 982,
+      "lines": 1,
+      "path": "results/v013b/probe_enough.env.jsonl",
+      "sha256": "c1f51a5e46578e70cb9ad2ffa22a6621aff06958dc2aa20dc3f400ba28a7b408"
+    },
+    {
+      "bytes": 87365,
+      "lines": 160,
+      "path": "results/v013b/probe_enough.jsonl",
+      "sha256": "10b0fe8087c58a669499dc97b22183c8835a54d844a84c8ccb222b03d76e4171"
+    },
+    {
+      "bytes": 985,
+      "lines": 1,
+      "path": "results/v013b/probe_feasible.env.jsonl",
+      "sha256": "27b5a602ad4ea2242418abefbcb879e7b885eceb2fca2ca9495a08a930fe8e78"
+    },
+    {
+      "bytes": 87338,
+      "lines": 160,
+      "path": "results/v013b/probe_feasible.jsonl",
+      "sha256": "c4d72ab53e0c2179a8b4f2209e3d2e5b12662bb143a05b24cc46a11d8780e7a3"
+    },
+    {
+      "bytes": 983,
+      "lines": 1,
+      "path": "results/v013b/probe_request.env.jsonl",
+      "sha256": "95a9ad0fdd5bbc4f17e5a056a1e011a7ca14891b3009a454de46d13fb7b6c823"
+    },
+    {
+      "bytes": 98124,
+      "lines": 160,
+      "path": "results/v013b/probe_request.jsonl",
+      "sha256": "a43355ee344dea08764fb78548edda402d5686f8d470952372900066aa74b88e"
+    },
+    {
+      "bytes": 976,
+      "lines": 1,
+      "path": "results/v013b/repro_plan.env.jsonl",
+      "sha256": "c1b33c418cbacb55ff98bd444bf910cc454278c013858bb106b4601b12b78597"
+    },
+    {
+      "bytes": 54581,
+      "lines": 12,
+      "path": "results/v013b/repro_plan.jsonl",
+      "sha256": "17fc5f84a95f995a010b6c979a4c401dc5619d40821d6ab0a16f129a1ec89106"
+    },
+    {
+      "bytes": 979,
+      "lines": 1,
+      "path": "results/v013b/repro_probe_can.env.jsonl",
+      "sha256": "980967a1842912b29ddc57b4005d4966d96c084515cb65569f14b856ae32875d"
+    },
+    {
+      "bytes": 6918,
+      "lines": 12,
+      "path": "results/v013b/repro_probe_can.jsonl",
+      "sha256": "d838caa65cab3fbb670a76ec12a0d48fdad1eed5c28f4ceae3cd47e8b8314124"
+    },
+    {
+      "bytes": 981,
+      "lines": 1,
+      "path": "results/v013b/repro_probe_short.env.jsonl",
+      "sha256": "91f7b2ea2ef74f7f69d1ff99cdddad4365084c084507f7c27283c31ac618da1e"
+    },
+    {
+      "bytes": 6556,
+      "lines": 12,
+      "path": "results/v013b/repro_probe_short.jsonl",
+      "sha256": "b3c80235512ec4453508a2610eeeee0c1c59d719756d1ed8fb31a84a8a9b4cae"
+    },
+    {
+      "bytes": 975,
+      "lines": 1,
+      "path": "results/v013b/told_plan.env.jsonl",
+      "sha256": "6e4d8381c6fa39e4efe425bc9842e5f6f207f1afad00a634e61b0cd614813743"
+    },
+    {
+      "bytes": 677674,
+      "lines": 160,
+      "path": "results/v013b/told_plan.jsonl",
+      "sha256": "6e23196e5a5cf6bbd2b8971f174dc4e685356d2165be2c988f79eb2c66ec4beb"
+    }
+  ],
+  "frozen_utc": "2026-10-19T23:02:02+00:00",
+  "jobs": [
+    {
+      "container_sha256": "856149e58cc76ac14a67876b67f56d3a3a3c85b27a5f5ad2c122864a56e5687a",
+      "git_commit": "6750b22666cec47767a8f90fdb76d8a3bdff836c",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "input": "results/v013b/told_plan.jsonl",
+      "max_tokens": 768,
+      "record": "results/v013b/ex_told_plan/env.jsonl",
+      "run_id": "slurm-52971",
+      "stage": "extract",
+      "time_utc": "2026-10-19T19:12:52+00:00",
+      "weights_sha256": "676057b9b569b43f547be020d86c37202f94523acdd72def14b0cc4007fa6bd7"
+    },
+    {
+      "arms": [
+        "SURPLUS",
+        "SUFFICIENT",
+        "SCARCE",
+        "INFEASIBLE"
+      ],
+      "condition": "no_totals",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "c7b9ff1a091511cbe6a0af2b8598b0664965651da01c8ce1d42752218e2e25c3",
+      "git_commit": "6750b22666cec47767a8f90fdb76d8a3bdff836c",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 64,
+      "record": "results/v013b/no_totals_probe_can.env.jsonl",
+      "run_id": "slurm-52970",
+      "stage": "plan",
+      "task": "probe_can",
+      "time_utc": "2026-10-19T16:43:15+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SURPLUS",
+        "SUFFICIENT",
+        "SCARCE",
+        "INFEASIBLE"
+      ],
+      "condition": "no_totals",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "7bb8db3bb7b08c5986839d456efbe9eec72fe7d8df0d5592fc4a60becf950ac0",
+      "git_commit": "6750b22666cec47767a8f90fdb76d8a3bdff836c",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 64,
+      "record": "results/v013b/no_totals_probe_short.env.jsonl",
+      "run_id": "slurm-52970",
+      "stage": "plan",
+      "task": "probe_short",
+      "time_utc": "2026-10-19T16:51:58+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SURPLUS",
+        "SUFFICIENT",
+        "SCARCE",
+        "INFEASIBLE"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "9a98a15b78650c77a2ecd445abe5629b7c4d3ce1fe4e384e9e0a471cc639471b",
+      "git_commit": "6750b22666cec47767a8f90fdb76d8a3bdff836c",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 64,
+      "record": "results/v013b/probe_enough.env.jsonl",
+      "run_id": "slurm-52970",
+      "stage": "plan",
+      "task": "probe_enough",
+      "time_utc": "2026-10-19T17:00:46+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SURPLUS",
+        "SUFFICIENT",
+        "SCARCE",
+        "INFEASIBLE"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "b535ff3218d1a37a7e9ca71318477aad997968974e3ee5e0b7bb2b5315fb6c57",
+      "git_commit": "6750b22666cec47767a8f90fdb76d8a3bdff836c",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 256,
+      "record": "results/v013b/probe_feasible.env.jsonl",
+      "run_id": "slurm-52970",
+      "stage": "plan",
+      "task": "probe_feasible",
+      "time_utc": "2026-10-19T17:15:40+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SURPLUS",
+        "SUFFICIENT",
+        "SCARCE",
+        "INFEASIBLE"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "9e72733f1487682cd83547fa34a55d02074ab016ee1171a8a92b1c9feec9f85b",
+      "git_commit": "6750b22666cec47767a8f90fdb76d8a3bdff836c",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 64,
+      "record": "results/v013b/probe_request.env.jsonl",
+      "run_id": "slurm-52970",
+      "stage": "plan",
+      "task": "probe_request",
+      "time_utc": "2026-10-19T17:07:29+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SURPLUS",
+        "SUFFICIENT",
+        "SCARCE",
+        "INFEASIBLE"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "22e9bbd8233453c71516fc07c7a901dc2df6968103a1676208b443189f063a2e",
+      "git_commit": "6750b22666cec47767a8f90fdb76d8a3bdff836c",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 2048,
+      "record": "results/v013b/repro_plan.env.jsonl",
+      "run_id": "slurm-52970",
+      "stage": "plan",
+      "task": "plan",
+      "time_utc": "2026-10-19T16:26:25+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SURPLUS",
+        "SUFFICIENT",
+        "SCARCE",
+        "INFEASIBLE"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "11493b333d2e1f34c7bd23512b5be142cd59671eea9407ca31ea07336bab10fc",
+      "git_commit": "6750b22666cec47767a8f90fdb76d8a3bdff836c",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 64,
+      "record": "results/v013b/repro_probe_can.env.jsonl",
+      "run_id": "slurm-52970",
+      "stage": "plan",
+      "task": "probe_can",
+      "time_utc": "2026-10-19T16:41:46+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SURPLUS",
+        "SUFFICIENT",
+        "SCARCE",
+        "INFEASIBLE"
+      ],
+      "condition": "blind",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "77dfbd63a109e7a94cec5ccc8ee1bc31dcd7555c9b90bef2712b6ee427f17d30",
+      "git_commit": "6750b22666cec47767a8f90fdb76d8a3bdff836c",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 64,
+      "record": "results/v013b/repro_probe_short.env.jsonl",
+      "run_id": "slurm-52970",
+      "stage": "plan",
+      "task": "probe_short",
+      "time_utc": "2026-10-19T16:42:33+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    },
+    {
+      "arms": [
+        "SURPLUS",
+        "SUFFICIENT",
+        "SCARCE",
+        "INFEASIBLE"
+      ],
+      "condition": "told",
+      "container_sha256": "9220e31a6d30a007a0dbdbff0a472aba86326c8aa37bbdfd5b458bed875b87af",
+      "corpus_sha256": "1154d352fd3306c520e2f6d4a47f9f83c67e7ed79b24acc950b8676f2a21e364",
+      "domain_digest": "a5059cda403c5b58c78873b1c5eeec120857e62bda022f4a95918d00b1d150b7",
+      "git_commit": "6750b22666cec47767a8f90fdb76d8a3bdff836c",
+      "git_dirty": "no",
+      "gpu": "NVIDIA RTX 6000 Ada Generation",
+      "host": "pleiades-0-23",
+      "max_tokens": 2048,
+      "record": "results/v013b/told_plan.env.jsonl",
+      "run_id": "slurm-52970",
+      "stage": "plan",
+      "task": "plan",
+      "time_utc": "2026-10-19T17:22:15+00:00",
+      "weights_sha256": "fc9166f3c99109dc3905ee8023c7deaa1d783467af6fd741b10b69c034b267f0"
+    }
+  ],
+  "name": "v013b",
+  "purpose": "plan_v013b.md: repro cells, probes, told plans (SLURM 52970), told extraction (SLURM 52971)",
+  "repo_commit_at_freeze": null,
+  "repo_dirty_at_freeze": null
+}
