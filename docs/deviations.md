@@ -680,7 +680,19 @@ re-derivable: D0–D5 (measured with the code of the time), job ids and crash
 details (SLURM logs), and D10's "the same result as before for all 940" (a
 comparison with parser code since replaced).
 
-## Open items (2026-10-14)
+## Open items (2026-10-14; order set 2026-10-19)
+
+**Next, in order** (why: `docs/review_2026-10-19.md` §4):
+1. **D14: close the record (no GPU).**
+   - Make the review's [new] numbers reproducible: the labelled P4′/P1′/P6 and the asset-count covariate.
+   - Say which reading of P4′'s refute rule governs.
+   - Put the per-wording G in the v0.13 headline.
+   - Fill in the P2 MDE and fix the README test counts.
+   - Do the §10.3 blind human read and hand-label the 72 `cal/v013` cells.
+   - Declare Track E's dev/test split.
+2. **v0.13b (`plan_v013b.md`, pre-registered, dev split only).** A plan with the computed shortfall stated in the prompt, a probe without the totals line, and more probe wordings, one of them not YES/NO.
+3. **v0.14 (Track E, test split).** Assess, then plan. Where the verdict comes from (the model's own or computed) is set by step 2's result.
+4. Then a second model and replicates.
 
 Not done. Each would be a new version or a new study, never a change to v0.10.
 - **Dtype** (D10): bfloat16 looped less than float16 (roughly 23 % against 33 %,
