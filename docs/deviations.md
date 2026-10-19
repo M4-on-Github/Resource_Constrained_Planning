@@ -680,7 +680,8 @@ ledger-size split was tie-biased.
 - **Other pre-specified rows** (§5.1, §9.2): OVERCOMMIT ∧ ¬REDUCE 40–45 % in every
   arm, ∧ REDUCE 22 / 36 / 46 / 45 %, but REDUCE agrees with held-out labels on
   only 64/96 (A) and 65/96 (B). Co-occurrence and casualty state are in the
-  report; capsized has the lowest AR in every arm (0–10.5 %).
+  report; capsized has the lowest AR in three arms (0–5.3 %); in SUFFICIENT
+  on_fire is lower (6.2 vs 10.5 %).
 - **Post hoc.** Looped or truncated plans: AR 11 % vs 38 % in SURPLUS, 31 % vs
   5 % in SCARCE (n = 16). The D10 "asks for more" regex matches 52–61 % of plans
   in every arm and both conditions; it does not separate the arms and is not
