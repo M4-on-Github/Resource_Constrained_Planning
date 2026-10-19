@@ -709,6 +709,38 @@ ledger-size split was tie-biased.
   open-vocabulary LLM read and was never built. P5's ablation was never run.
   Replicates and sampling: one greedy draw per cell (open items).
 
+## D15. v0.13b: told verdict, no totals, more wordings (`plan_v013b.md`) — ACTS WHEN TOLD
+
+Pre-registered at `v0.13b-prereg`; SLURM 52970 (plans, probes) and 52971
+(extraction), run `v013b`, tag `run/v013b`; labels `cal/v013b/labels_{a,b}.csv`
+committed before the report; `tools/v013b.py report` ->
+`results/v013b/report.txt` (`check` rebuilds it byte for byte). Dev split only,
+40 images × 4 arms.
+
+- Reproduction 36/36 byte-identical; every file passes §5.
+- **Primary:** E_told = +0.713 [+0.597, +0.828] (A), +0.675 [+0.556, +0.794]
+  (B) -> **ACTS WHEN TOLD**, both label sets. v0.10 blind on the same images:
+  +0.025 (A), +0.037 (B). Told plans escalate on 0 / 0 / 62.5 / 80.0 % (A) of
+  SURPLUS / SUFFICIENT / SCARCE / INFEASIBLE. A and B agree on 157/160; the 3
+  differ where a shortfall is stated only inside a failure branch (A yes, B no).
+- **Says it; the plan changes little.** 58 % (A) / 59 % (B) of escalating
+  unsatisfiable told plans still commit an asset arriving after the deadline.
+  V2a passes go from 32.5 to 42.5 % (SCARCE) and 20.0 to 32.5 % (INFEASIBLE). On
+  SUFFICIENT, V3 passes fall from 82.5 to 65.0 %. Descriptive, no test.
+- **No totals: COLLAPSES.** Pooled ΔK = −0.438 [−0.536, −0.339]. Without the
+  totals line, `can` answers NO on 97.5 % of satisfiable cells (K +0.025);
+  `short` K = +0.375.
+- **Verdict source: SELF-VERDICT in `probe_feasible`.** K = +0.987 [+0.961,
+  +1.013], "short" on 1.3 % of satisfiable cells, 158/160 parsed (the 2 put
+  FEASIBLE on the sentence's line). `enough` K = +0.762; `request` K = +0.138
+  (YES on 86 % of satisfiable cells).
+
+Reading (plan_v013b.md §8): the planner acts on a verdict it is given, and
+reaches a reliable one when it states the numbers first, but only by reading the
+printed totals line. v0.14: the `feasible` verdict first, totals printed, then
+the plan; report V2a beside ESCALATE, since stating the verdict did not stop late
+assets being committed.
+
 ## Provenance: run registry and no-overwrite guards (2026-10-09)
 
 `results/` is gitignored, so until now the 880 v0.10 plans and every report
@@ -749,8 +781,10 @@ comparison with parser code since replaced).
 1. **D14: close the record (no GPU).** Computed and entered (D14). Still open:
    the §10.3 blind human read and its re-rate, and hand labels on the 72
    `cal/v013` cells.
-2. **v0.13b (`plan_v013b.md`, pre-registered, dev split only).** A plan with the computed shortfall stated in the prompt, a probe without the totals line, and more probe wordings, one of them not YES/NO.
-3. **v0.14 (Track E, test split).** Assess, then plan. Where the verdict comes from (the model's own or computed) is set by step 2's result.
+2. **v0.13b: done (D15).** Acts when told; the `feasible` wording's own
+   verdict is reliable, but only with the totals line printed.
+3. **v0.14 (Track E, test split).** Assess, then plan: the `feasible` verdict
+   first (totals printed), then the plan (D15).
 4. Then a second model and replicates.
 
 Not done. Each would be a new version or a new study, never a change to v0.10.
