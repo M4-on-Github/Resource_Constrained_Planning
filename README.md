@@ -157,7 +157,8 @@ python -m rcp.corpus --write    # (re)freeze — before inference only
 ```
 
 All post-v0.9 changes and why: `docs/deviations.md`.
-The v0.13 knowing-doing probe is pre-registered separately in `plan_v013.md`.
+The v0.13 knowing-doing probe is pre-registered separately in `plan_v013.md`, and
+its dev-split follow-up v0.13b in `plan_v013b.md`.
 
 ---
 
@@ -167,7 +168,7 @@ The v0.13 knowing-doing probe is pre-registered separately in `plan_v013.md`.
 
 ```bash
 python -m rcp                              # Phase A gates: corpus + drift, controls, coverage, freeze
-python -m pytest tests/ -q                 # 357 tests
+python -m pytest tests/ -q                 # 382 tests
 python tools/simulate_delta.py             # the sec. 9.4 equivalence margin (delta = 0.20)
 python -m rcp.coverage                     # the §8.4 vocabulary gate on controls/gold_plans/
 python -m rcp.controls --out results/controls.json
@@ -343,7 +344,7 @@ arm is **dropped, not imputed** — imputing would put a guess inside the headli
 
 ## Status
 
-**Built and tested end to end.** 357 tests pass. The dry pipeline runs
+**Built and tested end to end.** 382 tests pass. The dry pipeline runs
 `mock_planner → extract → controls → coverage → report` with arm fidelity PASS and
 both non-negotiable controls PASS over all 440 cells.
 
@@ -385,11 +386,12 @@ validator (Q14).
 ```
 plan.md                    the specification
 plan_v013.md               v0.13 probe pre-registration (builds on plan.md)
+plan_v013b.md              v0.13b told / no-totals / wordings pre-registration (dev split)
 data/                      the declared world — manifest + four JSON registries
 prompts/                   planner halves, extractor prompts, the assertion audit
 rcp/                       the pipeline
 controls/                  hand-written material: gold plans, stimuli, provenance
-tests/                     357 tests
+tests/                     382 tests
 tools/                     manifest builder, mock planner
 jobs/                      SLURM scripts
 archive/                   earlier plan revisions, the rejected casualty-tree design

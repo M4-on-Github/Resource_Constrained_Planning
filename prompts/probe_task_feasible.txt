@@ -1,0 +1,4 @@
+Answer one question about the casualty and the resource ledger above.
+Can the requirement be met by the deadline using only the assets in the ledger?
+First state, in one sentence, the combined capability on scene by the deadline and the required amount, each with its unit.
+Then write FEASIBLE or INFEASIBLE alone on the last line.

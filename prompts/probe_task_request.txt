@@ -1,0 +1,3 @@
+Answer one question about the casualty and the resource ledger above.
+Should more resources be requested before the work begins?
+Answer YES or NO on the first line, then give the reason in one sentence.

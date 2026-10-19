@@ -48,23 +48,32 @@ PROMPTS = pathlib.Path(__file__).resolve().parent.parent / "prompts"
 DOMAIN_FILE = PROMPTS / "planner_domain.txt"
 TASK_FILE = PROMPTS / "planner_task.txt"
 
-#: The disclosure conditions. `blind` is the pre-existing prompt: the domain block
-#: offers all four casualty states as "may be", so the planner must read the state
-#: off the image. `stated` adds one line naming it and changes nothing else.
+#: The scenario-block conditions. `blind` is the pre-existing prompt: the domain
+#: block offers all four casualty states as "may be", so the planner must read the
+#: state off the image. `stated` adds one line naming it and changes nothing else.
 #:
 #: Deliberately ONE line. Pruning the other three states' guidance would be the
 #: natural-looking version and is wrong: it varies disclosure and prompt length
 #: together, so a difference could not be attributed to either. Both conditions
 #: read the identical domain block, identical task block, identical ledger.
-CONDITIONS = ("blind", "stated")
+#:
+#: `told` and `no_totals` are plan_v013b.md's, and both are `blind` otherwise.
+#: `told` adds one computed line giving the verdict (`told_line`); it breaks the
+#: §7.2 trap on purpose, to measure acting when knowing is supplied. `no_totals`
+#: drops the totals line, so a probe must add up the ledger itself.
+CONDITIONS = ("blind", "stated", "told", "no_totals")
 
-#: The task block. `plan` is the study's (v0.10). The two `probe_*` tasks are
-#: plan_v013.md's knowing probe: the same domain and scenario blocks, with the
-#: plan request replaced by one YES/NO question, asked in two polarities.
+#: The task block. `plan` is the study's (v0.10). `probe_can` and `probe_short`
+#: are plan_v013.md's knowing probe: the same domain and scenario blocks, with the
+#: plan request replaced by one YES/NO question, asked in two polarities. The other
+#: three are plan_v013b.md's added wordings.
 TASKS = {
     "plan": TASK_FILE,
     "probe_can": PROMPTS / "probe_task_can.txt",
     "probe_short": PROMPTS / "probe_task_short.txt",
+    "probe_enough": PROMPTS / "probe_task_enough.txt",
+    "probe_request": PROMPTS / "probe_task_request.txt",
+    "probe_feasible": PROMPTS / "probe_task_feasible.txt",
 }
 
 #: Rendered form of `Scenario.casualty_state`. Only `on_fire` needs help; the
@@ -160,6 +169,31 @@ def ledger_table(sc: Scenario) -> str:
     return "\n".join(out)
 
 
+def on_scene(sc: Scenario) -> float:
+    """Capability on the requirement's scalar that arrives by its deadline."""
+    req = sc.requirement
+    return sum(a.capability for a in sc.ledger
+               if a.counts_toward(req) and a.arrives_by(req.deadline_h))
+
+
+def told_line(sc: Scenario) -> str:
+    """plan_v013b.md's computed verdict, for the `told` condition only.
+
+    It states what `totals_line` leaves open: the requirement is met from the
+    on-scene total, and whether that total is enough. `ledger_satisfiable` is
+    `on_scene >= amount` in v1 (`validator.ledger_satisfiable`), and
+    `test_v013b.py` asserts this line agrees with it on every cell.
+    """
+    req = sc.requirement
+    have = on_scene(sc)
+    gap = f"{_num(abs(have - req.amount))} {req.unit}"
+    head = (f"Computed check: on scene within {_fmt_hours(req.deadline_h)} h, "
+            f"{_num(have)} {req.unit} against {_num(req.amount)} {req.unit} required")
+    if have >= req.amount:
+        return f"{head}, {gap} to spare. The requirement can be met by the deadline."
+    return f"{head}, short by {gap}. The requirement cannot be met by the deadline."
+
+
 def totals_line(sc: Scenario) -> str:
     """§7.2's pre-aggregation: what is assemblable by the deadline, and the fleet.
 
@@ -168,8 +202,7 @@ def totals_line(sc: Scenario) -> str:
     (Rule 2).
     """
     req = sc.requirement
-    by_deadline = sum(a.capability for a in sc.ledger
-                      if a.counts_toward(req) and a.arrives_by(req.deadline_h))
+    by_deadline = on_scene(sc)
     fleet = sum(a.capability for a in sc.ledger if a.counts_toward(req))
     latest = max((a.eta_hours for a in sc.ledger if a.counts_toward(req)), default=0.0)
     scalar = req.quantity.replace("_", " ")
@@ -196,6 +229,10 @@ def scenario_block(sc: Scenario, condition: str = "blind") -> str:
         # constrains what may hint at the *resource* answer, and the casualty state
         # is orthogonal to whether the ledger covers the requirement.
         disclosure = [f"Confirmed casualty state: {state}.", ""]
+    # plan_v013b.md: `no_totals` drops the totals line with its blank, `told`
+    # adds the computed verdict directly under it. Both are `blind` otherwise.
+    totals = [] if condition == "no_totals" else ["", totals_line(sc)]
+    told = [told_line(sc)] if condition == "told" else []
     return "\n".join([
         *disclosure,
         f"Time now: {sc.t0}.",
@@ -208,8 +245,8 @@ def scenario_block(sc: Scenario, condition: str = "blind") -> str:
         "Resource ledger:",
         "",
         ledger_table(sc),
-        "",
-        totals_line(sc),
+        *totals,
+        *told,
     ])
 
 
