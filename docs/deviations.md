@@ -638,8 +638,9 @@ before the run; SLURM 51908, run `v013_probe`; `tools/probe_gap.py report` ->
   INFEASIBLE, against the extractor's 5.5 / 5.5 / 9.1 / 12.7 %
   (`results/rep_blind/report.txt` §5). v0.10's ESCALATE rates, P6 and AR on the
   unsatisfiable arms (which is ESCALATE there) are overstated; v0.10's
-  pre-registered numbers are not recomputed. Missed escalations among the 404
-  unsampled negatives are not corrected (plan_v013.md §9).
+  pre-registered numbers are not recomputed. Missed escalations among the 368
+  unsampled negatives are not corrected (plan_v013.md §9). (This said 404, an
+  arithmetic slip: 440 − 36 positives − 36 sampled. Corrected 2026-10-21.)
 - Post hoc numbers above: `tools/probe_gap.py posthoc` ->
   `results/v013_probe/posthoc.txt`. `probe_gap.py check` rebuilds `report.txt`
   byte for byte.
@@ -714,32 +715,48 @@ ledger-size split was tie-biased.
 Pre-registered at `v0.13b-prereg`; SLURM 52970 (plans, probes) and 52971
 (extraction), run `v013b`, tag `run/v013b`; labels `cal/v013b/labels_{a,b}.csv`
 committed before the report; `tools/v013b.py report` ->
-`results/v013b/report.txt` (`check` rebuilds it byte for byte). Dev split only,
-40 images × 4 arms.
+`results/v013b/report.txt`. Dev split only, 40 images × 4 arms.
 
 - Reproduction 36/36 byte-identical; every file passes §5.
 - **Primary:** E_told = +0.713 [+0.597, +0.828] (A), +0.675 [+0.556, +0.794]
   (B) -> **ACTS WHEN TOLD**, both label sets. v0.10 blind on the same images:
   +0.025 (A), +0.037 (B). Told plans escalate on 0 / 0 / 62.5 / 80.0 % (A) of
-  SURPLUS / SUFFICIENT / SCARCE / INFEASIBLE. A and B agree on 157/160; the 3
-  differ where a shortfall is stated only inside a failure branch (A yes, B no).
-- **Says it; the plan changes little.** 58 % (A) / 59 % (B) of escalating
-  unsatisfiable told plans still commit an asset arriving after the deadline.
-  V2a passes go from 32.5 to 42.5 % (SCARCE) and 20.0 to 32.5 % (INFEASIBLE). On
-  SUFFICIENT, V3 passes fall from 82.5 to 65.0 %. Descriptive, no test.
+  SURPLUS / SUFFICIENT / SCARCE / INFEASIBLE. A and B agree on 157/160. The 3
+  differ where the shortfall is stated only inside a branch (A yes, B no).
+- **Late assets are still committed.** Of the escalating unsatisfiable told
+  plans, 33/57 (A) and 32/54 (B) still commit an asset that arrives after the
+  deadline (fail V2a). V2a passes rise from 32.5 to 42.5 % (SCARCE) and from
+  20.0 to 32.5 % (INFEASIBLE). On SUFFICIENT, V3 passes fall from 82.5 to
+  65.0 %; the cause is not known. Descriptive, no test. On unsatisfiable arms
+  OVERCOMMIT is 1 − ESCALATE by definition (V3 always fails), so it adds nothing.
 - **No totals: COLLAPSES.** Pooled ΔK = −0.438 [−0.536, −0.339]. Without the
   totals line, `can` answers NO on 97.5 % of satisfiable cells (K +0.025);
-  `short` K = +0.375.
+  `short` K = +0.375. Both wordings answer first. `feasible` was not run
+  without totals.
 - **Verdict source: SELF-VERDICT in `probe_feasible`.** K = +0.987 [+0.961,
-  +1.013], "short" on 1.3 % of satisfiable cells, 158/160 parsed (the 2 put
-  FEASIBLE on the sentence's line). `enough` K = +0.762; `request` K = +0.138
-  (YES on 86 % of satisfiable cells).
+  +1.013] (an upper bound above 1 is the normal approximation's), "short" on
+  1.3 % of satisfiable cells, 158/160 parsed (the 2 put FEASIBLE on the
+  sentence's line). `enough` K = +0.762; `request` K = +0.138 (YES on 86 % of
+  satisfiable cells).
+- **Post hoc** (`v013b.py posthoc` -> `results/v013b/posthoc.txt`, with the
+  157/160 label agreement above; not tests). 148/160 `feasible` answers quote
+  the on-scene figure the totals line prints. On 43 of 80 satisfiable cells the
+  stated comparison is wrong ("1023 t, which is less than the required 340 t",
+  AGR-00017/SURPLUS); 41 of these still end FEASIBLE. All 80 unsatisfiable
+  answers say "less than" and end INFEASIBLE.
 
-Reading (plan_v013b.md §8): the planner acts on a verdict it is given, and
-reaches a reliable one when it states the numbers first, but only by reading the
-printed totals line. v0.14: the `feasible` verdict first, totals printed, then
-the plan; report V2a beside ESCALATE, since stating the verdict did not stop late
-assets being committed.
+`v013b.py check` rebuilds `report.txt` and `posthoc.txt` byte for byte.
+
+Reading (plan_v013b.md §8): the planner acts on a verdict it is given. The
+`feasible` wording's own verdict is reliable with the totals line printed. It
+was not run without that line, and the answer-first wordings collapse without
+it. Its stated comparison is often wrong, so the verdict line is reliable, not
+the reasoning. v0.14: totals printed, the `feasible` verdict first, then the
+plan. Report V2a beside ESCALATE, because escalating plans still commit late
+assets.
+
+(Revised 2026-10-21 in a write-up check: post hoc added. The first reading said
+the verdict comes only from the printed totals line; that was not tested.)
 
 ## Provenance: run registry and no-overwrite guards (2026-10-09)
 
@@ -759,7 +776,7 @@ each with a tag `run/<name>` on the commit that froze it: `v010` (56 files, jobs
 51566) and `d11_cal_r1`–`r3` (jobs 51565, 51580, 51619). Rules and layout:
 `runs/README.md`.
 
-*Where the numbers come from.* Each number in D8–D14 is printed by a script in
+*Where the numbers come from.* Each number in D8–D15 is printed by a script in
 the repo, run in the container from the repo root:
 - `rcp.report` (`results/rep_*/report.txt`): per-arm loops, branches and
   truncation, D9's sensitivity;
@@ -768,7 +785,7 @@ the repo, run in the container from the repo root:
 - `rcp.calibrate`: D11's scores, and `tools/flip_direction.py` their direction;
 - `tools/audit.py`: D10's hand reads (output only; the readings are above);
 - `tools/cited.py`: everything else, each line labelled with its entry.
-- `tools/probe_gap.py`: D13; `tools/d14.py`: D14.
+- `tools/probe_gap.py`: D13; `tools/d14.py`: D14; `tools/v013b.py`: D15.
 `tools/cases.py` draws the tex's case studies (seeded, rules fixed before reading).
 `tools/check_v010.py` replays the frozen v0.10 extraction byte for byte. Not
 re-derivable: D0–D5 (measured with the code of the time), job ids and crash
@@ -781,8 +798,8 @@ comparison with parser code since replaced).
 1. **D14: close the record (no GPU).** Computed and entered (D14). Still open:
    the §10.3 blind human read and its re-rate, and hand labels on the 72
    `cal/v013` cells.
-2. **v0.13b: done (D15).** Acts when told; the `feasible` wording's own
-   verdict is reliable, but only with the totals line printed.
+2. **v0.13b: done (D15).** Acts when told. The `feasible` wording's own
+   verdict is reliable with the totals line printed; it was not run without it.
 3. **v0.14 (Track E, test split).** Assess, then plan: the `feasible` verdict
    first (totals printed), then the plan (D15).
 4. Then a second model and replicates.

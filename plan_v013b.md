@@ -162,4 +162,11 @@ go in `cal/v013b/labels_a.csv` and `labels_b.csv` and are committed before
 Append-only and dated. Anything changed after the tag goes here, with what
 motivated it.
 
-*None yet.*
+- **2026-10-21, labeller material (found in the write-up check; no number
+  changes).** §3 says each labeller gets `cal/d11/LABELLING.md`. As in v0.13,
+  each got four of its paragraphs verbatim: "One row per plan…", "Lists are…",
+  the escalate rule (D2) and "notes". Each also got the sheet and a blank copy of
+  `labels_blank.csv`. Only `escalate` was labelled.
+- **2026-10-21, post hoc command.** `tools/v013b.py` gained `posthoc` after the
+  report (`docs/deviations.md` D15). `report` is unchanged; `check` now also
+  rebuilds `results/v013b/posthoc.txt`.

@@ -4,27 +4,31 @@
     python3 tools/v013b.py power     # plan_v013b.md §6's power figures
     python3 tools/v013b.py sheet     # cal/v013b/: ESCALATE sheet for the told plans (after the run)
     python3 tools/v013b.py report    # results/v013b/report.txt (written once)
-    python3 tools/v013b.py check     # rebuild the report, compare byte for byte
+    python3 tools/v013b.py check     # rebuild report.txt and posthoc.txt, compare byte for byte
+    python3 tools/v013b.py posthoc   # results/v013b/posthoc.txt: numbers not pre-registered
 
 Only Track E dev images (cal/track_e/split.csv) are run or read; the report halts
-on a row from any other image. `prepare`, `sheet` and `report` refuse to
-overwrite. Run in the container from the repo root.
+on a row from any other image. `prepare`, `sheet`, `report` and `posthoc` refuse
+to overwrite. Run in the container from the repo root.
 """
 
 from __future__ import annotations
 
+import collections
 import csv
 import pathlib
 import random
+import re
 import statistics
 import sys
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
+from rcp import corpus  # noqa: E402
 from rcp.calibrate import _bool  # noqa: E402
 from rcp.probe import knows, says_short  # noqa: E402
-from rcp.render import domain_digest  # noqa: E402
+from rcp.render import _num, domain_digest, on_scene  # noqa: E402
 from rcp.report import ARMS, Z95  # noqa: E402
 from tools.d14 import extracted, in_arm, key, pct, rows, verdicts  # noqa: E402
 from tools.probe_gap import ci95, contrasts, labelled_acts, scored_text  # noqa: E402
@@ -393,16 +397,72 @@ def report() -> int:
 
 
 def check() -> int:
-    L, _ = build_report()
-    same = (OUT / "report.txt").read_text(encoding="utf-8") == "\n".join(L) + "\n"
-    print(f"  report.txt {'reproduces byte for byte' if same else 'DIFFERS'}")
-    return 0 if same else 1
+    differ = 0
+    for name, build in (("report.txt", lambda: build_report()[0]),
+                        ("posthoc.txt", build_posthoc)):
+        same = (OUT / name).read_text(encoding="utf-8") == "\n".join(build()) + "\n"
+        print(f"  {name} {'reproduces byte for byte' if same else 'DIFFERS'}")
+        differ += not same
+    return 1 if differ else 0
+
+
+# --------------------------------------------------------------------------- #
+# post hoc (D15): read after the report, not tests
+# --------------------------------------------------------------------------- #
+
+_COMPARES = re.compile(r"less than|exceed", re.IGNORECASE)
+
+
+def build_posthoc() -> list[str]:
+    """How `probe_feasible` reaches its verdict. plan_v013b.md did not pre-register it."""
+    devset, sc = set(dev_images()), corpus.by_key()
+    rs = [r for r in rows(probe_file("blind", "probe_feasible")) if r["scenario_id"] in devset]
+    L = ["RCP v0.13b: post hoc, NOT pre-registered (docs/deviations.md D15)", "=" * 65,
+         f"\n`probe_feasible` on the {len(rs)} dev cells: how the stated comparison reads",
+         "  (the first 'less than' or 'exceed' in the answer), against the verdict line"]
+    tally, quotes = collections.Counter(), collections.Counter()
+    verdict_name = {True: "INFEASIBLE", False: "FEASIBLE", None: "unparsed"}
+    for r in rs:
+        s = sc[key(r)]
+        m = _COMPARES.search(r["prose"])
+        said = m.group(0).lower() if m else "neither"
+        sat = "satisfiable" if s.ledger_satisfiable else "unsatisfiable"
+        tally[sat, said, verdict_name[says_short(r["prose"], "probe_feasible")]] += 1
+        printed = re.escape(_num(on_scene(s)))
+        quotes[sat] += bool(re.search(rf"(?<![\d.]){printed}(?![\d])", r["prose"]))
+    L.append(f"  {'ledger':<15}{'says':<12}{'verdict':<12}{'cells':>6}")
+    for (sat, said, v), n in sorted(tally.items()):
+        L.append(f"  {sat:<15}{said:<12}{v:<12}{n:>6}")
+    L.append("\n  answers quoting the on-scene figure the totals line prints:")
+    for sat in ("satisfiable", "unsatisfiable"):
+        n = sum(v for k, v in tally.items() if k[0] == sat)
+        L.append(f"  {sat:<15}{quotes[sat]:>4}/{n}")
+
+    a, b = told_labels("a"), told_labels("b")
+    rowof = {f"{r['scenario_id']}/{r['arm']}": r["row"]
+             for r in csv.DictReader((CAL / "key.csv").open(encoding="utf-8"))}
+    differ = sorted((rowof[c], c) for c in a if a[c] != b[c])
+    L.append(f"\nTold-plan ESCALATE labels: A and B agree on {len(a) - len(differ)}/{len(a)}"
+             " (notes in cal/v013b/labels_{a,b}.csv)")
+    L += [f"  {row} {c}: A {'yes' if a[c] else 'no'}, B {'yes' if b[c] else 'no'}"
+          for row, c in differ]
+    return L
+
+
+def posthoc() -> int:
+    dest = OUT / "posthoc.txt"
+    if dest.exists():
+        sys.exit(f"{dest} exists; it is written once")
+    L = build_posthoc()
+    dest.write_text("\n".join(L) + "\n", encoding="utf-8")
+    print("\n".join(L))
+    return 0
 
 
 def main() -> int:
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
     cmds = {"prepare": prepare, "power": power, "sheet": sheet, "report": report,
-            "check": check}
+            "check": check, "posthoc": posthoc}
     if cmd not in cmds:
         sys.exit(__doc__)
     return cmds[cmd]()
